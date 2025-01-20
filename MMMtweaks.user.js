@@ -7,7 +7,6 @@
 // @match        https://app.monarchmoney.com/*
 // @run-at       document-idle
 // @resource     MMMCSS https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-styles.css
-// @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/MMMtweaks.user.js
 // @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/MMM-custom-settings.js
 // @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-helpers-graphql.js
 // @grant        GM_addStyle
