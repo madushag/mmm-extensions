@@ -106,33 +106,18 @@ async function showCustomSettingsModal() {
 
                         <div class="mmm-setting-item">
                             <div class="mmm-setting-item-content">
-                                <label>Show Split Button for Shared Account Transactions</label>
+                                <label>Show Split Button for Unsplit Transactions</label>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="show-split-button-for-shared-account" />
+                                    <input type="checkbox" id="show-split-button-for-unsplit-transactions" />
                                     <span class="slider"></span>
                                 </label>
                             </div>
                             <div class="mmm-modal-body-text-small">
-                                Show the split button for transactions from the shared account
+                                Show the split button for transactions from the unsplit account
                             </div>
                         </div>
 
-                        <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content">
-                                <label>Show Unsplit Button for Split Transactions</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="show-unsplit-button-for-split-transactions" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Show the unsplit button for split transactions
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-divider"></div>
-
-                        <div class="mmm-setting-item">
+                        <div class="mmm-setting-item" id="mmm-setting-item-show-split-button-on-all-accounts">
                             <div class="mmm-setting-item-content">
                                 <label>Show Split Button On All Accounts</label>
                                 <label class="toggle-switch">
@@ -165,6 +150,21 @@ async function showCustomSettingsModal() {
                             </div>
                             <div class="mmm-modal-body-text-small">
                                 The account that you want to show the split button for
+                            </div>
+                        </div>
+
+                        <div class="mmm-setting-divider"></div>
+
+                        <div class="mmm-setting-item">
+                            <div class="mmm-setting-item-content">
+                                <label>Show Unsplit Button for Split Transactions</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="show-unsplit-button-for-split-transactions" />
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mmm-modal-body-text-small">
+                                Show the unsplit button for split transactions
                             </div>
                         </div>
 
@@ -227,37 +227,36 @@ async function showCustomSettingsModal() {
 
         // Load settings when opening modal
         const settings = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
-        document.getElementById('show-split-button-for-shared-account').checked = settings.showSplitButtonForSharedAccount || false;
+        document.getElementById('show-split-button-for-unsplit-transactions').checked = settings.showSplitButtonForUnsplitTransactions || false;
         document.getElementById('split-with-partner-tag-name').value = settings.splitWithPartnerTagName || '';
         document.getElementById('split-with-partner-account-id').value = settings.splitWithPartnerAccountId || '';
         document.getElementById('show-split-button-on-all-accounts').checked = settings.showSplitButtonOnAllAccounts || false;
         document.getElementById('show-unsplit-button-for-split-transactions').checked = settings.showUnsplitButtonForSplitTransactions || false;
         document.getElementById('tag-split-transactions').checked = settings.tagSplitTransactions || false;
 
+        const showSplitButtonOnAllAccountsSettingItem = document.getElementById('mmm-setting-item-show-split-button-on-all-accounts');
         const splitWithPartnerAccountIdSettingItem = document.getElementById('mmm-setting-item-split-with-partner-account-id');
-        if (document.getElementById('show-split-button-on-all-accounts').checked) {
-            splitWithPartnerAccountIdSettingItem.style.maxHeight = '0';
-            splitWithPartnerAccountIdSettingItem.style.opacity = '0';
-            splitWithPartnerAccountIdSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
-            splitWithPartnerAccountIdSettingItem.style.display = 'none';
-        } else {
-            splitWithPartnerAccountIdSettingItem.style.display = 'block';
-            splitWithPartnerAccountIdSettingItem.style.maxHeight = splitWithPartnerAccountIdSettingItem.scrollHeight + 'px'; // Set to full height for animation
-            splitWithPartnerAccountIdSettingItem.style.opacity = '1';
-            splitWithPartnerAccountIdSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
+        const splitWithPartnerTagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name');
+
+        if (!document.getElementById('show-split-button-for-unsplit-transactions').checked) {
+            hideSettingItem(showSplitButtonOnAllAccountsSettingItem);
+            hideSettingItem(splitWithPartnerAccountIdSettingItem);
+        }
+        else {
+            showSettingItem(showSplitButtonOnAllAccountsSettingItem);
+            showSettingItem(splitWithPartnerAccountIdSettingItem);
         }
 
-        const splitWithPartnerTagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name');
-        if (!document.getElementById('tag-split-transactions').checked) {
-            splitWithPartnerTagSettingItem.style.maxHeight = '0';
-            splitWithPartnerTagSettingItem.style.opacity = '0';
-            splitWithPartnerTagSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
-            splitWithPartnerTagSettingItem.style.display = 'none';
+        if (document.getElementById('show-split-button-on-all-accounts').checked) {
+            hideSettingItem(splitWithPartnerAccountIdSettingItem);
         } else {
-            splitWithPartnerTagSettingItem.style.display = 'block';
-            splitWithPartnerTagSettingItem.style.maxHeight = splitWithPartnerTagSettingItem.scrollHeight + 'px'; // Set to full height for animation
-            splitWithPartnerTagSettingItem.style.opacity = '1';
-            splitWithPartnerTagSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
+            showSettingItem(splitWithPartnerAccountIdSettingItem);
+        }
+
+        if (!document.getElementById('tag-split-transactions').checked) {
+            hideSettingItem(splitWithPartnerTagSettingItem);
+        } else {
+            showSettingItem(splitWithPartnerTagSettingItem);
         }
 
     }, 10);
@@ -266,34 +265,37 @@ async function showCustomSettingsModal() {
 
     // Save settings on change
     modal.addEventListener('change', (e) => {
+
         const splitWithPartnerAccountIdSettingItem = document.getElementById('mmm-setting-item-split-with-partner-account-id');
-        if (document.getElementById('show-split-button-on-all-accounts').checked) {
-            splitWithPartnerAccountIdSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
-            splitWithPartnerAccountIdSettingItem.style.maxHeight = '0';
-            splitWithPartnerAccountIdSettingItem.style.opacity = '0';
-            setTimeout(() => splitWithPartnerAccountIdSettingItem.style.display = 'none', 500);
-        } else {
-            splitWithPartnerAccountIdSettingItem.style.display = 'block';
-            splitWithPartnerAccountIdSettingItem.style.maxHeight = splitWithPartnerAccountIdSettingItem.scrollHeight + 'px'; // Set to full height for animation
-            splitWithPartnerAccountIdSettingItem.style.opacity = '1';
-            setTimeout(() => splitWithPartnerAccountIdSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)', 500);
+        const showSplitButtonOnAllAccountsSettingItem = document.getElementById('mmm-setting-item-show-split-button-on-all-accounts');
+        const splitWithPartnerTagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name');
+
+        // Hide the show split button on all accounts setting item if the show split button for unsplit transactions setting item is not checked
+        if (!document.getElementById('show-split-button-for-unsplit-transactions').checked) {
+            hideSettingItem(showSplitButtonOnAllAccountsSettingItem);
+            hideSettingItem(splitWithPartnerAccountIdSettingItem);
+        }
+        else {
+            showSettingItem(showSplitButtonOnAllAccountsSettingItem);
+            showSettingItem(splitWithPartnerAccountIdSettingItem);
         }
 
-        const splitWithPartnerTagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name');
-        if (!document.getElementById('tag-split-transactions').checked) {
-            splitWithPartnerTagSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
-            splitWithPartnerTagSettingItem.style.maxHeight = '0';
-            splitWithPartnerTagSettingItem.style.opacity = '0';
-            setTimeout(() => splitWithPartnerTagSettingItem.style.display = 'none', 500);
+        // Hide the split with partner account id setting item if the show split button on all accounts setting item is checked
+        if (document.getElementById('show-split-button-on-all-accounts').checked) {
+            hideSettingItem(splitWithPartnerAccountIdSettingItem);
         } else {
-            splitWithPartnerTagSettingItem.style.display = 'block';
-            splitWithPartnerTagSettingItem.style.maxHeight = splitWithPartnerTagSettingItem.scrollHeight + 'px'; // Set to full height for animation
-            splitWithPartnerTagSettingItem.style.opacity = '1';
-            setTimeout(() => splitWithPartnerTagSettingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)', 500);
+            showSettingItem(splitWithPartnerAccountIdSettingItem);
+        }
+
+        // Hide the split with partner tag setting item if the tag split transactions setting item is not checked
+        if (!document.getElementById('tag-split-transactions').checked) {
+            hideSettingItem(splitWithPartnerTagSettingItem);
+        } else {
+            showSettingItem(splitWithPartnerTagSettingItem);
         }   
 
         const settings = {
-            showSplitButtonForSharedAccount: document.getElementById('show-split-button-for-shared-account').checked,
+            showSplitButtonForUnsplitTransactions: document.getElementById('show-split-button-for-unsplit-transactions').checked,
             splitWithPartnerTagName: document.getElementById('split-with-partner-tag-name').value,
             splitWithPartnerAccountId: document.getElementById('split-with-partner-account-id').value,
             showSplitButtonOnAllAccounts: document.getElementById('show-split-button-on-all-accounts').checked,
@@ -321,6 +323,21 @@ async function showCustomSettingsModal() {
             }, 500); // Match the transition-slow timing
         }
     });
+}
+
+
+function hideSettingItem(settingItem) {
+    settingItem.style.maxHeight = '0';
+    settingItem.style.opacity = '0';
+    settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
+    setTimeout(() => settingItem.style.display = 'none', 500);
+}
+
+function showSettingItem(settingItem) {
+    settingItem.style.display = 'block';
+    settingItem.style.maxHeight = settingItem.scrollHeight + 'px'; // Set to full height for animation
+    settingItem.style.opacity = '1';
+    setTimeout(() => settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)', 500);
 }
 
 function getConfigValue(key) {
