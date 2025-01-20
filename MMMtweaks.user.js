@@ -7,6 +7,7 @@
 // @match        https://app.monarchmoney.com/*
 // @run-at       document-idle
 // @resource     MMMCSS https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-styles.css
+// @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/MMMtweaks.user.js
 // @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/MMM-custom-settings.js
 // @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-helpers-graphql.js
 // @grant        GM_addStyle
@@ -66,7 +67,8 @@ async function onPageStructureChanged() {
 // Add two split buttons to the transaction row if it is not already present.
 function addSplitButtonsIfNeeded(row) {
     const transactionDetails = getTransactionDetailsForRow(row);
-    const showSplitButtonForSharedAccount = customSettings.getConfigValue("showSplitButtonForSharedAccount");
+    const showSplitButtonForUnsplitTransactions = customSettings.getConfigValue("showSplitButtonForUnsplitTransactions");
+    const showSplitButtonOnAllAccounts = customSettings.getConfigValue("showSplitButtonOnAllAccounts");
 
     // Check if the split button is already present
     if (!row.querySelector(".monarch-helper-button-split")) {
@@ -76,7 +78,7 @@ function addSplitButtonsIfNeeded(row) {
         // If the transaction is not already split, add the buttons
         if (!isAlreadySplit) {
             // Check if this is a transaction that should be split and the split button should be shown
-            if (showSplitButtonForSharedAccount && transactionDetails.accountId === SPLIT_WITH_PARTNER_ACCOUNT_ID) {
+            if (showSplitButtonForUnsplitTransactions && (showSplitButtonOnAllAccounts || transactionDetails.accountId === SPLIT_WITH_PARTNER_ACCOUNT_ID)) {
                
                 const buttonContainer = document.createElement("div");
                 buttonContainer.className = "button-container";
