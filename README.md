@@ -1,6 +1,6 @@
-# Maddy's Monarch Money Tweaks
+# Maddy's Monarch Money Extensions
 
-Maddy's Monarch Money Tweaks is a collection of tweaks for the Monarch Money app that I have found useful. This is my first attempt at creating a Tampermonkey script and I had a lot of fun working on it. 
+Maddy's Monarch Money Extensions is a collection of customizations for the Monarch Money app that I have found useful. This is my first attempt at creating a Tampermonkey script and I had a lot of fun working on it. 
 
 Hope you enjoy using it!
 
@@ -17,10 +17,10 @@ Hope you enjoy using it!
 
 ## Installation
 
-1. You will need to install the Tampermonkey extension for your browser to use these tweaks. Install the Tampermonkey extension from the [Tampermonkey](https://www.tampermonkey.net/) website.
+1. You will need to install the Tampermonkey extension for your browser to use these extensions. Install the Tampermonkey extension from the [Tampermonkey](https://www.tampermonkey.net/) website.
 2. [Enable Developer](https://www.tampermonkey.net/faq.php?locale=en#Q209) mode for this extension to work with user scripts.
-3. Now [click here](https://github.com/madushag/mmm-tweaks/raw/refs/heads/main/MMMtweaks.user.js) to install the latest version of the MMM Tweaks script.
-4. Once installed, refresh your browser on the Monarch Money website, navigate to the Settings page and configure the tweaks to your liking.
+3. Now [click here](https://github.com/madushag/mmm-extensions/raw/refs/heads/main/mmm-exts.user.js) to install the latest version of the MMM Extensions script.
+4. Once installed, refresh your browser on the Monarch Money website, navigate to the Settings page and configure the settings to your liking.
 
 ![alt text](image-2.png)
 ![alt text](image-3.png)
@@ -34,5 +34,3 @@ Hope you enjoy using it!
 * Be able to post split transactions to payment sharing apps like Splitwise.
 * Eliminate dependency on Tampermonkey and publish as native browser extension.
 * Other feature requests from the community.
-
-
