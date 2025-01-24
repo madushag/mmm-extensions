@@ -1,18 +1,3 @@
-// ==UserScript==
-// @name         Maddy's Monarch Money Extensions
-// @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Enhance Monarch Money functionality
-// @author       Maddy G.
-// @match        https://app.monarchmoney.com/*
-// @run-at       document-idle
-// @resource     MMMCSS https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-styles.css
-// @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/MMM-custom-settings.js
-// @require      https://raw.githubusercontent.com/madushag/mmm-tweaks/refs/heads/main/mmm-helpers-graphql.js
-// @grant        GM_addStyle
-// @grant        GM_getResourceText
-// ==/UserScript==
-
 const version = "1.0";
 const GRAPHQL_URL = "https://api.monarchmoney.com/graphql"; // Ensure this is defined
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
@@ -27,7 +12,6 @@ observer.observe(document, { childList: true, subtree: true });
 // Core logic to handle the split button
 async function onPageStructureChanged() {
 
-    injectStylesIfNeeded();
     SPLIT_WITH_PARTNER_TAG_NAME = customSettings.getConfigValue("splitWithPartnerTagName");
     SPLIT_WITH_PARTNER_ACCOUNT_ID = customSettings.getConfigValue("splitWithPartnerAccountId");
 
@@ -58,6 +42,7 @@ async function onPageStructureChanged() {
         }, 1000);
     }
 
+    // Add the custom settings link to the settings page
     if (window.location.href.includes("settings/")) {
         customSettings.addCustomSettingsLink();
     }
@@ -65,6 +50,10 @@ async function onPageStructureChanged() {
 
 // Add two split buttons to the transaction row if it is not already present.
 function addSplitButtonsIfNeeded(row) {
+
+    // get div with class name starting with "Flex-sc-165659u-0"
+    const transactionRowContainer = document.querySelector('div[class*="TransactionsList__TransactionRowContainer-sc-19oqvl6-5 dlebUq"]');
+
     const transactionDetails = getTransactionDetailsForRow(row);
     const showSplitButtonForUnsplitTransactions = customSettings.getConfigValue("showSplitButtonForUnsplitTransactions");
     const showSplitButtonOnAllAccounts = customSettings.getConfigValue("showSplitButtonOnAllAccounts");
@@ -234,25 +223,12 @@ async function addTagsToSplitTransactions(transactionDetails, splitTransactions)
 
 //---------------------- HELPER FUNCTIONS ----------------------
 
-// Inject the styles if they are not already injected
-function injectStylesIfNeeded() {
-    if (!document.getElementById("mmm-toast-styles")) {
-        const css = GM_getResourceText("MMMCSS");
-        const style = document.createElement("style");
-        style.id = "mmm-toast-styles";
-        style.textContent = css;
-        document.head.appendChild(style);
-    }
-}
-
 // Return attributes of a transaction for a given row by accessing the React fiber of the drawer toggle
 function getTransactionDetailsForRow(row) {
     let result = null;
     const drawerToggle = row.querySelector("button.fs-drawer-toggle");
     if (drawerToggle) {
-        const key = Object.keys(drawerToggle).find((key) =>
-            key.startsWith("__reactFiber$")
-        );
+        const key = Object.keys(drawerToggle).find((key) => key.startsWith("__reactFiber$"));
         if (key) {
             let fiber = drawerToggle[key];
             while (fiber) {

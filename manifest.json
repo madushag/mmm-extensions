@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Maddy's Monarch Money Extension",
+  "version": "1.0",
+  "description": "Enhance Monarch Money functionality",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://app.monarchmoney.com/*"],
+      "world": "MAIN",
+      "js": [
+        "scripts/custom-settings.js",
+        "scripts/helpers-graphql.js",
+        "scripts/content.js"
+      ],
+      "css": [
+        "styles/styles.css"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "scripts/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Maddy's Monarch Money Extension"
+  }
+}
