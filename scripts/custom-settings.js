@@ -22,7 +22,7 @@ function addCustomSettingsLink() {
         const customSettingsDivElement = document.createElement('div');
         customSettingsDivElement.id = 'mmm-custom-settings-div';
         if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
-        customSettingsDivElement.innerHTML = 'MMM Tweaks Custom Settings';
+        customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
 
          // Show modal on click. Do a fade in transition
          customSettingsDivElement.addEventListener('click', () => {
@@ -98,7 +98,7 @@ async function showCustomSettingsModal() {
         <div id="mmm-settings-modal" class="mmm-modal mmm-modal-${theme}">
             <div class="mmm-modal-content mmm-modal-content-${theme}">
                 <div class="mmm-modal-header mmm-modal-header-${theme}">
-                    <h2>MMM Tweaks Custom Settings</h2>
+                    <h2>MMM Extensions Custom Settings</h2>
                     <span class="mmm-modal-close mmm-modal-close-${theme}">&times;</span>
                 </div>
                 <div class="mmm-modal-body mmm-modal-body-${theme}">
