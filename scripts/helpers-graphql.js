@@ -40,7 +40,6 @@ function callGraphQL(data) {
 // Helper function to get the GraphQL token from localStorage
 const getGraphqlToken = () => JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user).token;
 
-
 // Hide a split transaction
 async function hideSplitTransaction(transactionId) {
     const json = {

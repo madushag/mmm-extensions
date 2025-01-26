@@ -50,7 +50,6 @@ function addCustomSettingsLink() {
     }
 }
 
-
 // Function to detect the current theme
 function detectTheme() {
     const pageRoot = document.querySelector('div[class^="Page__Root"]');
@@ -82,6 +81,18 @@ function applyModalStyles(modal) {
 
 // Function to create the custom settings modal
 async function showCustomSettingsModal() {
+
+    // Send an analytics event to Google Analytics, with extension ID as first parameter
+    // chrome.runtime.sendMessage(
+    //     chrome.runtime.id, 
+    //     { 
+    //         type: 'analyticsEvent', 
+    //         eventName: 'mmm_custom_settings_modal_opened', 
+    //         params: { id: 'mmm-custom-settings-modal' } 
+    //     }
+    // );
+
+
     let theme = detectTheme();
 
     var allTags = await graphqlHelpers.getTagIdWithTagName();
@@ -302,7 +313,7 @@ async function showCustomSettingsModal() {
             showUnsplitButtonForSplitTransactions: document.getElementById('show-unsplit-button-for-split-transactions').checked,
             tagSplitTransactions: document.getElementById('tag-split-transactions').checked
         };
-        localStorage.setItem('mmm-settings', JSON.stringify(settings));
+        setConfigValue('mmm-settings', settings);
     });
 
     // Close modal on X click with fade out
@@ -325,7 +336,7 @@ async function showCustomSettingsModal() {
     });
 }
 
-
+// Function to hide a setting item
 function hideSettingItem(settingItem) {
     settingItem.style.maxHeight = '0';
     settingItem.style.opacity = '0';
@@ -333,6 +344,7 @@ function hideSettingItem(settingItem) {
     setTimeout(() => settingItem.style.display = 'none', 500);
 }
 
+// Function to show a setting item
 function showSettingItem(settingItem) {
     settingItem.style.display = 'block';
     settingItem.style.maxHeight = settingItem.scrollHeight + 'px'; // Set to full height for animation
@@ -340,9 +352,17 @@ function showSettingItem(settingItem) {
     setTimeout(() => settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)', 500);
 }
 
+// Function to get a config value
 function getConfigValue(key) {
     const settings = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
     return settings[key] || '';
+}
+
+// Function to set a config value
+function setConfigValue(key, value) {
+    const settings = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
+    settings[key] = value;
+    localStorage.setItem('mmm-settings', JSON.stringify(settings));
 }
 
 // Export the functions to be used in the main script
@@ -350,5 +370,6 @@ window.customSettings = {
     addCustomSettingsLink: addCustomSettingsLink,
     applyModalStyles: applyModalStyles,
     showCustomSettingsModal: showCustomSettingsModal,
-    getConfigValue: getConfigValue
+    getConfigValue: getConfigValue,
+    setConfigValue: setConfigValue
 }   

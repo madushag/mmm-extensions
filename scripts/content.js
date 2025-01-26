@@ -3,6 +3,7 @@ const GRAPHQL_URL = "https://api.monarchmoney.com/graphql"; // Ensure this is de
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
 let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
 
+
 // Create a MutationObserver to watch for changes in the URL
 const observer = new MutationObserver(() => onPageStructureChanged());
 

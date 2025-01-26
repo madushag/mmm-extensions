@@ -3,31 +3,32 @@
   "name": "Maddy's Monarch Money Extension",
   "version": "0.0.0.1",
   "description": "Enhances Monarch Money with custom settings and features",
-  "permissions": [
-    "storage",
-    "scripting",
-    "tabs",
-    "activeTab"
-  ],
   "content_scripts": [
     {
       "matches": ["https://app.monarchmoney.com/*"],
-      "world": "MAIN",
+      "world": "ISOLATED",
       "js": [
         "scripts/custom-settings.js",
         "scripts/helpers-graphql.js",
+        "scripts/helpers-ganalytics.js",
         "scripts/content.js"
       ],
       "css": [
-        "styles/styles.css"
+        "styles/mmm-ext-styles.css"
       ],
       "run_at": "document_end"
     }
   ],
   "background": {
-    "service_worker": "scripts/service-worker.js",
+    "service_worker": "service-worker.js",
     "type": "module"
   },
+  "externally_connectable": {
+    "matches": ["https://app.monarchmoney.com/*"]
+  },
+  "permissions": [
+    "storage"
+  ],
   "icons": {
     "16": "icons/icon_16x16.png",
     "32": "icons/icon_32x32.png",
@@ -35,7 +36,8 @@
     "128": "icons/icon_128x128.png"
   },
   "action": {
-    "default_title": "Maddy's Monarch Money Extension"
+    "default_title": "Maddy's Monarch Money Extension",
+    "default_popup": "popup/popup.html"
   }
 }
 
