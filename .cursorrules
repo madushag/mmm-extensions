@@ -1,5 +1,6 @@
 You are an expert in Javascript and writing Chrome Extensions.
 Keep your responses concise and to the point.
+Dont remove any comments that are already in the code.
   
 Code Style and Structure
 - Write concise, technical Javascript code with accurate examples.
