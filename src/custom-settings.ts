@@ -1,5 +1,5 @@
-import type { CustomSettings } from "./types/entities/CustomSettings";
-import { getTagIdWithTagName, getAllAccountDetails } from "./helpers-graphql";
+import type { CustomSettings } from "./types/entities/CustomSettings.js";
+import { getTagIdWithTagName, getAllAccountDetails } from "./helper-graphql.js";
 
 
 const DEFAULT_SETTINGS: CustomSettings = {
@@ -12,70 +12,66 @@ const DEFAULT_SETTINGS: CustomSettings = {
     rememberNetWorthDuration: false
 };
 
-// Function to load the settings from local storage
-function loadSettings(): CustomSettings {
-    const stored = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
-    return { ...DEFAULT_SETTINGS, ...stored };
-}
+// Listen for the CustomEvent from the content script
+document.addEventListener('EXECUTE-CUSTOM-SETTINGS', (event) => {
+    // Bootstrap settings   
+    addCustomSettingsLink();
+});
 
-// Function to save the settings to local storage
-function saveSettings(settings: CustomSettings): void {
-    localStorage.setItem('mmm-settings', JSON.stringify(settings));
-}
 
 // Function to add the custom settings link
 function addCustomSettingsLink(): void {
-  
-    // Add custom settings section
-    const settingsContainer = document.querySelector('div[class*="Settings__SubNavCard"]')?.querySelector('div[class^="Menu"]');
+  // Add custom settings section
+	const settingsContainer = document.querySelector('div[class*="Settings__SubNavCard"]')?.querySelector('div[class^="Menu"]');
 
-    // Check if the settings container exists and if the custom settings link doesn't already exist
-    if (settingsContainer && !document.getElementById('mmm-custom-settings-anchor')) {
-        
-        // Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
-        // and add it to the custom settings link
-        const existingChildAnchorElementStyles = settingsContainer.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
-        const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
+	// Check if the settings container exists and if the custom settings link doesn't already exist
+	if (settingsContainer && !document.getElementById('mmm-custom-settings-anchor')) {
+		
+		// Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
+		// and add it to the custom settings link
+		const existingChildAnchorElementStyles = settingsContainer.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
+		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
 
-        // Add an anchor element to the settings container to contain the custom settings link
-        const customSettingsAnchorElement = document.createElement('a');
-        customSettingsAnchorElement.href = '#';
-        customSettingsAnchorElement.id = 'mmm-custom-settings-anchor';
-        if (existingChildAnchorElementStyles) customSettingsAnchorElement.className = existingChildAnchorElementStyles.className;
+		// Add an anchor element to the settings container to contain the custom settings link
+		const customSettingsAnchorElement = document.createElement('a');
+		customSettingsAnchorElement.href = '#';
+		customSettingsAnchorElement.id = 'mmm-custom-settings-anchor';
+		if (existingChildAnchorElementStyles) customSettingsAnchorElement.className = existingChildAnchorElementStyles.className;
 
-        // Create the custom setting div element and add it to the anchor element
-        const customSettingsDivElement = document.createElement('div');
-        customSettingsDivElement.id = 'mmm-custom-settings-div';
-        if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
-        customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
+		// Create the custom setting div element and add it to the anchor element
+		const customSettingsDivElement = document.createElement('div');
+		customSettingsDivElement.id = 'mmm-custom-settings-div';
+		if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
+		customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
 
-         // Show modal on click. Do a fade in transition
-         customSettingsDivElement.addEventListener('click', () => {
-            showCustomSettingsModal();
-        });
+		// Show modal on click. Do a fade in transition
+		customSettingsDivElement.addEventListener('click', () => {
+			showCustomSettingsModal();
+		});
 
-        // Add the custom settings link to the anchor element   
-        customSettingsAnchorElement.appendChild(customSettingsDivElement);
+		// Add the custom settings link to the anchor element   
+		customSettingsAnchorElement.appendChild(customSettingsDivElement);
 
-        // Add the anchor element to the settings container
-        settingsContainer.appendChild(customSettingsAnchorElement);
+		// Add the anchor element to the settings container
+		settingsContainer.appendChild(customSettingsAnchorElement);
 
-    }
+	}
 
-    // If the custom settings link already exists, re-apply the styles to match the current theme
-    else if (document.getElementById('mmm-custom-settings-anchor')) {
+	// If the custom settings link already exists, re-apply the styles to match the current theme
+	else if (document.getElementById('mmm-custom-settings-anchor')) {
 
-        // Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
-        // and add it to the custom settings link
-        const existingChildAnchorElementStyles = settingsContainer?.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
-        const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
+		// Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
+		// and add it to the custom settings link
+		const existingChildAnchorElementStyles = settingsContainer?.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
+		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
 
-        const anchorElement = document.getElementById('mmm-custom-settings-anchor') as HTMLAnchorElement;
-        const divElement = document.getElementById('mmm-custom-settings-div') as HTMLDivElement;
-        
-        if (existingChildAnchorElementStyles) anchorElement.className = existingChildAnchorElementStyles.className;
-        if (existingDivElementStyles) divElement.className = existingDivElementStyles.className;
-    }
+		const anchorElement = document.getElementById('mmm-custom-settings-anchor') as HTMLAnchorElement;
+		const divElement = document.getElementById('mmm-custom-settings-div') as HTMLDivElement;
+		
+		if (existingChildAnchorElementStyles) anchorElement.className = existingChildAnchorElementStyles.className;
+		if (existingDivElementStyles) divElement.className = existingDivElementStyles.className;
+	}
+    
 }
 
 // Function to create the custom settings modal
@@ -442,7 +438,16 @@ function showHideSettingItems(): void {
     }
 }   
 
+// Function to load the settings from local storage
+function loadSettings(): CustomSettings {
+    const stored = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
+    return { ...DEFAULT_SETTINGS, ...stored };
+}
 
+// Function to save the settings to local storage
+function saveSettings(settings: CustomSettings): void {
+    localStorage.setItem('mmm-settings', JSON.stringify(settings));
+}
 
 
 

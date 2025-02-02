@@ -1,5 +1,4 @@
-// Flag to check if the script has been injected
-let isScriptInjected = false;
+/****************************** GANALYTICS EVENT LISTENERS ******************************/
 
 // Listen for the CustomEvent from the injected script, for successful analytics events
 document.addEventListener('SEND_TO_GANALYTICS_SUCCESS', (event) => {
@@ -21,6 +20,8 @@ document.addEventListener('SEND_TO_GANALYTICS_ERROR', (event) => {
     });
 });
 
+/****************************** PAGE STRUCTURE CHANGE LISTENER ******************************/
+
 // Create a MutationObserver to watch for changes in the URL
 const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -35,29 +36,43 @@ const observer = new MutationObserver((mutations) => {
 // Start observing the document for changes in the child nodes
 observer.observe(document, { childList: true, subtree: true });
 
-
 // Core logic to handle each page structure change
 async function onPageStructureChanged() {
     // Check if the page is the transactions page or the accounts details page
     if (window.location.href.includes("transactions") || window.location.href.includes("accounts/details")) {
+		injectRequiredScripts();
         handleTransactionsView(); // Handle the transactions view
     }
 
     // Add the custom settings link to the settings page
     if (window.location.href.includes("settings/")) {
-        handleSettingsView(); 
+		injectRequiredScripts();
+        handleSettingsView(); // Handle the settings view
     }
-
 }
 
+/****************************** VIEW HANDLERS ******************************/
+
+// Handle the settings view
 function handleSettingsView() {
-    customSettings.addCustomSettingsLink(); 
+	// Check for Settings page elements every second
+	const checkForSettingsPageElements = setInterval(() => {
+
+		// Check if there is an div with class starting with "CardHeader__Title" with the text "Account"
+		if (document.querySelector('div[class^="CardHeader__Title"]')?.textContent === 'Account') {
+			clearInterval(checkForSettingsPageElements);
+
+			if (isScriptInjected) {
+				// Dispatch the execute event
+				document.dispatchEvent(new CustomEvent('EXECUTE-CUSTOM-SETTINGS'));
+			}
+		}
+	}, 1000);
 }
 
-// Function to handle pages with transactions
+// Handle the transactions view
 function handleTransactionsView() {
     // Check for transaction rows every second
-
     const checkForTransactions = setInterval(() => {
         // Get all the transaction rows, determined by whether the row has an amount and a merchant
         const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
@@ -71,19 +86,25 @@ function handleTransactionsView() {
         // If there are transactions, stop checking for them, and inject and execute the main handler
         if (transactionRows.length > 0) {
             clearInterval(checkForTransactions); 
-            injectAndExecuteTransactionsViewHandler(); 
-        }
+			if (isScriptInjected) {
+				// Dispatch the execute event
+				document.dispatchEvent(new CustomEvent('EXECUTE')); 
+			}
+		}
     }, 1000);
 }
 
-// Inject and execute the scripts to handle the transactions view, but make sure it's only injected once
-function injectAndExecuteTransactionsViewHandler() {
-    const scriptCustomSettings = document.createElement('script');
+
+// Flag to check if the script has been injected
+let isScriptInjected = false;
+// Inject the required scripts
+function injectRequiredScripts() {
+	const scriptCustomSettings = document.createElement('script');
     scriptCustomSettings.src = chrome.runtime.getURL('custom-settings.js');
 	scriptCustomSettings.type = 'module';
 
     const scriptHelpersGraphql = document.createElement('script');
-    scriptHelpersGraphql.src = chrome.runtime.getURL('helpers-graphql.js');   
+    scriptHelpersGraphql.src = chrome.runtime.getURL('helper-graphql.js');   
 	scriptHelpersGraphql.type = 'module';
 
     const scriptTransactionViews = document.createElement('script');
@@ -96,13 +117,5 @@ function injectAndExecuteTransactionsViewHandler() {
         document.head.appendChild(scriptHelpersGraphql);
         document.head.appendChild(scriptTransactionViews);
         isScriptInjected = true; // Mark script as injected
-
-        // Once the script is loaded, dispatch the execute event
-        scriptTransactionViews.onload = () => {
-            document.dispatchEvent(new CustomEvent('EXECUTE')); 
-        };
-    } else {
-        // If the script is already injected, just dispatch the execute event
-        document.dispatchEvent(new CustomEvent('EXECUTE')); 
     }
 }

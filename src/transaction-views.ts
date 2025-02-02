@@ -1,9 +1,16 @@
-import { getCustomSettings } from './custom-settings';
-import { CustomSettings } from './types/entities/CustomSettings';
-import { getTagIdWithTagName, getTransactionDrawerDetails, hideSplitTransaction, setTransactionTags, splitTransaction, unsplitTransaction } from './helpers-graphql';
-import { handleGlobalError } from './helper-errorhandler';
-import { Transaction } from './types/entities/Transaction';
-import { SplitTransaction } from './types/entities/SplitTransaction';
+import { getCustomSettings } from './custom-settings.js';
+import { CustomSettings } from './types/entities/CustomSettings.js';
+import { getTagIdWithTagName, 
+	getTransactionDrawerDetails, 
+	hideSplitTransaction, 
+	setTransactionTags, 
+	splitTransaction, 
+	unsplitTransaction 
+} from './helper-graphql.js';
+import { handleGlobalError } from './helper-errorhandler.js';
+import { Transaction } from './types/entities/Transaction.js';
+import { SplitTransaction } from './types/entities/SplitTransaction.js';
+
 
 // Global variables
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
