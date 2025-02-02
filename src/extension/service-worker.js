@@ -1,11 +1,9 @@
-import Analytics from './scripts/google-analytics.js';
-
+import Analytics from '../google-analytics.js';
 
 // Listen for the install event and fire an install event
 chrome.runtime.onInstalled.addListener(() => { 
     Analytics.fireEvent('install'); 
 });
-
 
 // Listen for messages from content scripts to fire analytics events
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

@@ -45,13 +45,19 @@ async function onPageStructureChanged() {
 
     // Add the custom settings link to the settings page
     if (window.location.href.includes("settings/")) {
-        customSettings.addCustomSettingsLink(); 
+        handleSettingsView(); 
     }
+
+}
+
+function handleSettingsView() {
+    customSettings.addCustomSettingsLink(); 
 }
 
 // Function to handle pages with transactions
 function handleTransactionsView() {
     // Check for transaction rows every second
+
     const checkForTransactions = setInterval(() => {
         // Get all the transaction rows, determined by whether the row has an amount and a merchant
         const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
@@ -73,13 +79,16 @@ function handleTransactionsView() {
 // Inject and execute the scripts to handle the transactions view, but make sure it's only injected once
 function injectAndExecuteTransactionsViewHandler() {
     const scriptCustomSettings = document.createElement('script');
-    scriptCustomSettings.src = chrome.runtime.getURL('scripts/custom-settings.js');
+    scriptCustomSettings.src = chrome.runtime.getURL('custom-settings.js');
+	scriptCustomSettings.type = 'module';
 
     const scriptHelpersGraphql = document.createElement('script');
-    scriptHelpersGraphql.src = chrome.runtime.getURL('scripts/helpers-graphql.js');
-        
+    scriptHelpersGraphql.src = chrome.runtime.getURL('helpers-graphql.js');   
+	scriptHelpersGraphql.type = 'module';
+
     const scriptTransactionViews = document.createElement('script');
-    scriptTransactionViews.src = chrome.runtime.getURL('scripts/transaction-views.js');
+    scriptTransactionViews.src = chrome.runtime.getURL('transaction-views.js');
+	scriptTransactionViews.type = 'module';
 
     // Only inject the script once  
     if (!isScriptInjected) {

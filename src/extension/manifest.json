@@ -8,13 +8,15 @@
       "matches": ["https://app.monarchmoney.com/*"],
       "world": "ISOLATED",
       "js": [
-        "scripts/custom-settings.js",
-        "scripts/helpers-graphql.js",
-        "scripts/content.js"
+        "custom-settings.js",
+        "helpers-graphql.js",
+        "content.js"
       ],
+	  "type": "module",
       "css": [
         "styles/mmm-ext-styles.css"
       ],
+
       "run_at": "document_end"
     }
   ],
@@ -28,10 +30,11 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "scripts/transaction-views.js", 
-        "scripts/custom-settings.js", 
-        "scripts/helpers-graphql.js"
+        "transaction-views.js", 
+        "custom-settings.js", 
+        "helpers-graphql.js"
       ],
+	  "type": "module",
       "matches": ["https://app.monarchmoney.com/*"]
     }
   ],  
