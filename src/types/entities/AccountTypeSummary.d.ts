@@ -1,12 +1,10 @@
-import { AccountType } from "./AccountType";
 import { Account } from "./Account";
+import { AccountType } from "./AccountType";
 
 export interface AccountTypeSummary {
     type: AccountType;
     accounts: Account[];
     isAsset: boolean;
-    totalDisplayBalance: string;
+    totalDisplayBalance: number;
     __typename: string;
-    id: string;
-    name: string;
 } 

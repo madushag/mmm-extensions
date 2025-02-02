@@ -6,7 +6,7 @@ export interface Merchant {
     recurringTransactionStream?: {
         id: string;
         frequency: string;
-        __typename: string;
+        __typename?: string;
     };
-    __typename: string;
+    __typename?: string;
 } 

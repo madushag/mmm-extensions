@@ -1,6 +1,6 @@
 import type { CustomSettings } from "./types/entities/CustomSettings.js";
-import { getTagIdWithTagName, getAllAccountDetails } from "./helper-graphql.js";
-
+import { getAllAccountDetails, getAllTags } from "./helper-graphql.js";
+import { HouseholdTransactionTag } from "./types/entities/HouseholdTransactionTag.js";
 
 const DEFAULT_SETTINGS: CustomSettings = {
     splitWithPartnerTagName: "",
@@ -77,12 +77,12 @@ function addCustomSettingsLink(): void {
 // Function to create the custom settings modal
 async function showCustomSettingsModal(): Promise<void> {
     const theme = detectTheme();
-    const allTags = await getTagIdWithTagName();
+    const allTags = await getAllTags();
     const accountIdsNames = await getAllAccountDetails();
     if (!accountIdsNames) return;
 
     // Create the modal
-    createModalHtml(Array.isArray(allTags) ? allTags : [allTags], accountIdsNames, theme);
+    createModalHtml(allTags, accountIdsNames, theme);
 
     const modal = document.getElementById("mmm-settings-modal") as HTMLElement;
 
@@ -105,13 +105,9 @@ async function showCustomSettingsModal(): Promise<void> {
         }
     });
 
-    // Send an analytics event when the modal is opened
-    chrome.runtime.sendMessage({ 
-        type: 'analyticsEventSuccess', 
-
-        eventName: 'mmm_custom_settings_modal_opened',
-        params: { theme: theme }
-    });
+	// Send an analytics event when the modal is opened
+	document.dispatchEvent(new CustomEvent('SEND_TO_GANALYTICS_SUCCESS', 
+		{ detail: { eventName: "mmm_custom_settings_modal_opened", params: { theme: theme } } }));
 
 }
 
@@ -207,8 +203,7 @@ function detectTheme(): 'dark' | 'light' {
 }
 
 // Function to create the modal HTML
-function createModalHtml(allTags: any[], accountIdsNames: {id: string, name: string}[], theme: 'dark' | 'light'): void {
-
+function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {id: string, name: string}[], theme: 'dark' | 'light'): void {
     const modalHtml = `
     <div id="mmm-settings-modal" class="mmm-modal mmm-modal-${theme}">
         <div class="mmm-modal-content mmm-modal-content-${theme}">

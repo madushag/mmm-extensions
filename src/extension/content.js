@@ -111,10 +111,16 @@ function injectRequiredScripts() {
     scriptTransactionViews.src = chrome.runtime.getURL('transaction-views.js');
 	scriptTransactionViews.type = 'module';
 
+	const scriptToast = document.createElement('script');
+	scriptToast.src = chrome.runtime.getURL('toast.js');
+	scriptToast.type = 'module';
+
+
     // Only inject the script once  
     if (!isScriptInjected) {
         document.head.appendChild(scriptCustomSettings);
         document.head.appendChild(scriptHelpersGraphql);
+		document.head.appendChild(scriptToast);
         document.head.appendChild(scriptTransactionViews);
         isScriptInjected = true; // Mark script as injected
     }

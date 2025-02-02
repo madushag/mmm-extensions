@@ -1,16 +1,15 @@
 import { getCustomSettings } from './custom-settings.js';
 import { CustomSettings } from './types/entities/CustomSettings.js';
 import { getTagIdWithTagName, 
-	getTransactionDrawerDetails, 
-	hideSplitTransaction, 
-	setTransactionTags, 
-	splitTransaction, 
-	unsplitTransaction 
-} from './helper-graphql.js';
+		getTransactionDrawerDetails, 
+		hideSplitTransaction, 
+		setTransactionTags, 
+		splitTransaction, 
+		unsplitTransaction } from './helper-graphql.js';
 import { handleGlobalError } from './helper-errorhandler.js';
 import { Transaction } from './types/entities/Transaction.js';
 import { SplitTransaction } from './types/entities/SplitTransaction.js';
-
+import { showToast } from './toast.js';
 
 // Global variables
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
@@ -158,6 +157,7 @@ async function handleSplitButtonClick(e: MouseEvent, row: HTMLElement) {
         if (!success) return false;
     }
 
+	// Show a toast and hide the split button
     showToast(`Transaction ${transactionDetails?.id} split successfully!`, "success");
     const splitButton = row.querySelector<HTMLElement>(".monarch-helper-button-split");
     if (splitButton) splitButton.style.display = "none";
@@ -265,13 +265,10 @@ function getTransactionDetailsForRow(row: HTMLElement): Transaction | null {
 							id: transactionDetails.merchant.id,
 							name: transactionDetails.merchant.name,
 							logoUrl: transactionDetails.merchant.logoUrl,
-							__typename: transactionDetails.merchant.__typename
 						},
                         category: { 
                             id: transactionDetails.category.id, 
                             name: transactionDetails.category.name,
-							icon: '',
-							__typename: ''
 						},
 
                         notes: transactionDetails.notes,

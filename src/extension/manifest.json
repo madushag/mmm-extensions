@@ -13,7 +13,6 @@
       "css": [
         "styles/mmm-ext-styles.css"
       ],
-
       "run_at": "document_end"
     }
   ],

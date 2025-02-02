@@ -2,7 +2,7 @@ import { HouseholdTransactionTag } from "./HouseholdTransactionTag";
 import { User } from "./User";
 import { Merchant } from "./Merchant";
 import { Category } from "./Category";
-import { Account } from "./Account";  // Fixed casing
+import { Account } from "./Account";
 import { Attachment } from "./Attachment";
 
 export interface Transaction {

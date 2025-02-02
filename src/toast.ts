@@ -1,7 +1,7 @@
 // Function to show a toast notification. Include a fade out duration parameter in seconds
 type ToastType = "success" | "error" | "warning" | "info";
 
-function showToast(message: string, type: ToastType = "success", fadeOutDuration: number = 5): void {
+export function showToast(message: string, type: ToastType = "success", fadeOutDuration: number = 3): void {
     const toast = document.createElement("div");
     toast.className = `toast-notification toast-${type}`;
     toast.innerText = message;

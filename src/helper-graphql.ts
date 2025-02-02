@@ -7,9 +7,9 @@ import { Transaction } from "./types/entities/Transaction";
 import { Account } from "./types/entities/Account"; // Fixed casing to match file
 import { AccountTypeSummary } from "./types/entities/AccountTypeSummary";
 import { HouseholdTransactionTag } from "./types/entities/HouseholdTransactionTag";
+import { showToast } from "./toast.js";
 
 const GRAPHQL_URL = "https://api.monarchmoney.com/graphql";
-
 
 // Helper function to get the GraphQL token from localStorage
 const getGraphqlToken = (): string => {
@@ -118,30 +118,35 @@ export async function hideSplitTransaction(transactionId: string): Promise<Updat
     return await callGraphQL(json);
 }
 
-// Get the tag details by name
-export async function getTagIdWithTagName(tagName?: string): Promise<HouseholdTransactionTag | null> {
+// Get all tags
+export async function getAllTags(): Promise<HouseholdTransactionTag[]> {
     const json = {
         operationName: "GetHouseholdTransactionTags",
         variables: { includeTransactionCount: false },
         query: `query GetHouseholdTransactionTags($search: String, $limit: Int, $bulkParams: BulkTransactionDataParams, $includeTransactionCount: Boolean = false) {
-				householdTransactionTags(
-					search: $search
-					limit: $limit
-					bulkParams: $bulkParams
-				) {
-					id
-					name
-					color
-					order
-					transactionCount @include(if: $includeTransactionCount)
-					__typename
-				}
-			}`
+            householdTransactionTags(
+                search: $search
+                limit: $limit
+                bulkParams: $bulkParams
+            ) {
+                id
+                name
+                color
+                order
+                transactionCount @include(if: $includeTransactionCount)
+                __typename
+            }
+        }`
     };
 
     const response = await callGraphQL(json);
-    const tags: HouseholdTransactionTag[] = response.data?.householdTransactionTags || [];
-    return tagName ? tags.find(t => t.name === tagName)! : null; 
+    return response.data?.householdTransactionTags || [];
+}
+
+// Get the tag details by name
+export async function getTagIdWithTagName(tagName?: string): Promise<HouseholdTransactionTag | null> {
+    const tags = await getAllTags();
+    return tagName ? tags.find(t => t.name === tagName)! : null;
 }
 
 // Set tags for a transaction. TagIds is an array of tag IDs
@@ -652,12 +657,11 @@ export async function getAllAccountDetails(): Promise<{ id: string; name: string
 					}`
         };  
 
-    const result = await callGraphQL(payload);  
-
-    const accountIdsNames = (result as { accountTypeSummaries: AccountTypeSummary[] })
-        .accountTypeSummaries.flatMap((accountType: AccountTypeSummary) => 
-            accountType.accounts.map(({ id, displayName }: Account) => ({ id, name: displayName }))
-        ).sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name));
-
+    const result = (await callGraphQL(payload)).data?.accountTypeSummaries as AccountTypeSummary[];
+    const accountIdsNames = result
+        .flatMap((summary: AccountTypeSummary) => summary.accounts)
+        .map(account => ({ id: account.id, name: account.displayName }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    
     return accountIdsNames;
 }
