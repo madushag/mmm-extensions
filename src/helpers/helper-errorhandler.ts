@@ -1,4 +1,4 @@
-import { showToast } from "./toast.js";
+import { showToast } from "../toast.js";
 
 export function handleGlobalError(error: Error, context: string) {
     showToast(`Error in ${context}: ${error.message}`, "error");

@@ -363,18 +363,19 @@
 }
 
 .mmm-setting-header-light {
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center items vertically */
+    display: flex;
+    align-items: center;
     background-color: rgb(236, 235, 233);
-    padding: var(--spacing-md); /* Padding for spacing */
-    border-radius: 15px 15px 0 0; /* Rounded corners top and flat on the bottom */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    margin-bottom: -1px; /* Overlap with content to eliminate gap */
-    transition: background-color 0.3s; /* Smooth transition */
+    padding: 0px var(--spacing-md); /* Reduced vertical padding */
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: -1px;
+    transition: background-color 0.3s;
+    line-height: 100%;
 }
 
 .mmm-setting-header-light.collapsed {
-    border-radius: 15px; 
+    border-radius: 8px; 
 }
 
 .mmm-setting-arrow {
@@ -390,7 +391,6 @@
     cursor: pointer; /* Pointer cursor */
     transition: background-color 0.3s; /* Smooth transition */
     font-size: 0.8em;
-
 }
 
 .mmm-setting-content {

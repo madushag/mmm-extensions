@@ -26,11 +26,12 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "custom-settings.js", 
-        "helper-graphql.js",
-		"helper-errorhandler.js",
-		"toast.js",
-        "transaction-views.js"
+		"views/accounts-view.js",
+        "views/settings-view.js", 
+		"views/transaction-views.js",
+		"helpers/helper-graphql.js",
+		"helpers/helper-errorhandler.js",
+		"toast.js"
       ],
 	  "type": "module",
       "matches": ["https://app.monarchmoney.com/*"]

@@ -1,13 +1,13 @@
-import { UpdateTransactionResponse } from "./types/graphql-responses/updateTransactionResponse";
-import { SetTransactionTagsResponse } from "./types/graphql-responses/setTransactionTagsResponse";
-import { GetTransactionDetailsResponse } from "./types/graphql-responses/getTransactionDetailsResponse";
-import { UpdateTransactionSplitResponse } from "./types/graphql-responses/updateTransactionSplitResponse";
-import { GraphQLResponse } from "./types/graphql-responses/graphQLResponse";
-import { Transaction } from "./types/entities/Transaction";
-import { Account } from "./types/entities/Account"; // Fixed casing to match file
-import { AccountTypeSummary } from "./types/entities/AccountTypeSummary";
-import { HouseholdTransactionTag } from "./types/entities/HouseholdTransactionTag";
-import { showToast } from "./toast.js";
+import { UpdateTransactionResponse } from "../types/graphql-responses/updateTransactionResponse";
+import { SetTransactionTagsResponse } from "../types/graphql-responses/setTransactionTagsResponse";
+import { GetTransactionDetailsResponse } from "../types/graphql-responses/getTransactionDetailsResponse";
+import { UpdateTransactionSplitResponse } from "../types/graphql-responses/updateTransactionSplitResponse";
+import { GraphQLResponse } from "../types/graphql-responses/graphQLResponse";
+import { Transaction } from "../types/entities/Transaction";
+import { Account } from "../types/entities/Account";
+import { AccountTypeSummary } from "../types/entities/AccountTypeSummary";
+import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag";
+import { showToast } from "../toast.js";
 
 const GRAPHQL_URL = "https://api.monarchmoney.com/graphql";
 

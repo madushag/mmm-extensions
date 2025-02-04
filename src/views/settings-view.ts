@@ -1,6 +1,6 @@
-import type { CustomSettings } from "./types/entities/CustomSettings.js";
-import { getAllAccountDetails, getAllTags } from "./helper-graphql.js";
-import { HouseholdTransactionTag } from "./types/entities/HouseholdTransactionTag.js";
+import type { CustomSettings } from "../types/entities/CustomSettings.js";
+import { getAllAccountDetails, getAllTags } from "../helpers/helper-graphql.js";
+import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
 
 const DEFAULT_SETTINGS: CustomSettings = {
     splitWithPartnerTagName: "",
@@ -9,8 +9,10 @@ const DEFAULT_SETTINGS: CustomSettings = {
     showSplitButtonOnAllAccounts: true,
     showUnsplitButtonForSplitTransactions: false,
     tagSplitTransactions: false,
-    rememberNetWorthDuration: false
+    rememberNetWorthDuration: false,
+    defaultNetWorthDuration: "YTD"
 };
+
 
 // Listen for the CustomEvent from the content script
 document.addEventListener('EXECUTE-CUSTOM-SETTINGS', (event) => {
@@ -159,8 +161,15 @@ function getConfigValue(key: string, settingValues?: Record<string, any>): boole
     return settingValues?.[key] || customSettings[key as keyof CustomSettings] || '';
 }
 
+// Function to set all the config values
+export function saveConfigValues(settings: CustomSettings): void {
+    Object.keys(settings).forEach(key => {
+        setConfigValue(key as keyof CustomSettings, settings[key as keyof CustomSettings]);
+    });
+}
 
 // Function to set a config value
+
 function setConfigValue<K extends keyof CustomSettings>(key: K, value: CustomSettings[K]): void {
     const customSettings = loadSettings();
     customSettings[key] = value;
@@ -332,23 +341,31 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {i
                     </div>
                     <div class="mmm-setting-content collapsed">
                         <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content">
-                                <label>Remember Net Worth Duration</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="rememberNetWorthDuration" id="remember-net-worth-duration" />
-                                    <span class="slider"></span>
-                                </label>
+                            <div class="mmm-setting-item-content-input">
+                                <label>Default Net Worth Duration</label>
+                                <div class="mmm-setting-input-${theme}" style="position: relative;">
+                                    <select class="mmm-setting-dropdown" data-setting-name="defaultNetWorthDuration" id="default-net-worth-duration">
+                                        <option value="1M">1 Month</option>
+                                        <option value="3M">3 Months</option>
+                                        <option value="6M">6 Months</option>
+                                        <option value="YTD">Year to date</option>
+                                        <option value="1Y">1 Year</option>
+                                        <option value="ALL">All time</option>
+                                    </select>
+                                    <span class="mmm-setting-input-arrow">
+                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </div>
                             </div>
                             <div class="mmm-modal-body-text-small">
-                                Remember the net worth duration selected from the dropdown
+                                Default net worth duration to display on the accounts page
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-
-            
         </div>
     </div>`;
 
@@ -385,12 +402,14 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {i
 // Function to load settings and set the modal values
 function loadSettingsAndSetModalValues(): void {
     const settings = getCustomSettings();
+	
     const showSplitCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
     const tagNameSelect = document.getElementById('split-with-partner-tag-name') as HTMLSelectElement;
     const accountIdSelect = document.getElementById('split-with-partner-account-id') as HTMLSelectElement;
     const showAllAccountsCheckbox = document.getElementById('show-split-button-on-all-accounts') as HTMLInputElement;
     const showUnsplitCheckbox = document.getElementById('show-unsplit-button-for-split-transactions') as HTMLInputElement;
     const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
+    const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
 
     showSplitCheckbox.checked = settings.showSplitButtonForUnsplitTransactions || false;
     tagNameSelect.value = settings.splitWithPartnerTagName || '';
@@ -398,6 +417,7 @@ function loadSettingsAndSetModalValues(): void {
     showAllAccountsCheckbox.checked = settings.showSplitButtonOnAllAccounts || false;
     showUnsplitCheckbox.checked = settings.showUnsplitButtonForSplitTransactions || false;
     tagTransactionsCheckbox.checked = settings.tagSplitTransactions || false;
+    defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
 
     showHideSettingItems();
 }

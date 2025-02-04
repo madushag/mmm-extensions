@@ -1,15 +1,15 @@
-import { getCustomSettings } from './custom-settings.js';
-import { CustomSettings } from './types/entities/CustomSettings.js';
+import { getCustomSettings } from './settings-view.js';
+import { CustomSettings } from '../types/entities/CustomSettings.js';
 import { getTagIdWithTagName, 
 		getTransactionDrawerDetails, 
 		hideSplitTransaction, 
 		setTransactionTags, 
 		splitTransaction, 
-		unsplitTransaction } from './helper-graphql.js';
-import { handleGlobalError } from './helper-errorhandler.js';
-import { Transaction } from './types/entities/Transaction.js';
-import { SplitTransaction } from './types/entities/SplitTransaction.js';
-import { showToast } from './toast.js';
+		unsplitTransaction } from '../helpers/helper-graphql.js';
+import { handleGlobalError } from '../helpers/helper-errorhandler.js';
+import { Transaction } from '../types/entities/Transaction.js';
+import { SplitTransaction } from '../types/entities/SplitTransaction.js';
+import { showToast } from '../toast.js';
 
 // Global variables
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
@@ -17,7 +17,7 @@ let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
 
 
 // Listen for the CustomEvent from the content script
-document.addEventListener('EXECUTE', (event) => {
+document.addEventListener('EXECUTE-TRANSACTIONS-VIEW', (event) => {
     // Bootstrap settings   
     let customSettings = getCustomSettings();
     mainHandler(customSettings);
@@ -89,7 +89,6 @@ function addSplitButtonsIfNeeded(row: HTMLElement, customSettings: CustomSetting
         }
     }
 }
-
 
 // Add an unsplit button to the transaction row if it is not already present.
 function addUnsplitButtonIfNeeded(row: HTMLElement, customSettings: CustomSettings) {
