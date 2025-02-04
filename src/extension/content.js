@@ -37,10 +37,11 @@ const observer = new MutationObserver((mutations) => {
         // Check if the mutation target is not the head element. 
         // We do this to prevent the mutation observer from being triggered when we inject scripts into the page.
         if (mutation.target.nodeName !== 'HEAD') {
+
             // Check if the URL has changed
             if (window.location.href.split('?')[0] !== previousUrl) {
                 previousUrl = window.location.href.split('?')[0]; // Update the previous URL, remove query parameters
-                onPageStructureChanged(true); // Call your function to handle the change
+                onPageStructureChanged(true); 
             }
 			else {
 				onPageStructureChanged(false);
@@ -55,14 +56,19 @@ observer.observe(document, { childList: true, subtree: true });
 
 // Core logic to handle each page structure change
 async function onPageStructureChanged(urlHasChanged = false) {
+
+	let urlParts = new URL(window.location.href).pathname.split('/');
+
     // Check if the page is the transactions page or the accounts details page
-    if (window.location.href.includes("transactions") || window.location.href.includes("accounts/details")) {
+    if (urlParts[1] === "transactions" 
+		|| (urlParts[1] === "accounts" && urlParts[2] === "details")
+		|| (urlParts[1] === "categories" && !isNaN(urlParts[2]))){
 		injectRequiredScripts();
         handleTransactionsView(); // Handle the transactions view
     }
 
-    // Add the custom settings link to the settings page
-    if (window.location.href.includes("settings/")) {
+	// Add the custom settings link to the settings page
+    if (urlParts[1] === "settings") {
 		injectRequiredScripts();
         handleSettingsView(); // Handle the settings view
     }
@@ -70,8 +76,7 @@ async function onPageStructureChanged(urlHasChanged = false) {
 	// Handle the accounts view, but do it only once per page load
 	// Check if the part of the URL that determines the page is /accounts, after removing the query parameters
 	// (e.g., https://app.monarchmoney.com/accounts?chartType=performance&dateRange=YTD&timeframe=month)
-	if (new URL(window.location.href).pathname.split('/')[1] === "accounts") {
-
+	if (urlParts[1] === "accounts") {
 		// store the dateRange parameter from the URL
 		storedDateRange = (new URL(window.location.href)).searchParams.get("dateRange");
 
