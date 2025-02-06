@@ -8,7 +8,7 @@
     --color-dark-bg: rgb(38, 38, 38);
     --color-dark-header: rgb(25, 25, 24);
     --color-light-bg: rgb(255, 255, 255);
-    --color-light-header: rgb(246, 245, 243);
+    --color-light-header: rgb(236, 231, 222);
     --color-light-text: rgb(34, 32, 29);
     --color-dark-text: rgb(255, 255, 255);
     --color-toggle-checked: rgb(0, 200, 150);
@@ -130,8 +130,9 @@
 
 .mmm-modal-body {
     padding: var(--spacing-xl);
-    padding-top: var(--spacing-sm);
+    padding-top: var(--spacing-md);
 }
+
 
 .mmm-modal-body-text-small {
     font-size: 14px;
@@ -359,6 +360,57 @@
 .mmm-setting-divider {
     border-bottom: 1px solid #ccc; /* Light border */
     margin: var(--spacing-xl) 0;
-}   
+}
+
+.mmm-setting-header-light {
+    display: flex;
+    align-items: center;
+    background-color: rgb(236, 235, 233);
+    padding: 0px var(--spacing-md); /* Reduced vertical padding */
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: -1px;
+    transition: background-color 0.3s;
+    line-height: 100%;
+}
+
+.mmm-setting-header-light.collapsed {
+    border-radius: 8px; 
+}
+
+.mmm-setting-arrow {
+    margin-left: auto; /* Push the arrow to the right */
+    display: inline-flex; /* Ensure it stays inline */
+    justify-content: center;
+    align-items: center;
+    width: 30px; /* Adjust size as needed */
+    height: 30px; /* Adjust size as needed */
+    border-radius: 50%; /* Makes it circular */
+    background-color: var(--color-light-bg); /* Background color */
+    color: var(--color-light-text); /* Arrow color */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s; /* Smooth transition */
+    font-size: 0.8em;
+}
+
+.mmm-setting-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    max-height: 500px;
+    border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+    padding: var(--spacing-md); /* Padding for spacing */
+    background-color: var(--color-light-bg); /* Keep existing background color */
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+}
+
+.mmm-setting-content.collapsed {
+    border-radius: 0 0 15px 15px; /* Ensure rounded corners are visible when collapsed */
+    max-height: 0;
+    visibility: hidden; /* Hide the content */
+}
+
+.mmm-setting-content:not(.collapsed) {
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+}
 
 

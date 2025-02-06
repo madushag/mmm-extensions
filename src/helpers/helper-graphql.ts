@@ -1,9 +1,28 @@
+import { UpdateTransactionResponse } from "../types/graphql-responses/updateTransactionResponse";
+import { SetTransactionTagsResponse } from "../types/graphql-responses/setTransactionTagsResponse";
+import { GetTransactionDetailsResponse } from "../types/graphql-responses/getTransactionDetailsResponse";
+import { UpdateTransactionSplitResponse } from "../types/graphql-responses/updateTransactionSplitResponse";
+import { GraphQLResponse } from "../types/graphql-responses/graphQLResponse";
+import { Transaction } from "../types/entities/Transaction";
+import { Account } from "../types/entities/Account";
+import { AccountTypeSummary } from "../types/entities/AccountTypeSummary";
+import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag";
+import { showToast } from "../toast.js";
+
+const GRAPHQL_URL = "https://api.monarchmoney.com/graphql";
+
+// Helper function to get the GraphQL token from localStorage
+const getGraphqlToken = (): string => {
+    const user = JSON.parse(JSON.parse(localStorage.getItem("persist:root") || '{}').user || '{}');
+    return user.token;
+};
+
 // Helper function to call the GraphQL API
-function callGraphQL(data) {
-    var options = {
-        mode: "cors",
+export async function callGraphQL(data: any): Promise<GraphQLResponse> {
+    const options = {
         method: "POST",
         headers: {
+
             accept: "*/*",
             authorization: `Token ${getGraphqlToken()}`,
             "content-type": "application/json",
@@ -12,40 +31,32 @@ function callGraphQL(data) {
         body: JSON.stringify(data),
     };
 
-    return fetch(GRAPHQL_URL, options)
-        .then((response) => response.json())
-        .then((data) => data.data)
-        .catch((error) => {
-            console.error(version, error);
-
-            // determine what OperationName is being called. This can be found in the data object. Then show a toast accordingly
-            if (data.operationName === "Common_SplitTransactionMutation") {
-                showToast(`Error while splitting transaction ${transactionDetails.id}.`, "error");
-
-            } else if (data.operationName === "Web_TransactionDrawerUpdateTransaction" && data.input.hideFromReports === true) {
-                showToast(`Error while hiding transaction ${transactionDetails.id}.`, "error");
-
-            } else if (data.operationName == "GetHouseholdTransactionTags") {
-                showToast(`Error while fetching tag details for ${SplitWithDebTagName}.`, "error");
-
-            } else if (data.operationName == "Web_SetTransactionTags") {
-                showToast(`Error while setting tags on transaction ${transactionDetails.id}.`, "error");
-
-            } else {
-                showToast(`Error while invoking GraphQL API for transaction ${transactionDetails.id}.`, "error");
-            }
-        });
+    try {
+        const response = await fetch(GRAPHQL_URL, options);
+        return response.json();
+    } catch (error) {
+        console.error(error);
+        if (data.operationName === "Common_SplitTransactionMutation") {
+            showToast(`Error while splitting transaction.`, "error");
+        } else if (data.operationName === "Web_TransactionDrawerUpdateTransaction") {
+            showToast(`Error while hiding transaction.`, "error");
+        } else if (data.operationName === "GetHouseholdTransactionTags") {
+            showToast(`Error while fetching tag details.`, "error");
+        } else if (data.operationName === "Web_SetTransactionTags") {
+            showToast(`Error while setting tags on transaction.`, "error");
+        } else {
+            showToast(`Error while invoking GraphQL API.`, "error");
+        }
+        return { errors: [error] };
+    }
 }
 
-// Helper function to get the GraphQL token from localStorage
-const getGraphqlToken = () => JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user).token;
-
-
 // Hide a split transaction
-async function hideSplitTransaction(transactionId) {
+export async function hideSplitTransaction(transactionId: string): Promise<UpdateTransactionResponse> {
     const json = {
         operationName: "Web_TransactionDrawerUpdateTransaction",
         variables: {
+
             input: {
                 id: transactionId,
                 hideFromReports: true
@@ -104,41 +115,48 @@ async function hideSplitTransaction(transactionId) {
         }`
     };
 
-    return await graphqlHelpers.callGraphQL(json);
-
+    return await callGraphQL(json);
 }
 
-// Get the tag details by name
-async function getTagIdWithTagName(tagName) {
+// Get all tags
+export async function getAllTags(): Promise<HouseholdTransactionTag[]> {
     const json = {
         operationName: "GetHouseholdTransactionTags",
-        variables: {},
-        query: `query GetHouseholdTransactionTags {
-            householdTransactionTags {
+        variables: { includeTransactionCount: false },
+        query: `query GetHouseholdTransactionTags($search: String, $limit: Int, $bulkParams: BulkTransactionDataParams, $includeTransactionCount: Boolean = false) {
+            householdTransactionTags(
+                search: $search
+                limit: $limit
+                bulkParams: $bulkParams
+            ) {
                 id
                 name
                 color
                 order
-                transactionCount
+                transactionCount @include(if: $includeTransactionCount)
                 __typename
             }
         }`
     };
 
-    const response = await graphqlHelpers.callGraphQL(json);
-    const tags = response.householdTransactionTags;
+    const response = await callGraphQL(json);
+    return response.data?.householdTransactionTags || [];
+}
 
-    return tagName ? tags.find(t => t.name === tagName) : tags; // Return tag object or all tags if tagName is not provided
+// Get the tag details by name
+export async function getTagIdWithTagName(tagName?: string): Promise<HouseholdTransactionTag | null> {
+    const tags = await getAllTags();
+    return tagName ? tags.find(t => t.name === tagName)! : null;
 }
 
 // Set tags for a transaction. TagIds is an array of tag IDs
-async function setTransactionTags(transactionId, tagIds) {
+export async function setTransactionTags(transactionId: string, tagIds: string[]): Promise<SetTransactionTagsResponse> {
     const json = {
         operationName: "Web_SetTransactionTags",
         variables: {
             input: {
-                transactionId: transactionId,
-                tagIds: tagIds
+                transactionId,
+                tagIds
             }
         },
         query: `mutation Web_SetTransactionTags($input: SetTransactionTagsInput!) {
@@ -171,20 +189,20 @@ async function setTransactionTags(transactionId, tagIds) {
         }`
     };
 
-    return await graphqlHelpers.callGraphQL(json);
+    return await callGraphQL(json);
 }
 
 // Split a transaction and tag it with the given category and tags
-async function splitTransaction(transactionDetails, row) {
-    // Check if the transaction is not already split
+export async function splitTransaction(transactionDetails: Transaction | null): Promise<UpdateTransactionSplitResponse | null> {
+    if (!transactionDetails) return null;
+
     if (!transactionDetails.hasSplitTransactions && !transactionDetails.isSplitTransaction) {
-        // Calculate the split amount
-        const totalAmount = parseFloat(transactionDetails.amount);
-        const splitAmount = Math.round((totalAmount / 2) * 100) / 100; // Round to 2 decimal places
+        const totalAmount = parseFloat(transactionDetails.amount.toString());
+
+        const splitAmount = Math.round((totalAmount / 2) * 100) / 100;
         const amount1 = splitAmount;
         const amount2 = totalAmount - splitAmount;
 
-        // Create the GraphQL payload
         const payload = {
             operationName: "Common_SplitTransactionMutation",
             variables: {
@@ -192,15 +210,16 @@ async function splitTransaction(transactionDetails, row) {
                     transactionId: transactionDetails.id,
                     splitData: [
                         {
-                            merchantName: transactionDetails.merchant.name,
-                            categoryId: transactionDetails.category.id,
+                            merchantName: transactionDetails.merchant?.name ?? '',
+                            categoryId: transactionDetails.category?.id ?? '',
                             amount: amount1,
                         },
                         {
-                            merchantName: transactionDetails.merchant.name,
-                            categoryId: transactionDetails.category.id,
+                            merchantName: transactionDetails.merchant?.name ?? '',
+                            categoryId: transactionDetails.category?.id ?? '',
                             amount: amount2,
                         },
+
                     ],
                 },
             },
@@ -248,16 +267,15 @@ async function splitTransaction(transactionDetails, row) {
             }`,
         };
 
-        return await graphqlHelpers.callGraphQL(payload);
+        return await callGraphQL(payload);
     }
+    return null;
+
 }
 
 // Get the transaction drawer details
-async function getTransactionDrawerDetails(transactionDetails, row) {
-    // Check if the transaction is already split
+export async function getTransactionDrawerDetails(transactionDetails: Transaction): Promise<GetTransactionDetailsResponse | null> {
     if (transactionDetails.isSplitTransaction) {
-
-        // Create the GraphQL payload to get transaction drawer details
         const payload = {
             operationName: "GetTransactionDrawer",
             variables: {
@@ -457,197 +475,193 @@ async function getTransactionDrawerDetails(transactionDetails, row) {
             }`
         };
 
-        return await graphqlHelpers.callGraphQL(payload);
+        return await callGraphQL(payload);
     }
+    return null;
 }
 
 // Unsplit a transaction
-async function unsplitTransaction(originalTransactionId) {
+export async function unsplitTransaction(originalTransactionId: string): Promise<UpdateTransactionSplitResponse > {
     const payload = {
         operationName: "Common_SplitTransactionMutation",
         variables: {
-        input: {
-            transactionId: originalTransactionId,
-            splitData: []
-        }
-    },
-    query: `mutation Common_SplitTransactionMutation($input: UpdateTransactionSplitMutationInput!) {
-        updateTransactionSplit(input: $input) {
-            errors {
-                ...PayloadErrorFields
-                __typename
+            input: {
+                transactionId: originalTransactionId,
+                splitData: []
             }
-            transaction {
-                id
-                hasSplitTransactions
-                splitTransactions {
+        },
+        query: `mutation Common_SplitTransactionMutation($input: UpdateTransactionSplitMutationInput!) {
+            updateTransactionSplit(input: $input) {
+                errors {
+                    ...PayloadErrorFields
+                    __typename
+                }
+                transaction {
                     id
-                    amount
-                    notes
-                    hideFromReports
-                    reviewStatus
-                    merchant {
+                    hasSplitTransactions
+                    splitTransactions {
                         id
-                        name
-                        __typename
-                    }
-                    category {
-                        id
-                        icon
-                        name
-                        __typename
-                    }
-                    goal {
-                        id
-                        __typename
-                    }
-                    needsReviewByUser {
-                        id
-                        __typename
-                    }
-                    tags {
-                        id
+                        amount
+                        notes
+                        hideFromReports
+                        reviewStatus
+                        merchant {
+                            id
+                            name
+                            __typename
+                        }
+                        category {
+                            id
+                            icon
+                            name
+                            __typename
+                        }
+                        goal {
+                            id
+                            __typename
+                        }
+                        needsReviewByUser {
+                            id
+                            __typename
+                        }
+                        tags {
+                            id
+                            __typename
+                        }
                         __typename
                     }
                     __typename
                 }
                 __typename
             }
-            __typename
         }
-    }
 
-    fragment PayloadErrorFields on PayloadError {
-        fieldErrors {
-            field
-            messages
-            __typename
-        }
-        message
-                code
+        fragment PayloadErrorFields on PayloadError {
+            fieldErrors {
+                field
+                messages
                 __typename
-            }`
+            }
+            message
+            code
+            __typename
+        }`
     };
 
-    return await graphqlHelpers.callGraphQL(payload);  
+    return await callGraphQL(payload);  
 }
 
-async function getAllAccountDetails() {
+// Get all account details
+export async function getAllAccountDetails(): Promise<{ id: string; name: string }[]> {
     const payload = {
         operationName: "Web_GetAccountsPage",
+
         variables: {},
         query: `query Web_GetAccountsPage {
-        hasAccounts
-        accountTypeSummaries {
-            type {
-                name
-                display
-                group
-                __typename
-            }
-            accounts {
-                id
-                ...AccountsListFields
-                __typename
-            }
-            isAsset
-            totalDisplayBalance
-            __typename
-        }
-        householdPreferences {
-            id
-            accountGroupOrder
-            __typename
-            }
-        }
+			hasAccounts
+			accountTypeSummaries {
 
-        fragment AccountMaskFields on Account {
-            id
-            mask
-            subtype {
-                display
-                __typename
-            }
-            __typename
-        }
+				type {
+					name
+					display
+					group
+					__typename
+				}
+				accounts {
+					id
+					...AccountsListFields
+					__typename
+				}
+				isAsset
+				totalDisplayBalance
+				__typename
+			}
+			householdPreferences {
+				id
+				accountGroupOrder
+				__typename
+				}
+			}
 
-        fragment InstitutionStatusTooltipFields on Institution {
-            id
-            logo
-            name
-            status
-            plaidStatus
-            newConnectionsDisabled
-            hasIssuesReported
-            url
-            hasIssuesReportedMessage
-            transactionsStatus
-            balanceStatus
-            __typename
-        }
+			fragment AccountMaskFields on Account {
+				id
+				mask
+				subtype {
+					display
+					__typename
+				}
+				__typename
+			}
 
-        fragment AccountListItemFields on Account {
-            id
-            displayName
-            displayBalance
-            signedBalance
-            updatedAt
-            syncDisabled
-            icon
-            logoUrl
-            isHidden
-            isAsset
-            includeInNetWorth
-            includeBalanceInNetWorth
-            displayLastUpdatedAt
-            ...AccountMaskFields
-            credential {
-                id
-                updateRequired
-                dataProvider
-                disconnectedFromDataProviderAt
-                syncDisabledAt
-                syncDisabledReason
-                __typename
-            }
-            institution {
-                id
-                ...InstitutionStatusTooltipFields
-                __typename
-            }
-            __typename
-        }
+			fragment InstitutionStatusTooltipFields on Institution {
+				id
+				logo
+				name
+				status
+				plaidStatus
+				newConnectionsDisabled
+				hasIssuesReported
+				url
+				hasIssuesReportedMessage
+				transactionsStatus
+				balanceStatus
+				__typename
+			}
 
-        fragment AccountsListFields on Account {
-            id
-            syncDisabled
-            isHidden
-            isAsset
-            includeInNetWorth
-            order
-            type {
-                name
-                display
-                __typename
-                    }
-                    ...AccountListItemFields
-                    __typename
-                }`
+			fragment AccountListItemFields on Account {
+				id
+				displayName
+				displayBalance
+				signedBalance
+				updatedAt
+				syncDisabled
+				icon
+				logoUrl
+				isHidden
+				isAsset
+				includeInNetWorth
+				includeBalanceInNetWorth
+				displayLastUpdatedAt
+				...AccountMaskFields
+				credential {
+					id
+					updateRequired
+					dataProvider
+					disconnectedFromDataProviderAt
+					syncDisabledAt
+					syncDisabledReason
+					__typename
+				}
+				institution {
+					id
+					...InstitutionStatusTooltipFields
+					__typename
+				}
+				__typename
+			}
+
+			fragment AccountsListFields on Account {
+				id
+				syncDisabled
+				isHidden
+				isAsset
+				includeInNetWorth
+				order
+				type {
+					name
+					display
+					__typename
+						}
+						...AccountListItemFields
+						__typename
+					}`
         };  
 
-    return await graphqlHelpers.callGraphQL(payload);  
+    const result = (await callGraphQL(payload)).data?.accountTypeSummaries as AccountTypeSummary[];
+    const accountIdsNames = result
+        .flatMap((summary: AccountTypeSummary) => summary.accounts)
+        .map(account => ({ id: account.id, name: account.displayName }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    
+    return accountIdsNames;
 }
-
-// Export the functions to be used in the main script
-window.graphqlHelpers = {
-    callGraphQL: callGraphQL,
-    getGraphqlToken: getGraphqlToken,
-    getTagIdWithTagName: getTagIdWithTagName,
-    setTransactionTags: setTransactionTags,
-    hideSplitTransaction: hideSplitTransaction,
-    unsplitTransaction: unsplitTransaction,
-    getTransactionDrawerDetails: getTransactionDrawerDetails,
-    splitTransaction: splitTransaction,
-    getAllAccountDetails: getAllAccountDetails
-}
-
