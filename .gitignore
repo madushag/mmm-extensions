@@ -3,3 +3,7 @@ sw_api_key.js
 *.zip
 dist/*
 node_modules/*
+sample.mhtml
+sample_light.mhtml
+dist/*
+node_modules/*
