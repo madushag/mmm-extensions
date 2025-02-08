@@ -393,16 +393,18 @@
     font-size: 0.8em;
 }
 
+/* Updated styles for the settings content to make it scrollable */
 .mmm-setting-content {
-    overflow: hidden;
+    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 500px; /* Set a maximum height for the scrollable area */
     transition: max-height 0.3s ease-out;
-    max-height: 500px;
     border-radius: 0 0 15px 15px; /* Rounded bottom corners */
     padding: var(--spacing-md); /* Padding for spacing */
     background-color: var(--color-light-bg); /* Keep existing background color */
     border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
 }
 
+/* Ensure the collapsed state hides the content */
 .mmm-setting-content.collapsed {
     border-radius: 0 0 15px 15px; /* Ensure rounded corners are visible when collapsed */
     max-height: 0;

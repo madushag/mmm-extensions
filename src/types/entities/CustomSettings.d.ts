@@ -6,6 +6,8 @@ export interface CustomSettings {
 	showSplitButtonOnAllAccounts: boolean;
 	showUnsplitButtonForSplitTransactions: boolean;
 	tagSplitTransactions: boolean;
+
+	showPostToSplitwiseButton: boolean;
 	
     rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;

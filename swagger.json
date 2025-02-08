@@ -1,0 +1,2708 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "3.0.0",
+    "title": "Splitwise API",
+    "x-logo": {
+      "url": "https://www.splitwise.com/assets/press/logos/sw.svg",
+      "altText": "Splitwise logo and name"
+    },
+    "description": "# Introduction\nHey there! We're glad you're interested in the Splitwise API. This documentation will help you to fetch information\non users, expenses, groups, and much more.\n\nIf something in the API is confusing you, you can open an issue about it [on GitHub](https://github.com/splitwise/api-docs).\nWe're a small team, so we may not have an instant fix, but we'll get back to you as soon as we're able.\n(If you spot an issue in our API documentation itself, feel free to open a pull request to update this website!)\n\n# Third-Party SDKs\nThe development community has built a number of unofficial, third-party SDKs for Splitwise in a variety of different languages.\n\n- Javascript\n  - https://github.com/keriwarr/splitwise\n  - https://github.com/Bearer/Pizzly\n- Ruby\n  - https://github.com/divyum/splitwise-ruby\n- Python\n  - https://github.com/namaggarwal/splitwise\n- Elixir\n  - https://github.com/matiasdelgado/ex_splitwise\n- Java\n  - https://github.com/sritejakv/splitwise-java\n- Dart\n  - https://github.com/srthkpthk/splitwise_api\n- Golang\n  - https://github.com/anvari1313/splitwise.go\n  - https://github.com/aanzolaavila/splitwise.go\n- Rust\n  - https://github.com/pbar1/splitwise-rs\n\nIf you've built a third-party SDK for Splitwise and you'd like to see it included in this list, then please open a pull request to update this section and add a new link. Thank you for your work!\n\n**Note**: These links are provided for convenience. These libraries have not been reviewed or endorsed by Splitwise, and Splitwise\ncannot vouch for their quality. If you have questions or bug reports, please direct your feedback to the authors of these libraries.\n\n# Terms of Use\n\n## Overview\n\nSplitwise provides this Self-Serve API to facilitate integrations with third-party applications, as well as open-up functionality for hobbyists and power users to programmatically interact with their own Splitwise account and build plugins or other tools.\n\nIf you’re interested in integrating your commercial application with Splitwise, we strongly encourage you to contact developers@splitwise.com so our development team can help discuss your use case, provide private APIs and Enterprise support, and offer an appropriate  commercial license for the integration. The Self-Serve API documented here may be suitable for internal prototyping and other exploratory work.\n\nIf you are developing a non-commercial plugin application or personal project, we recommend you make use of the Self-Serve API documented here under the API Terms Of Use. Please be aware that our Self-Serve API has conservative rate and access limits, which are subject to change at any time and not well suited to commercial projects. If this is a problem for your use case, please contact us at developers@splitwise.com to discuss your needs.\n\nAll Self-Service API users are subject to the API Terms of Use below.\n\n## TERMS OF USE\n\nThese API Terms of Use describe your rights and responsibilities when accessing our publicly available Application Programming Interface (API) and related API documentation. Please review them carefully.\n\nSplitwise may modify this Agreement at any time by posting a revised version on our website. The revised version will be effective at the time that it is posted. \n\nThese API terms form a binding contract between you and us. In these terms \"you,\" and \"your,\" refers to the individual, company or legal entity and/or entities that you represent while accessing the API. “We”, “us”, “our” and “Splitwise” refers to Splitwise Inc. By accepting these API terms, either by accessing or using the API, or authorizing or permitting any individual to access or use the API, you agree to be bound by this contract.\n\n<ol>\n  <li>\n    API License:\n    <ol type=\"a\">\n      <li>\n        Subject to the restrictions in these terms, we grant you a non-exclusive, revocable, worldwide, non-transferable, non-sublicensable, limited license to access and use (i) our APIs (ii) related API documentation, packages, sample code, software, or materials made available by Splitwise (“API Documentation”), and (iii) any and all access keys or data derived or obtained from Splitwise API responses (“Splitwise Data”). The Splitwise API, Splitwise Data, and API Documentation will be together referred to as the “Splitwise Materials.” You will use Splitwise Materials solely as necessary to develop, test and support a Self-Service integration of your software application (an \"Application\" or \"App\") with Splitwise in accordance with this Agreement and any other agreements between You and Splitwise.\n      </li>\n    </ol>\n  </li>\n  <li>\n    API License Restrictions\n    <ol type=\"a\">\n      <li>\n        You agree that will you will not, and will not allow any of your partners, subsidiaries and/or affiliates and each of their respective directors, officers, employees, agents, partners, suppliers, service providers, contractors or end users (collectively, “Your Affiliates”) to engage in any Prohibited Activities set forth in section 2f.\n      </li>\n      <li>\n        Splitwise reserves the right to block or revoke, with or without notice, your access to any or all of the Splitwise Materials if Splitwise determines in its sole discretion that you are engaging in any of the Prohibited Activities.\n      </li>\n      <li>\n        Splitwise may monitor your use of Splitwise Materials to improve our services and ensure compliance with this agreement, and may suspend your access to Splitwise Materials if we believe you are in violation.\n      </li>\n      <li>\n        Your use of the Splitwise API is subject to usage limits and other functional restrictions in the sole discretion of Splitwise. You will not use the API in a manner that exceeds rate limits, or constitutes excessive or abusive usage.\n      </li>\n      <li>\n        Your use of Splitwise Materials must respect Splitwise user’s privacy choices and settings and the Privacy portion of this agreement. You will obtain explicit consent from end users as a basis for any processing of Splitwise Materials. Your use of Splitwise Materials must comply with all Applicable Data Protection Laws applicable to you, including but not limited to GDPR and CCPA compliance.\n      </li>\n      <li>\n        Prohibited Activities:\n        <ol type=\"i\">\n          <li>\n            You will not use Splitwise Materials or any part thereof in any manner or for any purpose that violates any law or regulation, or any right of any person, including but not limited to intellectual property rights, rights of privacy and/or publicity, or which otherwise results in liability to Splitwise, or its officers, employees, or end users. \n          </li>\n          <li>\n            You will not use Splitwise Materials in a way that poses a security, operational or technical risk to our Services.\n          </li>\n          <li>\n            You may not Splitwise Materials to create an application that replicates existing Splitwise functionality or competes with Splitwise and our Services.\n          </li>\n          <li>\n            You will not use Splitwise Materials to create an application that encourages or creates functionality for users to violate our <a href=\"https://www.splitwise.com/terms\">Terms of Service</a>.\n          </li>\n          <li>\n            You will not use Splitwise Materials to create an application that can be used by anyone under the age of 13. You will not knowingly collect or enable the collection of any personal information from children under the age of 13.\n          </li>\n          <li>\n            You will not reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code or underlying ideas, trade secrets, algorithms or structure of the Splitwise Materials, or Splitwise software applications.\n          </li>\n          <li>\n            You will not attempt to defeat, avoid, bypass, remove, deactivate or otherwise circumvent any software protection mechanisms in the Splitwise Materials or Application or any part thereof, including without limitation, any such mechanism used to restrict or control the functionality of the API.\n          </li>\n          <li>\n            You will not use Splitwise’s name to endorse or promote any product, including a product derived from Splitwise Materials.\n          </li>\n          <li>\n            You will not sell, lease, rent, sublicense or in any way otherwise commercialize any Splitwise Data, or dataset derived from Splitwise Data and/or Splitwise Materials.\n          </li>\n          <li>\n            You will not use Splitwise Materials in applications that send unsolicited communications to users or include any malware, adware, potentially unwanted programs, or similar applications that could damage or disparage Splitwise’s reputation or services.\n          </li>\n        </ol>\n    </ol>\n  </li>\n  <li>\n    Privacy\n    <ol type=\"a\">\n      <li>\n        Your Application shall have a lawful privacy policy, accessible with reasonably prominent hyperlinks that does not conflict with or supersede the Splitwise Privacy Policy and that explains how you collect, store, use, and/or transfer any Personal Data via your Applications. Personal Data is data that may be used, either alone or together with other information, to identify an individual user, including, without limitation, a user’s name, address, telephone number, username, email address, city and country, geolocation, unique identifiers, picture, or other similar information and includes personal data as defined in the GDPR.\n      </li>\n      <li>\n        You are responsible for maintaining an appropriate legal basis to process any data under all applicable data protection laws (including but not limited to the GDPR, and the CCPA). \n      </li>\n      <li>\n        You will use industry standard security measures to protect against and prevent security breaches and any unauthorized disclosure of any personal information you process, including administrative, physical and technical safeguards for protection of the security, confidentiality and integrity of that personal information.\n      </li>\n      <li>\n        You must promptly notify us in writing via email to security@splitwise.com of any security deficiencies in, or intrusions to, your Applications or systems that you discover, and of any breaches of your user agreement or privacy policy that impact or may impact Splitwise customers. Please review our Privacy Policy for more information on how we collect and use data relating to the use and performance of our Service.\n      </li>\n      <li>\n        You will delete Splitwise Data as requested within a reasonable time, if so requested by either a Splitwise User or Splitwise Inc.\n      </li>\n      <li>\n        Any data submitted to Splitwise through your use of the Splitwise API will be governed by the Splitwise Privacy Policy.\n      </li>\n      <li>\n        You agree that Splitwise may collect certain use data and information related to your use of the Splitwise Materials, and the Splitwise API in connection with your Application (“Usage Data”), and that Splitwise may use such Usage Data for any business purpose, internal or external, including, without limitation, providing enhancements to the Splitwise Materials or Splitwise Platform, providing developer of user support, or otherwise. You agree to include a statement to this effect in your Application’s Privacy Policy.\n      </li>\n    </ol>\n  </li>\n\n  <li>\n    Conditions Of Use\n    <ol type=\"a\">\n      <li>\n        Splitwise reserves the right to modify our API at any time, for any reason, without notice.\n      </li>\n      <li>\n        Splitwise may use your name, and other contact details to contact you regarding your use of our API or, if we believe you are in violation of this contract.\n      </li>\n      <li>\n        You are solely responsible for your use of the Splitwise API and any application you create that uses Splitwise Materials, including but not limited to Customer Support.\n      </li>\n      <li>\n        Splitwise reserves the right to develop and extend its products and capabilities without regard to whether those products compete with or invalidate your Splitwise integration or products offered by you.\n      </li>\n      <li>\n        Splitwise may limit (i) the number of network calls that your App may make via the API; and (ii) the maximum number of Splitwise users that may connect your Application, or (iii) anything else about the Splitwise API as Splitwise deems appropriate, at Splitwise’s sole discretion.\n      </li>\n      <li>\n        Splitwise may impose or modify these limitations without notice. Splitwise may utilize technical measures to prevent over-usage and stop usage of the API by your App after any usage limitations are exceeded or suspend your access to the API with or without notice to you in the event you exceed such limitations.\n      </li>\n      <li>\n        You will not issue any press release or other announcement regarding your Application that makes any reference to Splitwise without our prior written consent.\n      </li>\n      <li>\n        You will not use our API to distribute unsolicited advertising or promotions, or to send messages, make comments, or initiate any other unsolicited direct communication or contact with Splitwise users or partners.\n      </li>\n    </ol>\n  </li>\n\n  <li>\n    Use of Splitwise Marks\n    <ol type=\"a\">\n      <li>\n        The rights granted in this Agreement do not include any general right to use the Splitwise name or any Splitwise trademarks, service marks or logos (the “Splitwise Marks”) with respect to your Applications. Subject to your continued compliance with this Agreement, you may use Splitwise Marks for limited purposes related to your Applications only as described in Splitwise Branding Guidelines and/or as provided in written communications with the Splitwise team.\n      </li>\n      <li>\n        These rights apply on a non-exclusive, non-transferable, worldwide, royalty-free basis, without any right to sub-license, and may be revoked by Splitwise at any time.\n      </li>\n      <li>\n        If Splitwise updates Branding Guidelines or any Splitwise Marks that you are using, you agree to update such Splitwise Marks to reflect the most current versions. You must not use any Splitwise Marks or trade dress, or any confusingly similar mark or trade dress, as the name or part of the name, user interface, or icon of your Applications, or as part of any logo or branding for your Applications.\n      </li>\n    </ol>\n  </li>\n\n  <li>\n    Reservation Of Rights. The Splitwise Materials as well as the trademarks, copyrights, trade secrets, patents or other intellectual property (collectively, “Intellectual Property”) contained therein will remain the sole and exclusive property of Splitwise, and you will reasonably assist Splitwise in protecting such ownership. Splitwise reserves to itself all rights to the Splitwise Materials not expressly granted to You. Except as expressly provided in this Agreement, You do not acquire any rights to or interest in the Intellectual Property. You will not utilize Splitwise Intellectual Property except as expressly authorized under this Agreement.\n  </li>\n\n  <li>\n    Feedback. Splitwise welcomes feedback from developers to improve our API, documentation and Services, and may provide feedback to you as well. We will review any feedback received, however we make no guarantee that suggestions will be implemented. If you choose to provide feedback, suggestions or comments regarding the Splitwise API, documentation, or services, you acknowledge that Splitwise will be free to use your feedback in any way it sees fit. This includes the freedom to copy, modify, create derivative works, distribute, publicly display, publicly perform, grant sublicenses to, and otherwise exploit in any manner such feedback, suggestions or comments, for any and all purposes, with no obligation of any kind to you, in perpetuity.\n  </li>\n\n  <li>\n    Confidentiality. Any information not generally available to the public that is made available to you should be considered Confidential. You agree to:\n    <ol type=\"a\">\n      <li>\n        Protect this information from unauthorized use, access, or disclosure, \n      </li>\n      <li>\n        Use this information only as necessary,\n      </li>\n      <li>\n        Destroy any copies, or return this information to us when this Contract is terminated, or at any time as requested by Splitwise \n      </li>\n    </ol>\n  </li>\n\n  <li>\n    Termination. This Contract shall remain effective until terminated by either party. You may terminate this Contract at any time, by discontinuing your use of our APIs. Splitwise may terminate this Contract at any time with or without cause and without advanced notice to you. Upon termination, all rights and licenses granted under this Contract shall immediately terminate. You must immediately discontinue any use, and destroy any copies of the Splitwise Materials and Confidential Information in your possession.\n  </li>\n  <li>\n    Representations and Warranties. You represent and warrant that you have validly entered into the Contract, and that you have the legal power to do so, and that doing so will not violate any law, government regulation, or breach agreement with another third party.\n    <br><br>THE SPLITWISE API AND DOCUMENTATION IS BEING PROVIDED TO YOU ‘AS IS’ AND ‘AS AVAILABLE’ WITHOUT ANY WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY WARRANTIES OF MERCHANTABILITY, TITLE, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. YOU ACKNOWLEDGE THAT WE DO NOT WARRANT THAT THE APIS WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE.\n  </li>\n  <li>\n    Limitation of Liability.\n    <br><br>TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL SPLITWISE, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, LICENSORS, LICENSEES, ASSIGNS OR SUCCESSORS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED TO ANY LOSS OF DATA, SERVICE INTERRUPTION, COMPUTER FAILURE, OR PECUNIARY LOSS) HOWEVER CAUSED, WHETHER IN CONTRACT, TORT OR UNDER ANY OTHER THEORY OF LIABILITY, AND WHETHER OR NOT YOU OR THE THIRD PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. YOUR ONLY RIGHT WITH RESPECT TO ANY PROBLEMS OR DISSATISFACTION WITH THE SPLITWISE SERVICES IS TO STOP USING THE SPLITWISE SERVICES.\n    <br><br>SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OR EXCLUSION OF LIABILITY FOR CERTAIN TYPES OF DAMAGES REFERRED TO ABOVE (INCLUDING INCIDENTAL OR CONSEQUENTIAL DAMAGES). ACCORDINGLY, SOME OF THE ABOVE LIMITATIONS AND EXCLUSIONS MAY NOT APPLY TO YOU. YOU AGREE THAT SPLITWISE’S AGGREGATE LIABILITY UNDER THIS AGREEMENT IS LIMITED TO ONE HUNDRED DOLLARS ($100).\n  </li>\n\n  <li>\n    Indemnification: You agree to defend, indemnify, and hold harmless Splitwise and its affiliates, directors, and customers, from and against any and all third-party claims, actions, suits, and proceedings (including, but not limited to legal, or investigative fees), arising out of, or related to your use of the Splitwise Services, your violation of this Contract, your violation of your user agreement or privacy policy, or your violation of any laws, regulations, or third party rights.\n  </li>\n\n  <li>\n    Miscellaneous\n    <ol type=\"a\">\n      <li>\n        Applicable Law, Jurisdiction, and Venue: Any dispute arising out of this Agreement shall be governed by Massachusetts law and controlling U.S. federal law, without regard to conflict of law provisions thereof. Any claim or dispute between you and Splitwise that arises in whole or in part from this Contract or your use of the API or our Services shall be decided exclusively by a court of competent jurisdiction located in Massachusetts, and you hereby consent to, and waive all defenses of lack of personal jurisdiction and forum non conveniens with respect to venue and jurisdiction in the state and federal courts of Massachusetts.\n      </li>\n      <li>\n        Assignment: You may not assign or delegate any of your rights or obligations hereunder, whether by operation of law or otherwise, without Splitwise’s prior written consent. Splitwise retains the right to assign the Contract in its entirety, without consent of the other party, to a corporate affiliate or in connection with a merger, acquisition, corporate reorganization, or sale of all or substantially all of its assets. Any purported assignment in violation of this section is void.\n      </li>\n      <li>\n        Language: This contact was drafted in English. In the event that this contract, or any part thereof, is translated to a language other than English, the English-language version shall control in the event of a conflict.\n      </li>\n      <li>\n        Relationship: You and Splitwise are independent contractors. This Contract does not create or imply any partnership, agency, joint venture, fiduciary or employment relationship between the parties. There are no third party beneficiaries to the Contract. \n      </li>\n      <li>\n        Severability: The Contract will be enforced to the fullest extent permitted under applicable law. If any provision of the Contract is found to be invalid or unenforceable by a court of competent jurisdiction, the provision will be modified by the court and interpreted so as best to accomplish the objectives of the original provision to the fullest extent permitted by law, and the remaining provisions of the Contract will remain in effect.\n      </li>\n      <li>\n        Force Majeure: Neither we nor you will be responsible for any failure to perform obligations under this Contract if such failure is caused by events beyond the reasonable control of a party, which may include denial-of-service attacks, a failure by a third party hosting provider, acts of God, war, strikes, revolutions, lack or failure of transportation facilities, laws or governmental regulations. \n      </li>\n      <li>\n        Entire Agreement:  These Terms comprise the entire agreement between you and Splitwise with respect to the above subject matter and supersedes and merges all prior proposals, understandings and contemporaneous communications.\n      </li>\n    </ol>\n  </li>\n</ol>\n\n# Authentication\n\n<!-- ReDoc-Inject: <security-definitions> -->"
+  },
+  "servers": [
+    {
+      "url": "https://secure.splitwise.com/api/v3.0",
+      "variables": {}
+    }
+  ],
+  "security": [
+    {
+      "OAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "users",
+      "x-displayName": "Users",
+      "description": "Resources to access and modify user information."
+    },
+    {
+      "name": "groups",
+      "x-displayName": "Groups",
+      "description": "A Group represents a collection of users who share expenses together. For example, some users use a Group to aggregate expenses related to a home. Others use it to represent a trip. Expenses assigned to a group are split among the users of that group. Importantly, two users in a Group can also have expenses with one another outside of the Group."
+    },
+    {
+      "name": "friends",
+      "x-displayName": "Friends"
+    },
+    {
+      "name": "expenses",
+      "x-displayName": "Expenses"
+    },
+    {
+      "name": "comments",
+      "x-displayName": "Comments"
+    },
+    {
+      "name": "notifications",
+      "x-displayName": "Notifications"
+    },
+    {
+      "name": "other",
+      "x-displayName": "Other"
+    }
+  ],
+  "paths": {
+    "/get_current_user": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get information about the current user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/current_user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/get_user/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get information about another user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/update_user/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Update a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "locale": {
+                    "type": "string"
+                  },
+                  "default_currency": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/get_groups": {
+      "get": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "List the current user's groups",
+        "description": "**Note**: Expenses that are not associated with a group are listed in a group with ID 0.\n",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/group"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/get_group/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Get information about a group",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "group": {
+                      "$ref": "#/components/schemas/group"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/create_group": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Create a group",
+        "description": "Creates a new group. Adds the current user to the group by default.\n\n**Note**: group user parameters must be flattened into the format `users__{index}__{property}`, where\n`property` is `user_id`, `first_name`, `last_name`, or `email`.\nThe user's email or ID must be provided.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "group_type": {
+                    "type": "string",
+                    "enum": [
+                      "home",
+                      "trip",
+                      "couple",
+                      "other",
+                      "apartment",
+                      "house"
+                    ],
+                    "example": "home",
+                    "description": "What is the group used for?\n\n**Note**: It is recommended to use `home` in place of `house` or `apartment`.\n"
+                  },
+                  "simplify_by_default": {
+                    "type": "boolean",
+                    "description": "Turn on simplify debts?"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "x-additionalPropertiesName": "users__{index}__{property}"
+                },
+                "example": {
+                  "name": "The Brain Trust",
+                  "group_type": "trip",
+                  "users__0__first_name": "Alan",
+                  "users__0__last_name": "Turing",
+                  "users__0__email": "alan@example.org",
+                  "users__1__id": 5823
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "group": {
+                      "$ref": "#/components/schemas/group"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "object",
+                      "properties": {
+                        "base": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "You cannot add unknown users to a group by user_id"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete_group/{id}": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Delete a group",
+        "description": "Delete an existing group. Destroys all associated records (expenses, etc.)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/undelete_group/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Restore a group",
+        "description": "Restores a deleted group.\n\n**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.\n",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "success": true
+                    }
+                  },
+                  "Failure": {
+                    "value": {
+                      "success": false,
+                      "errors": [
+                        "You do not have permission to undelete this group."
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/add_user_to_group": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Add a user to a group",
+        "description": "**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "User ID",
+                    "properties": {
+                      "group_id": {
+                        "type": "integer",
+                        "example": 49012
+                      },
+                      "user_id": {
+                        "type": "integer",
+                        "example": 7999632
+                      }
+                    },
+                    "required": [
+                      "user_id"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "title": "User info",
+                    "properties": {
+                      "group_id": {
+                        "type": "integer",
+                        "example": 49012
+                      },
+                      "first_name": {
+                        "type": "string",
+                        "example": "Grace"
+                      },
+                      "last_name": {
+                        "type": "string",
+                        "example": "Hopper"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "gracehopper@example.com"
+                      }
+                    },
+                    "required": [
+                      "first_name",
+                      "last_name",
+                      "email"
+                    ]
+                  }
+                ],
+                "required": [
+                  "group_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/user"
+                    },
+                    "errors": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "success": true,
+                      "user": {},
+                      "errors": {}
+                    }
+                  },
+                  "Failure": {
+                    "value": {
+                      "success": false,
+                      "user": null,
+                      "errors": {
+                        "base": [
+                          "That user cannot be a member of this group"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/remove_user_from_group": {
+      "post": {
+        "tags": [
+          "groups"
+        ],
+        "summary": "Remove a user from a group",
+        "description": "Remove a user from a group. Does not succeed if the user has a non-zero balance.\n\n**Note:** 200 OK does not indicate a successful response. You must check the success value of the response.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group_id": {
+                    "type": "integer",
+                    "example": 4012
+                  },
+                  "user_id": {
+                    "type": "integer",
+                    "example": 940142
+                  }
+                },
+                "required": [
+                  "user_id",
+                  "group_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "errors": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "success": true,
+                      "errors": {}
+                    }
+                  },
+                  "Failure": {
+                    "value": {
+                      "success": false,
+                      "errors": {
+                        "base": [
+                          "The user has a non-zero balance"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_friends": {
+      "get": {
+        "tags": [
+          "friends"
+        ],
+        "summary": "List current user's friends",
+        "description": "**Note**: `group` objects only include group balances with that friend.\n",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friends": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/friend"
+                          },
+                          {
+                            "title": "User"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/get_friend/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "description": "User ID of the friend",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "friends"
+        ],
+        "summary": "Get details about a friend",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friend": {
+                      "$ref": "#/components/schemas/friend"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/create_friend": {
+      "post": {
+        "tags": [
+          "friends"
+        ],
+        "summary": "Add a friend",
+        "description": "Adds a friend. If the other user does not exist, you must supply `user_first_name`.\nIf the other user exists, `user_first_name` and `user_last_name` will be ignored.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "example": "ada@example.com"
+                  },
+                  "user_first_name": {
+                    "type": "string",
+                    "example": "Ada"
+                  },
+                  "user_last_name": {
+                    "type": "string",
+                    "example": "Lovelace"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friend": {
+                      "$ref": "#/components/schemas/friend"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/create_friends": {
+      "post": {
+        "tags": [
+          "friends"
+        ],
+        "summary": "Add friends",
+        "description": "Add multiple friends at once.\n\nFor each user, if the other user does not exist, you must supply `friends__{index}__first_name`.\n\n**Note**: user parameters must be flattened into the format `friends__{index}__{property}`, where\n`property` is `first_name`, `last_name`, or `email`.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "x-additionalPropertiesName": "friends__{index}__{property}"
+                }
+              },
+              "example": {
+                "friends__0__first_name": "Alan",
+                "friends__0__last_name": "Turing",
+                "friends__0__email": "alan@example.org",
+                "friends__1__email": "existing_user@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/friend"
+                          },
+                          {
+                            "title": "User"
+                          }
+                        ]
+                      }
+                    },
+                    "errors": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/friend"
+                          },
+                          {
+                            "title": "User"
+                          }
+                        ]
+                      },
+                      "example": []
+                    },
+                    "errors": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "example": {
+                        "base": [
+                          "Please supply a name for this user"
+                        ]
+                      }
+                    }
+                  },
+                  "example": {
+                    "users": [],
+                    "errors": {
+                      "base": [
+                        "That user cannot be a member of this group"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/delete_friend/{id}": {
+      "post": {
+        "tags": [
+          "friends"
+        ],
+        "summary": "Delete friendship",
+        "description": "Given a friend ID, break off the friendship between the current user and the specified user.\n\n**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response.\n",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "User ID of the friend",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "errors": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "success": true,
+                      "errors": []
+                    }
+                  },
+                  "Failure": {
+                    "value": {
+                      "success": false,
+                      "errors": {
+                        "base": [
+                          "There was an issue deleting that friendship"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/get_currencies": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Supported currencies",
+        "security": [],
+        "description": "Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do\nsometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin).\n",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "title": "Currency",
+                        "properties": {
+                          "currency_code": {
+                            "type": "string",
+                            "example": "BRL"
+                          },
+                          "unit": {
+                            "type": "string",
+                            "example": "R$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_expense/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "Get expense information",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expense": {
+                      "$ref": "#/components/schemas/expense"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/get_expenses": {
+      "get": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "List the current user's expenses",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "group_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "If provided, only expenses in that group will be returned, and `friend_id` will be ignored."
+          },
+          {
+            "in": "query",
+            "name": "friend_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of another user. If provided, only expenses between the current and provided user will be returned."
+          },
+          {
+            "in": "query",
+            "name": "dated_after",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dated_before",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "updated_after",
+            "schema": {
+              "type": "string",
+              "format": "update-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "updated_before",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expenses": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/expense"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/create_expense": {
+      "post": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "Create an expense",
+        "description": "Creates an expense. You may either split an expense equally (only with `group_id` provided),\nor supply a list of shares.\n\nWhen splitting equally, the authenticated user is assumed to be the payer.\n\nWhen providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following:\n- `email`, `first_name`, and `last_name`\n- `user_id`\n\n**Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/equal_group_split",
+                    "title": "Equal group split"
+                  },
+                  {
+                    "$ref": "#/components/schemas/by_shares",
+                    "title": "Split by shares"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expenses": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/expense"
+                      }
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "object",
+                      "properties": {
+                        "base": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "Unrecognized parameter `bad_parameter`"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/update_expense/{id}": {
+      "post": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "Update an expense",
+        "description": "Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters\nthat are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_\nshares for the expense will be overwritten with the provided values.\n\n**Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty.\n",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the expense to update",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/by_shares"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expenses": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/expense"
+                      }
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/delete_expense/{id}": {
+      "post": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "Delete an expense",
+        "description": "**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true.\n",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the expense to delete",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "success"
+                  ]
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "success": true
+                    }
+                  },
+                  "Failure": {
+                    "value": {
+                      "success": false,
+                      "errors": {
+                        "expense": [
+                          "does not exist, or has already been deleted"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/undelete_expense/{id}": {
+      "post": {
+        "tags": [
+          "expenses"
+        ],
+        "summary": "Restore an expense",
+        "description": "**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true.\n",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the expense to restore",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          }
+        }
+      }
+    },
+    "/get_comments": {
+      "get": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Get expense comments",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "expense_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 4193
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/comment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/create_comment": {
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Create a comment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expense_id": {
+                    "type": "integer",
+                    "example": 5123
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Does this include the delivery fee?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comment": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/comment"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "relation_id": {
+                              "example": 5123
+                            },
+                            "comment_type": {
+                              "example": "User"
+                            },
+                            "content": {
+                              "example": "Does this include the delivery fee?"
+                            },
+                            "user": {
+                              "$ref": "#/components/schemas/comment_user"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/delete_comment/{id}": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "comments"
+        ],
+        "summary": "Delete a comment",
+        "description": "Deletes a comment. Returns the deleted comment.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comment": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/comment"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "comment_type": {
+                              "example": "User"
+                            },
+                            "content": {
+                              "example": "Does this include the delivery fee?"
+                            },
+                            "user": {
+                              "$ref": "#/components/schemas/comment_user"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          }
+        }
+      }
+    },
+    "/get_notifications": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Get notifications",
+        "description": "Return a list of recent activity on the users account with the most recent items first.\n`content` will be suitable for display in HTML and uses only the `<strong>`, `<strike>`, `<small>`,\n`<br>` and `<font color=\"#FFEE44\">` tags.\n\nThe `type` value indicates what the notification is about. Notification types may be added in the future\nwithout warning. Below is an incomplete list of notification types.\n\n| Type | Meaning |\n| ---- | ------- |\n| 0    | Expense added |\n| 1    | Expense updated |\n| 2\t   | Expense deleted |\n| 3\t   | Comment added |\n| 4\t   | Added to group |\n| 5\t   | Removed from group |\n| 6\t   | Group deleted |\n| 7\t   | Group settings changed |\n| 8\t   | Added as friend |\n| 9\t   | Removed as friend |\n| 10\t | News (a URL should be included) |\n| 11\t | Debt simplification |\n| 12\t | Group undeleted |\n| 13\t | Expense undeleted |\n| 14\t | Group currency conversion |\n| 15\t | Friend currency conversion |\n\n**Note**: While all parameters are optional, the server sets arbitrary (but large) limits\non the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a\nuser with many notifications.\n",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "updated_after",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2020-07-28T20:46:00Z"
+            },
+            "description": "If provided, returns only notifications after this time."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Omit (or provide `0`) to get the maximum number of notifications."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notifications": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/notification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/get_categories": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Supported categories",
+        "security": [],
+        "description": "Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent groups of categories with subcategories for more specific categorization.\nWhen creating expenses, you must use a subcategory, not a parent category.\nIf you intend for an expense to be represented by the parent category and nothing more specific, please use the \"Other\" subcategory.\n",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/parent_category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth": {
+        "type": "oauth2",
+        "description": "Splitwise uses OAuth 2 with the authorization code flow. To connect via OAuth 2, you'll need to [register your app](https://secure.splitwise.com/apps). When you register, you'll be given a key and secret.\n\n**Note**: OAuth can be a very confusing protocol to implement correctly, and we **strongly** recommend\nthat you use an existing OAuth library to connect to Splitwise. You can find a list of OAuth client libraries at the\n[OAuth community site](https://oauth.net/code/#client-libraries).\n\nFor more information on using OAuth, check out the following resources:\n\n- The OAuth community [getting started guide](https://oauth.net/getting-started/)\n- The oauth.com [OAuth 2.0 playground](https://www.oauth.com/playground/) (great for debugging authorization issues)\n- This [old Splitwise blog post](https://blog.splitwise.com/2013/07/15/setting-up-oauth-for-the-splitwise-api/) about OAuth\n",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "/oauth/authorize",
+            "tokenUrl": "/oauth/token",
+            "scopes": {}
+          }
+        }
+      },
+      "ApiKeyAuth": {
+        "type": "http",
+        "description": "For speed and ease of prototyping, you can generate a personal API key on your app's details page. You should present this key to the server via the Authorization header as a Bearer token. The API key is an access token for your personal account, so keep it as safe as you would a password.\nIf your key becomes compromised or you want to invalidate your existing key for any other reason, you can do so on the app details page by generating a new key.",
+        "scheme": "bearer",
+        "bearerFormat": "API key"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "$ref": "#/components/responses/unauthorized"
+      },
+      "Forbidden": {
+        "$ref": "#/components/responses/forbidden"
+      },
+      "Not_Found": {
+        "$ref": "#/components/responses/not_found"
+      },
+      "unauthorized": {
+        "description": "Invalid API key or OAuth access token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/unauthorized"
+            }
+          }
+        }
+      },
+      "forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/forbidden"
+            }
+          }
+        }
+      },
+      "not_found": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/not_found"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Debt": {
+        "$ref": "#/components/schemas/debt"
+      },
+      "User": {
+        "$ref": "#/components/schemas/user"
+      },
+      "CurrentUser": {
+        "$ref": "#/components/schemas/current_user"
+      },
+      "NotificationSettings": {
+        "$ref": "#/components/schemas/notification_settings"
+      },
+      "Group": {
+        "$ref": "#/components/schemas/group"
+      },
+      "UnauthorizedError": {
+        "$ref": "#/components/schemas/unauthorized"
+      },
+      "ForbiddenError": {
+        "$ref": "#/components/schemas/forbidden"
+      },
+      "NotFoundError": {
+        "$ref": "#/components/schemas/not_found"
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Ada"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Lovelace",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "example": "ada@example.com"
+          },
+          "registration_status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "dummy",
+              "invited"
+            ]
+          },
+          "picture": {
+            "type": "object",
+            "properties": {
+              "small": {
+                "type": "string"
+              },
+              "medium": {
+                "type": "string"
+              },
+              "large": {
+                "type": "string"
+              }
+            }
+          },
+          "custom_picture": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "notification_settings": {
+        "type": "object",
+        "description": "User's notification preferences",
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "example": {
+          "added_as_friend": true
+        }
+      },
+      "current_user": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/user"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "notifications_read": {
+                "type": "string",
+                "example": "2017-06-02T20:21:57Z",
+                "description": "ISO 8601 date/time indicating the last time notifications were read"
+              },
+              "notifications_count": {
+                "type": "integer",
+                "example": 12,
+                "description": "Number of unread notifications since notifiations_read"
+              },
+              "notifications": {
+                "$ref": "#/components/schemas/notification_settings"
+              },
+              "default_currency": {
+                "type": "string",
+                "example": "USD"
+              },
+              "locale": {
+                "type": "string",
+                "example": "en",
+                "description": "ISO_639-1 2-letter locale code"
+              }
+            }
+          }
+        ]
+      },
+      "unauthorized": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Invalid API request: you are not logged in"
+          }
+        }
+      },
+      "forbidden": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "object",
+            "properties": {
+              "base": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "Invalid API request: you do not have permission to perform that action"
+                }
+              }
+            }
+          }
+        }
+      },
+      "not_found": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "object",
+            "properties": {
+              "base": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "Invalid API Request: record not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "debt": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "integer",
+            "example": 18523,
+            "description": "User ID"
+          },
+          "to": {
+            "type": "integer",
+            "example": 90261,
+            "description": "User ID"
+          },
+          "amount": {
+            "type": "string",
+            "example": "414.5"
+          },
+          "currency_code": {
+            "type": "string",
+            "example": "USD"
+          }
+        }
+      },
+      "group": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 321
+          },
+          "name": {
+            "type": "string",
+            "example": "Housemates 2020"
+          },
+          "group_type": {
+            "type": "string",
+            "enum": [
+              "home",
+              "trip",
+              "couple",
+              "other",
+              "apartment",
+              "house"
+            ],
+            "example": "home",
+            "description": "What is the group used for?\n\n**Note**: It is recommended to use `home` in place of `house` or `apartment`.\n"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "simplify_by_default": {
+            "type": "boolean"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/user"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency_code": {
+                            "type": "string",
+                            "example": "USD"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "example": "-5.02"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "original_debts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/debt"
+            }
+          },
+          "simplified_debts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/debt"
+            }
+          },
+          "avatar": {
+            "type": "object",
+            "properties": {
+              "original": {
+                "type": "string",
+                "nullable": true,
+                "example": null
+              },
+              "xxlarge": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-1000px.png"
+              },
+              "xlarge": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-500px.png"
+              },
+              "large": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-200px.png"
+              },
+              "medium": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-100px.png"
+              },
+              "small": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_avatars/avatar-ruby2-house-50px.png"
+              }
+            }
+          },
+          "custom_avatar": {
+            "type": "boolean"
+          },
+          "cover_photo": {
+            "type": "object",
+            "properties": {
+              "xxlarge": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_cover_photos/coverphoto-ruby-1000px.png"
+              },
+              "xlarge": {
+                "type": "string",
+                "example": "https://s3.amazonaws.com/splitwise/uploads/group/default_cover_photos/coverphoto-ruby-500px.png"
+              }
+            }
+          },
+          "invite_link": {
+            "type": "string",
+            "example": "https://www.splitwise.com/join/abQwErTyuI+12",
+            "description": "A link the user can send to a friend to join the group directly"
+          }
+        }
+      },
+      "balance": {
+        "type": "object",
+        "properties": {
+          "currency_code": {
+            "type": "string",
+            "example": "USD"
+          },
+          "amount": {
+            "type": "string",
+            "example": "414.5"
+          }
+        }
+      },
+      "friend": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/user"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "group_id": {
+                      "type": "integer",
+                      "example": 571
+                    },
+                    "balance": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/balance"
+                      }
+                    }
+                  }
+                }
+              },
+              "balance": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/balance"
+                }
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      },
+      "common": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "string",
+            "example": "25",
+            "description": "A string representation of a decimal value, limited to 2 decimal places"
+          },
+          "description": {
+            "type": "string",
+            "description": "A short description of the expense",
+            "example": "Grocery run"
+          },
+          "details": {
+            "type": "string",
+            "description": "Also known as \"notes.\"",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "description": "The date and time the expense took place. May differ from `created_at`",
+            "format": "date-time",
+            "example": "2012-05-02T13:00:00Z"
+          },
+          "repeat_interval": {
+            "type": "string",
+            "enum": [
+              "never",
+              "weekly",
+              "fortnightly",
+              "monthly",
+              "yearly"
+            ]
+          },
+          "currency_code": {
+            "type": "string",
+            "example": "USD",
+            "description": "A currency code. Must be in the list from `get_currencies`"
+          },
+          "category_id": {
+            "type": "integer",
+            "description": "A category id from `get_categories`",
+            "example": 15
+          }
+        }
+      },
+      "comment_user": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 491923
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Jane"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "picture": {
+            "type": "object",
+            "properties": {
+              "medium": {
+                "type": "string",
+                "example": "image_url"
+              }
+            }
+          }
+        }
+      },
+      "share": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/comment_user"
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 491923
+          },
+          "paid_share": {
+            "type": "string",
+            "example": "8.99"
+          },
+          "owed_share": {
+            "type": "string",
+            "example": "4.5"
+          },
+          "net_balance": {
+            "type": "string",
+            "example": "4.49"
+          }
+        }
+      },
+      "comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 79800950
+          },
+          "content": {
+            "type": "string",
+            "example": "John D. updated this transaction: - The cost changed from $6.99 to $8.99"
+          },
+          "comment_type": {
+            "type": "string",
+            "enum": [
+              "System",
+              "User"
+            ]
+          },
+          "relation_type": {
+            "type": "string",
+            "enum": [
+              "ExpenseComment"
+            ]
+          },
+          "relation_id": {
+            "type": "integer",
+            "example": 855870953,
+            "description": "ID of the subject of the comment"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/comment_user"
+          }
+        }
+      },
+      "expense": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/common"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 51023
+              },
+              "group_id": {
+                "type": "integer",
+                "example": 391,
+                "nullable": true,
+                "description": "Null if the expense is not associated with a group."
+              },
+              "friendship_id": {
+                "type": "integer",
+                "example": 4818,
+                "nullable": true,
+                "description": "Null if the expense is not associated with a friendship."
+              },
+              "expense_bundle_id": {
+                "type": "integer",
+                "example": 491030,
+                "nullable": true
+              },
+              "description": {
+                "type": "string",
+                "example": "Brunch"
+              },
+              "repeats": {
+                "type": "boolean",
+                "description": "Whether the expense recurs automatically"
+              },
+              "repeat_interval": {
+                "type": "string",
+                "enum": [
+                  "never",
+                  "weekly",
+                  "fortnightly",
+                  "monthly",
+                  "yearly"
+                ]
+              },
+              "email_reminder": {
+                "type": "boolean",
+                "description": "Whether a reminder will be sent to involved users in advance of the next occurrence of a recurring expense.\nOnly applicable if the expense recurs.\n"
+              },
+              "email_reminder_in_advance": {
+                "type": "integer",
+                "description": "Number of days in advance to remind involved users about the next occurrence of a new expense.\nOnly applicable if the expense recurs.\n",
+                "enum": [
+                  null,
+                  -1,
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  14
+                ],
+                "nullable": true
+              },
+              "next_repeat": {
+                "type": "string",
+                "nullable": true,
+                "description": "The date of the next occurrence of a recurring expense. Only applicable if the expense recurs."
+              },
+              "details": {
+                "type": "string",
+                "description": "Also known as \"notes.\"",
+                "nullable": true
+              },
+              "comments_count": {
+                "type": "integer"
+              },
+              "payment": {
+                "type": "boolean",
+                "description": "Whether this was a payment between users"
+              },
+              "transaction_confirmed": {
+                "type": "boolean",
+                "description": "If a payment was made via an integrated third party service, whether it was confirmed by that service."
+              },
+              "cost": {
+                "type": "string",
+                "example": "25.0"
+              },
+              "currency_code": {
+                "type": "string",
+                "example": "USD"
+              },
+              "repayments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "integer",
+                      "description": "ID of the owing user",
+                      "example": 6788709
+                    },
+                    "to": {
+                      "type": "integer",
+                      "description": "ID of the owed user",
+                      "example": 270896089
+                    },
+                    "amount": {
+                      "type": "string",
+                      "example": "25.0"
+                    }
+                  }
+                }
+              },
+              "date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The date and time the expense took place. May differ from `created_at`",
+                "example": "2012-05-02T13:00:00Z"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The date and time the expense was created on Splitwise",
+                "example": "2012-07-27T06:17:09Z"
+              },
+              "created_by": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The last time the expense was updated.",
+                "format": "date-time",
+                "example": "2012-12-23T05:47:02Z"
+              },
+              "updated_by": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "deleted_at": {
+                "type": "string",
+                "description": "If the expense was deleted, when it was deleted.",
+                "format": "date-time",
+                "example": "2012-12-23T05:47:02Z",
+                "nullable": true
+              },
+              "deleted_by": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "category": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 5
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Electricity",
+                    "description": "Translated to the current user's locale"
+                  }
+                }
+              },
+              "receipt": {
+                "type": "object",
+                "properties": {
+                  "large": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "https://splitwise.s3.amazonaws.com/uploads/expense/receipt/3678899/large_95f8ecd1-536b-44ce-ad9b-0a9498bb7cf0.png"
+                  },
+                  "original": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "https://splitwise.s3.amazonaws.com/uploads/expense/receipt/3678899/95f8ecd1-536b-44ce-ad9b-0a9498bb7cf0.png"
+                  }
+                }
+              },
+              "users": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/share"
+                }
+              },
+              "comments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/comment"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "equal_group_split": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/common"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "group_id": {
+                "type": "integer",
+                "description": "The group to put this expense in."
+              },
+              "split_equally": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              }
+            }
+          },
+          {
+            "required": [
+              "group_id",
+              "split_equally",
+              "description",
+              "cost"
+            ]
+          }
+        ]
+      },
+      "by_shares": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/common"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "group_id": {
+                "type": "integer",
+                "description": "The group to put this expense in, or `0` to create an expense outside of a group."
+              },
+              "users__0__user_id": {
+                "type": "integer",
+                "example": 54123
+              },
+              "users__0__paid_share": {
+                "type": "string",
+                "example": "25",
+                "description": "Decimal amount as a string with 2 decimal places. The amount this user paid for the expense"
+              },
+              "users__0__owed_share": {
+                "type": "string",
+                "example": "13.55",
+                "description": "Decimal amount as a string with 2 decimal places. The amount this user owes for the expense"
+              },
+              "users__1__first_name": {
+                "type": "string",
+                "example": "Neu"
+              },
+              "users__1__last_name": {
+                "type": "string",
+                "example": "Yewzer"
+              },
+              "users__1__email": {
+                "type": "string",
+                "example": "neuyewxyz@example.com"
+              },
+              "users__1__paid_share": {
+                "type": "string",
+                "example": "0",
+                "description": "Decimal amount as a string with 2 decimal places. The amount this user paid for the expense"
+              },
+              "users__1__owed_share": {
+                "type": "string",
+                "example": "11.45",
+                "description": "Decimal amount as a string with 2 decimal places. The amount this user owes for the expense"
+              }
+            },
+            "additionalProperties": {
+              "x-additionalPropertiesName": "users__{index}__{property}",
+              "type": "string"
+            }
+          },
+          {
+            "required": [
+              "group_id",
+              "description",
+              "cost"
+            ]
+          }
+        ]
+      },
+      "notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 32514315
+          },
+          "type": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "integer",
+            "example": 2
+          },
+          "source": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "type": {
+                "type": "string",
+                "example": "Expense"
+              },
+              "id": {
+                "type": "integer",
+                "example": 865077
+              },
+              "url": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "image_url": {
+            "type": "string",
+            "example": "https://s3.amazonaws.com/splitwise/uploads/notifications/v2/0-venmo.png"
+          },
+          "image_shape": {
+            "type": "string",
+            "enum": [
+              "square",
+              "circle"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "example": "<strong>You</strong> paid <strong>Jon H.</strong>.<br><font color=\\\"#5bc5a7\\\">You paid $23.45</font>"
+          }
+        }
+      },
+      "category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 48
+          },
+          "name": {
+            "type": "string",
+            "example": "Cleaning"
+          },
+          "icon": {
+            "type": "string",
+            "example": "https://s3.amazonaws.com/splitwise/uploads/category/icon/square/utilities/cleaning.png"
+          },
+          "icon_types": {
+            "type": "object",
+            "properties": {
+              "slim": {
+                "type": "object",
+                "properties": {
+                  "small": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "large": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              },
+              "square": {
+                "type": "object",
+                "properties": {
+                  "large": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "xlarge": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "parent_category": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/category"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "example": 1
+              },
+              "name": {
+                "example": "Utilities"
+              },
+              "subcategories": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/category"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -10,7 +10,8 @@ const DEFAULT_SETTINGS: CustomSettings = {
     showUnsplitButtonForSplitTransactions: false,
     tagSplitTransactions: false,
     rememberNetWorthDuration: false,
-    defaultNetWorthDuration: "YTD"
+    defaultNetWorthDuration: "YTD",
+	showPostToSplitwiseButton: false
 };
 
 
@@ -46,16 +47,16 @@ function addCustomSettingsLink(): void {
 		if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
 		customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
 
-		// Show modal on click. Do a fade in transition
-		customSettingsDivElement.addEventListener('click', () => {
-			showCustomSettingsModal();
-		});
-
 		// Add the custom settings link to the anchor element   
 		customSettingsAnchorElement.appendChild(customSettingsDivElement);
 
 		// Add the anchor element to the settings container
 		settingsContainer.appendChild(customSettingsAnchorElement);
+
+		// Show modal on click. Do a fade in transition
+		customSettingsDivElement.addEventListener('click', () => {
+			showCustomSettingsModal();
+		});
 
 	}
 
@@ -114,24 +115,6 @@ async function showCustomSettingsModal(): Promise<void> {
 }
 
 //------------------ HELPER FUNCTIONS ------------------
-
-// Function to apply the correct modal styles
-// function applyModalStyles(modal: HTMLElement): void {
-//     const theme = detectTheme();
-//     if (theme === 'dark') {
-//         modal.classList.add('mmm-modal-dark');
-//         modal.querySelector('.mmm-modal-content')?.classList.add('mmm-modal-content-dark');
-//         modal.querySelector('.mmm-modal-header')?.classList.add('mmm-modal-header-dark');
-//         modal.querySelector('.mmm-modal-body')?.classList.add('mmm-modal-body-dark');
-//         modal.querySelector('.mmm-modal-close')?.classList.add('mmm-modal-close-dark');
-//     } else {
-//         modal.classList.add('mmm-modal-light');
-//         modal.querySelector('.mmm-modal-content')?.classList.add('mmm-modal-content-light');
-//         modal.querySelector('.mmm-modal-header')?.classList.add('mmm-modal-header-light');
-//         modal.querySelector('.mmm-modal-body')?.classList.add('mmm-modal-body-light');
-//         modal.querySelector('.mmm-modal-close')?.classList.add('mmm-modal-close-light');
-//     }
-// }
 
 // Function to attach event listeners to the modal
 function attachModalEventListeners(modal: HTMLElement): void {
@@ -331,8 +314,24 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {i
                                 The name of the tag to use when splitting transactions with a partner
                             </div>
                         </div>
+
+                        <div class="mmm-setting-divider"></div>
+
+                        <div class="mmm-setting-item" id="mmm-setting-item-post-to-splitwise-button">
+                            <div class="mmm-setting-item-content">
+                                <label>Split & Post to Splitwise</label>
+								<label class="toggle-switch">
+									<input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise-button" />
+									<span class="slider"></span>
+								</label>
+                            </div>
+							<div class="mmm-modal-body-text-small">
+								Show the split and post to Splitwise button
+							</div>
+                        </div>
                     </div>
                 </div>
+
 
                 <div class="mmm-settings-section">
                     <div class="mmm-setting-header-${theme} collapsed">
@@ -402,7 +401,7 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {i
 // Function to load settings and set the modal values
 function loadSettingsAndSetModalValues(): void {
     const settings = getCustomSettings();
-	
+
     const showSplitCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
     const tagNameSelect = document.getElementById('split-with-partner-tag-name') as HTMLSelectElement;
     const accountIdSelect = document.getElementById('split-with-partner-account-id') as HTMLSelectElement;
@@ -410,6 +409,7 @@ function loadSettingsAndSetModalValues(): void {
     const showUnsplitCheckbox = document.getElementById('show-unsplit-button-for-split-transactions') as HTMLInputElement;
     const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
     const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
+	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise-button') as HTMLInputElement;
 
     showSplitCheckbox.checked = settings.showSplitButtonForUnsplitTransactions || false;
     tagNameSelect.value = settings.splitWithPartnerTagName || '';
@@ -418,6 +418,7 @@ function loadSettingsAndSetModalValues(): void {
     showUnsplitCheckbox.checked = settings.showUnsplitButtonForSplitTransactions || false;
     tagTransactionsCheckbox.checked = settings.tagSplitTransactions || false;
     defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
+	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
 
     showHideSettingItems();
 }

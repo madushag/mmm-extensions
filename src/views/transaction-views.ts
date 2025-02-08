@@ -16,6 +16,11 @@ let SPLIT_WITH_PARTNER_TAG_NAME = "";
 let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
 
 
+const DebSplitwiseUserId = 782502;
+const MySplitwiseUserId = 139530;
+const HomeRevereSWGroupId = 1708251;
+
+
 // Listen for the CustomEvent from the content script
 document.addEventListener('EXECUTE-TRANSACTIONS-VIEW', (event) => {
     // Bootstrap settings   
@@ -87,6 +92,16 @@ function addSplitButtonsIfNeeded(row: HTMLElement, customSettings: CustomSetting
             buttonSplit.onclick = async (e) => await handleSplitButtonClick(e, row);
             buttonContainer.appendChild(buttonSplit);
         }
+
+		// // Add the split and post to SW button to the button container, if the transaction is not from the Capital One Savor account
+		// if (settings.showSplitAndPostToSplitwiseButtonForSharedAccount && transactionDetails.accountId !== SplitWithPartnerAccountId) {
+		// 	const buttonSplitAndPostToSW = document.createElement("button");
+		// 	buttonSplitAndPostToSW.className = "monarch-helper-button";
+		// 	if (existingButton) buttonSplitAndPostToSW.className += " " + existingButton.className;
+		// 	buttonSplitAndPostToSW.innerHTML = "📤";
+		// 	buttonSplitAndPostToSW.onclick = async (e) => await handleSplitAndPostToSWButtonClick(e, row);
+		// 	buttonContainer.appendChild(buttonSplitAndPostToSW);
+		// }
     }
 }
 
