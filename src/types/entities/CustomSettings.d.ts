@@ -8,8 +8,9 @@ export interface CustomSettings {
 	tagSplitTransactions: boolean;
 
 	showPostToSplitwiseButton: boolean;
-	
-    rememberNetWorthDuration: boolean;
+	splitwiseFriendId: string;
+
+	rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;
 
 }

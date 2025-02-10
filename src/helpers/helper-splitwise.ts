@@ -13,7 +13,9 @@ export enum SplitwiseMessageType {
 	POST_TO_SPLITWISE = 'POST_TO_SPLITWISE',
 	SPLITWISE_EXPENSE_RESPONSE = 'SPLITWISE_EXPENSE_RESPONSE',
 	GET_SPLITWISE_TOKEN = 'GET_SPLITWISE_TOKEN',
-	SPLITWISE_TOKEN_RESPONSE = 'SPLITWISE_TOKEN_RESPONSE'
+	SPLITWISE_TOKEN_RESPONSE = 'SPLITWISE_TOKEN_RESPONSE',
+	GET_SPLITWISE_FRIENDS = 'GET_SPLITWISE_FRIENDS',
+	SPLITWISE_FRIENDS_RESPONSE = 'SPLITWISE_FRIENDS_RESPONSE'
 }
 
 /**
@@ -71,6 +73,48 @@ export async function postToSplitwise(
 	});
 }
 
+/**
+ * Gets the list of friends from Splitwise.
+ * It sends a message to the content script and listens for the response.
+ * On success, it resolves with the list of friends; on failure, it rejects with an error.
+ * 
+ * @returns A promise that resolves to the list of Splitwise friends or rejects with an error.
+ */
+export async function getSplitwiseFriends(): Promise<any[]> {
+	return new Promise((resolve, reject) => {
+		const messageId = Math.random().toString(36).substring(7);
+
+		// Setup the event listener before posting the message
+		const messageListener = (event: MessageEvent) => {
+			// Only accept messages from our extension
+			if (event.data.source !== 'MMM_EXTENSION') return;
+
+			// Handle the response from Splitwise
+			if (event.data.type === SplitwiseMessageType.SPLITWISE_FRIENDS_RESPONSE && event.data.messageId === messageId) {
+				window.removeEventListener('message', messageListener);
+
+				if (event.data.error) {
+					reject(new Error(event.data.error));
+				} else {
+					resolve(event.data.friends);
+				}
+			}
+		};
+		window.addEventListener('message', messageListener);
+
+		try {
+			// Send message to content script
+			window.postMessage({
+				type: SplitwiseMessageType.GET_SPLITWISE_FRIENDS,
+				messageId,
+				source: 'MMM_EXTENSION'
+			}, '*');
+		} catch (error) {
+			window.removeEventListener('message', messageListener);
+			reject(error);
+		}
+	});
+}
 
 // /**
 //  * Gets the Splitwise token. This function can work in two ways:

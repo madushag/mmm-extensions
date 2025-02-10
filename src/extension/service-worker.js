@@ -52,16 +52,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 
 	//***** SPLITWISE EVENTS *****
-	// else if (request.type === SplitwiseMessageType.GET_SPLITWISE_TOKEN) {
-	// 	getSplitwiseToken().then(token => {
-	// 		sendResponse({ token });
-
-	// 	}).catch(error => {
-	// 		console.error('Error getting Splitwise token:', error);
-	// 		sendResponse({ error: error.message });
-	// 	});
-	// 	return true;  // Required to handle asynchronous response
-	// }
+	else if (request.type === SplitwiseMessageType.GET_SPLITWISE_FRIENDS) {
+		getSplitwiseFriends()
+			.then(friends => {
+				sendResponse({ success: true, friends });
+			})
+			.catch(error => {
+				console.error('Error getting Splitwise friends:', error);
+				sendResponse({ success: false, error: error.message });
+			});
+		return true; // Required for async response
+	}
 	else if (request.type === SplitwiseMessageType.POST_TO_SPLITWISE) {
 		postToSplitwise(request.expenseDetails, request.myUserId, request.debUserId)
 			.then(response => {
@@ -176,6 +177,25 @@ async function getSplitwiseToken() {
 		});
 		throw error;
 	}
+}
+
+// Get friends from Splitwise
+async function getSplitwiseFriends() {
+	const token = await getSplitwiseToken();
+	const response = await fetch("https://secure.splitwise.com/api/v3.0/get_friends", {
+		method: "GET",
+		headers: {
+			"Authorization": `Bearer ${token}`,
+			"Content-Type": "application/json"
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+	const data = await response.json();
+	return data.friends;
 }
 
 

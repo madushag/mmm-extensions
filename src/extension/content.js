@@ -11,7 +11,9 @@ const SplitwiseMessageType = Object.freeze({
 	POST_TO_SPLITWISE: 'POST_TO_SPLITWISE',
 	SPLITWISE_EXPENSE_RESPONSE: 'SPLITWISE_EXPENSE_RESPONSE',
 	GET_SPLITWISE_TOKEN: 'GET_SPLITWISE_TOKEN',
-	SPLITWISE_TOKEN_RESPONSE: 'SPLITWISE_TOKEN_RESPONSE'
+	SPLITWISE_TOKEN_RESPONSE: 'SPLITWISE_TOKEN_RESPONSE',
+	GET_SPLITWISE_FRIENDS: 'GET_SPLITWISE_FRIENDS',
+	SPLITWISE_FRIENDS_RESPONSE: 'SPLITWISE_FRIENDS_RESPONSE'
 });
 
 const AnalyticsMessageType = Object.freeze({
@@ -55,19 +57,19 @@ window.addEventListener('message', function (event) {
 	if (event.data.source !== 'MMM_EXTENSION') return;
 
 	// Forward Splitwise-related messages to the service worker
-	// if (event.data.type === SplitwiseMessageType.GET_SPLITWISE_TOKEN) {
-	// 	chrome.runtime.sendMessage({
-	// 		type: SplitwiseMessageType.GET_SPLITWISE_TOKEN
-	// 	}, response => {
-	// 		window.postMessage({
-	// 			type: SplitwiseMessageType.SPLITWISE_TOKEN_RESPONSE,
-	// 			messageId: event.data.messageId,
-	// 			token: response.token,
-	// 			error: response.error,
-	// 			source: 'MMM_EXTENSION'
-	// 		}, '*');
-	// 	});
-	// }
+	if (event.data.type === SplitwiseMessageType.GET_SPLITWISE_FRIENDS) {
+		chrome.runtime.sendMessage({
+			type: SplitwiseMessageType.GET_SPLITWISE_FRIENDS
+		}, response => {
+			window.postMessage({
+				type: SplitwiseMessageType.SPLITWISE_FRIENDS_RESPONSE,
+				messageId: event.data.messageId,
+				friends: response.friends,
+				error: response.error,
+				source: 'MMM_EXTENSION'
+			}, '*');
+		});
+	}
 
 	if (event.data.type === SplitwiseMessageType.POST_TO_SPLITWISE) {
 		chrome.runtime.sendMessage({

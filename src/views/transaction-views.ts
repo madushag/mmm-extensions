@@ -19,7 +19,6 @@ import {
 	unsplitTransaction,
 } from '../helpers/helper-graphql.js';
 import { handleGlobalError } from '../helpers/helper-errorhandler.js';
-
 import { Transaction } from '../types/entities/Transaction.js';
 import { SplitTransaction } from '../types/entities/SplitTransaction.js';
 import { showToast, ToastType } from '../toast.js';
