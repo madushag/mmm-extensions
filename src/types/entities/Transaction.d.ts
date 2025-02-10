@@ -1,3 +1,13 @@
+/******************************************************************************************/
+/* Type definition for Transaction entities in the Monarch Money API.
+/* Defines the structure for:
+/* - Transaction core data (ID, amount, date)
+/* - Split transaction relationships and status
+/* - Associated entities (merchant, category, account)
+/* - Review status and attachments
+/* - Tags and reporting settings
+/******************************************************************************************/
+
 import { HouseholdTransactionTag } from "./HouseholdTransactionTag";
 import { User } from "./User";
 import { Merchant } from "./Merchant";

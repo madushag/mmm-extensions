@@ -11,7 +11,11 @@
     "typescript": "^5.7.3"
   },
   "scripts": {
-    "build": "rimraf dist && tsc && xcopy /E /I src\\extension dist",
-	"clean": "rimraf dist"
+    "build-dev": "rimraf dist && tsc && xcopy /E /I src\\extension dist && del dist\\manifest.json && ren dist\\manifest_dev.json manifest.json",
+    "build-release": "rimraf dist && tsc && xcopy /E /I src\\extension dist && del dist\\manifest_dev.json",
+    "clean": "rimraf dist"
+
+
+    
   }
 }

@@ -1,3 +1,13 @@
+/******************************************************************************************/
+/* This file handles the settings view functionality of the extension.
+/* It provides:
+/* - Custom settings UI and modal management
+/* - Settings persistence and retrieval
+/* - Configuration for split transactions, tags, and accounts
+/* - Theme detection and UI customization
+/* - Net worth duration preferences
+/******************************************************************************************/
+
 import type { CustomSettings } from "../types/entities/CustomSettings.js";
 import { getAllAccountDetails, getAllTags } from "../helpers/helper-graphql.js";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
@@ -11,7 +21,7 @@ const DEFAULT_SETTINGS: CustomSettings = {
     tagSplitTransactions: false,
     rememberNetWorthDuration: false,
     defaultNetWorthDuration: "YTD",
-	showPostToSplitwiseButton: false
+    showPostToSplitwiseButton: false
 };
 
 
@@ -24,57 +34,57 @@ document.addEventListener('EXECUTE-CUSTOM-SETTINGS', (event) => {
 
 // Function to add the custom settings link
 function addCustomSettingsLink(): void {
-  // Add custom settings section
-	const settingsContainer = document.querySelector('div[class*="Settings__SubNavCard"]')?.querySelector('div[class^="Menu"]');
+    // Add custom settings section
+    const settingsContainer = document.querySelector('div[class*="Settings__SubNavCard"]')?.querySelector('div[class^="Menu"]');
 
-	// Check if the settings container exists and if the custom settings link doesn't already exist
-	if (settingsContainer && !document.getElementById('mmm-custom-settings-anchor')) {
-		
-		// Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
-		// and add it to the custom settings link
-		const existingChildAnchorElementStyles = settingsContainer.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
-		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
+    // Check if the settings container exists and if the custom settings link doesn't already exist
+    if (settingsContainer && !document.getElementById('mmm-custom-settings-anchor')) {
 
-		// Add an anchor element to the settings container to contain the custom settings link
-		const customSettingsAnchorElement = document.createElement('a');
-		customSettingsAnchorElement.href = '#';
-		customSettingsAnchorElement.id = 'mmm-custom-settings-anchor';
-		if (existingChildAnchorElementStyles) customSettingsAnchorElement.className = existingChildAnchorElementStyles.className;
+        // Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
+        // and add it to the custom settings link
+        const existingChildAnchorElementStyles = settingsContainer.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
+        const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
 
-		// Create the custom setting div element and add it to the anchor element
-		const customSettingsDivElement = document.createElement('div');
-		customSettingsDivElement.id = 'mmm-custom-settings-div';
-		if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
-		customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
+        // Add an anchor element to the settings container to contain the custom settings link
+        const customSettingsAnchorElement = document.createElement('a');
+        customSettingsAnchorElement.href = '#';
+        customSettingsAnchorElement.id = 'mmm-custom-settings-anchor';
+        if (existingChildAnchorElementStyles) customSettingsAnchorElement.className = existingChildAnchorElementStyles.className;
 
-		// Add the custom settings link to the anchor element   
-		customSettingsAnchorElement.appendChild(customSettingsDivElement);
+        // Create the custom setting div element and add it to the anchor element
+        const customSettingsDivElement = document.createElement('div');
+        customSettingsDivElement.id = 'mmm-custom-settings-div';
+        if (existingDivElementStyles) customSettingsDivElement.className = existingDivElementStyles.className;
+        customSettingsDivElement.innerHTML = 'MMM Extensions Custom Settings';
 
-		// Add the anchor element to the settings container
-		settingsContainer.appendChild(customSettingsAnchorElement);
+        // Add the custom settings link to the anchor element   
+        customSettingsAnchorElement.appendChild(customSettingsDivElement);
 
-		// Show modal on click. Do a fade in transition
-		customSettingsDivElement.addEventListener('click', () => {
-			showCustomSettingsModal();
-		});
+        // Add the anchor element to the settings container
+        settingsContainer.appendChild(customSettingsAnchorElement);
 
-	}
+        // Show modal on click. Do a fade in transition
+        customSettingsDivElement.addEventListener('click', () => {
+            showCustomSettingsModal();
+        });
 
-	// If the custom settings link already exists, re-apply the styles to match the current theme
-	else if (document.getElementById('mmm-custom-settings-anchor')) {
+    }
 
-		// Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
-		// and add it to the custom settings link
-		const existingChildAnchorElementStyles = settingsContainer?.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
-		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
+    // If the custom settings link already exists, re-apply the styles to match the current theme
+    else if (document.getElementById('mmm-custom-settings-anchor')) {
 
-		const anchorElement = document.getElementById('mmm-custom-settings-anchor') as HTMLAnchorElement;
-		const divElement = document.getElementById('mmm-custom-settings-div') as HTMLDivElement;
-		
-		if (existingChildAnchorElementStyles) anchorElement.className = existingChildAnchorElementStyles.className;
-		if (existingDivElementStyles) divElement.className = existingDivElementStyles.className;
-	}
-    
+        // Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
+        // and add it to the custom settings link
+        const existingChildAnchorElementStyles = settingsContainer?.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
+        const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
+
+        const anchorElement = document.getElementById('mmm-custom-settings-anchor') as HTMLAnchorElement;
+        const divElement = document.getElementById('mmm-custom-settings-div') as HTMLDivElement;
+
+        if (existingChildAnchorElementStyles) anchorElement.className = existingChildAnchorElementStyles.className;
+        if (existingDivElementStyles) divElement.className = existingDivElementStyles.className;
+    }
+
 }
 
 // Function to create the custom settings modal
@@ -108,9 +118,9 @@ async function showCustomSettingsModal(): Promise<void> {
         }
     });
 
-	// Send an analytics event when the modal is opened
-	document.dispatchEvent(new CustomEvent('SEND_TO_GANALYTICS_SUCCESS', 
-		{ detail: { eventName: "mmm_custom_settings_modal_opened", params: { theme: theme } } }));
+    // Send an analytics event when the modal is opened
+    document.dispatchEvent(new CustomEvent('SEND_TO_GANALYTICS_SUCCESS',
+        { detail: { eventName: "mmm_custom_settings_modal_opened", params: { theme: theme } } }));
 
 }
 
@@ -195,7 +205,7 @@ function detectTheme(): 'dark' | 'light' {
 }
 
 // Function to create the modal HTML
-function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {id: string, name: string}[], theme: 'dark' | 'light'): void {
+function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { id: string, name: string }[], theme: 'dark' | 'light'): void {
     const modalHtml = `
     <div id="mmm-settings-modal" class="mmm-modal mmm-modal-${theme}">
         <div class="mmm-modal-content mmm-modal-content-${theme}">
@@ -317,11 +327,11 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: {i
 
                         <div class="mmm-setting-divider"></div>
 
-                        <div class="mmm-setting-item" id="mmm-setting-item-post-to-splitwise-button">
+                        <div class="mmm-setting-item" id="mmm-setting-item-post-to-splitwise">
                             <div class="mmm-setting-item-content">
                                 <label>Split & Post to Splitwise</label>
 								<label class="toggle-switch">
-									<input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise-button" />
+									<input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
 									<span class="slider"></span>
 								</label>
                             </div>
@@ -409,7 +419,7 @@ function loadSettingsAndSetModalValues(): void {
     const showUnsplitCheckbox = document.getElementById('show-unsplit-button-for-split-transactions') as HTMLInputElement;
     const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
     const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
-	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise-button') as HTMLInputElement;
+    const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
 
     showSplitCheckbox.checked = settings.showSplitButtonForUnsplitTransactions || false;
     tagNameSelect.value = settings.splitWithPartnerTagName || '';
@@ -418,7 +428,7 @@ function loadSettingsAndSetModalValues(): void {
     showUnsplitCheckbox.checked = settings.showUnsplitButtonForSplitTransactions || false;
     tagTransactionsCheckbox.checked = settings.tagSplitTransactions || false;
     defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
-	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
+    showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
 
     showHideSettingItems();
 }
@@ -452,7 +462,7 @@ function showHideSettingItems(): void {
     } else {
         showSettingItem(tagSettingItem);
     }
-}   
+}
 
 // Function to load the settings from local storage
 function loadSettings(): CustomSettings {
