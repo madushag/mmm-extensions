@@ -52,6 +52,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 
 	//***** SPLITWISE EVENTS *****
+	else if (request.type === SplitwiseMessageType.GET_CURRENT_USER) {
+		getCurrentUser()
+			.then(userId => {
+				sendResponse({ success: true, userId });
+			})
+			.catch(error => {
+				console.error('Error getting current user:', error);
+				sendResponse({ success: false, error: error.message });
+			});
+		return true; // Required for async response
+	}
 	else if (request.type === SplitwiseMessageType.GET_SPLITWISE_FRIENDS) {
 		getSplitwiseFriends()
 			.then(friends => {
@@ -196,6 +207,29 @@ async function getSplitwiseFriends() {
 
 	const data = await response.json();
 	return data.friends;
+}
+
+// Get the current user from Splitwise
+async function getCurrentUser() {
+	const token = await getSplitwiseToken();
+	const response = await fetch("https://secure.splitwise.com/api/v3.0/get_current_user", {
+		method: "GET",
+		headers: {
+			"Authorization": `Bearer ${token}`,
+			"Content-Type": "application/json"
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+	const data = await response.json();
+	if (!data.user || !data.user.id) {
+		throw new Error('Invalid response from Splitwise API');
+	}
+
+	return data.user.id;
 }
 
 

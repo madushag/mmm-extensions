@@ -9,8 +9,8 @@ export interface CustomSettings {
 
 	showPostToSplitwiseButton: boolean;
 	splitwiseFriendId: string;
+	splitwiseUserId: number;
 
 	rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;
-
 }

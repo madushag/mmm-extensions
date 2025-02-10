@@ -11,7 +11,8 @@
 import type { CustomSettings } from "../types/entities/CustomSettings.js";
 import { getAllAccountDetails, getAllTags } from "../helpers/helper-graphql.js";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
-import { getSplitwiseFriends } from "../helpers/helper-splitwise.js";
+import { getSplitwiseFriends, getCurrentUser } from "../helpers/helper-splitwise.js";
+import { showToast, ToastType } from "../toast.js";
 
 const DEFAULT_SETTINGS: CustomSettings = {
 	splitWithPartnerTagName: "",
@@ -23,7 +24,8 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	rememberNetWorthDuration: false,
 	defaultNetWorthDuration: "YTD",
 	showPostToSplitwiseButton: false,
-	splitwiseFriendId: ""
+	splitwiseFriendId: "",
+	splitwiseUserId: 0
 };
 
 
@@ -131,8 +133,15 @@ async function showCustomSettingsModal(): Promise<void> {
 // Function to attach event listeners to the modal
 function attachModalEventListeners(modal: HTMLElement): void {
 	// Save settings on change
-	modal.addEventListener('change', (e: Event) => {
+	modal.addEventListener('change', async (e: Event) => {
+		const target = e.target as HTMLInputElement;
 		showHideSettingItems();
+
+		// Special handling for Splitwise toggle
+		if (target.id === 'show-post-to-splitwise' && target.checked) {
+			await loadSplitwiseData();
+		}
+
 		const settingElements = document.querySelectorAll<HTMLInputElement>('[data-setting-name]');
 		settingElements.forEach(el => {
 			const value = el.type === 'checkbox' ? el.checked : el.value;
@@ -453,9 +462,9 @@ function loadSettingsAndSetModalValues(): void {
 
 	showHideSettingItems();
 
-	// Load Splitwise friends if button is checked
+	// Load Splitwise data if button is checked
 	if (showPostToSplitwiseCheckbox.checked) {
-		loadSplitwiseFriends();
+		loadSplitwiseData();
 	}
 }
 
@@ -543,6 +552,32 @@ async function loadSplitwiseFriends(): Promise<void> {
 	} catch (error) {
 		console.error('Error loading Splitwise friends:', error);
 		friendSelect.innerHTML = '<option value="">Error loading friends</option>';
+	}
+}
+
+// Update function to load Splitwise data
+async function loadSplitwiseData(): Promise<void> {
+	try {
+		// Load user ID if not already stored
+		const settings = getCustomSettings();
+		if (!settings.splitwiseUserId) {
+			const userId = await getCurrentUser();
+			if (userId) {
+				setConfigValue('splitwiseUserId', userId);
+			}
+		}
+
+		// Load friends list
+		await loadSplitwiseFriends();
+
+	} catch (error) {
+		showToast("Failed to load Splitwise data. Please ensure you're logged in to Splitwise.", ToastType.ERROR);
+		// Reset the Splitwise button since we couldn't load the data
+		const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
+		if (showPostToSplitwiseCheckbox) {
+			showPostToSplitwiseCheckbox.checked = false;
+		}
+		setConfigValue('showPostToSplitwiseButton', false);
 	}
 }
 

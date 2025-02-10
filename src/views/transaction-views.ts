@@ -29,9 +29,8 @@ import { postToSplitwise } from '../helpers/helper-splitwise.js';
 // Global variables
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
 let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
-
-const DebSplitwiseUserId = 782502;
-const MySplitwiseUserId = 139530;
+let SPLITWISE_FRIEND_ID = "";
+let SPLITWISE_USER_ID = 0;
 const HomeRevereSWGroupId = 1708251;
 
 // Listen for the EXECUTE-TRANSACTIONS-VIEW from the content script
@@ -45,6 +44,8 @@ document.addEventListener('EXECUTE-TRANSACTIONS-VIEW', (event) => {
 function mainHandler(customSettings: CustomSettings) {
 	SPLIT_WITH_PARTNER_TAG_NAME = customSettings.splitWithPartnerTagName;
 	SPLIT_WITH_PARTNER_ACCOUNT_ID = customSettings.splitWithPartnerAccountId;
+	SPLITWISE_FRIEND_ID = customSettings.splitwiseFriendId;
+	SPLITWISE_USER_ID = customSettings.splitwiseUserId;
 
 	// Get all the transaction rows, determined by whether the row has an amount and a merchant
 	const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
@@ -218,6 +219,16 @@ async function handleUnsplitButtonClick(e: MouseEvent, row: HTMLElement) {
 async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement) {
 	if (e) e.stopPropagation();
 
+	if (!SPLITWISE_FRIEND_ID) {
+		showToast("No Splitwise friend selected in settings. Please configure a friend in MMM Extensions Custom Settings.", ToastType.ERROR);
+		return false;
+	}
+
+	if (!SPLITWISE_USER_ID) {
+		showToast("No Splitwise user ID found. Please ensure you're logged into Splitwise and try enabling Splitwise integration again.", ToastType.ERROR);
+		return false;
+	}
+
 	let transactionDetails = getTransactionDetailsForRow(row);
 	if (!transactionDetails) return false;
 
@@ -239,7 +250,7 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 			notes: transactionDetails.notes
 		};
 
-		await postToSplitwise(expenseDetails, MySplitwiseUserId, DebSplitwiseUserId);
+		await postToSplitwise(expenseDetails, SPLITWISE_USER_ID, parseInt(SPLITWISE_FRIEND_ID));
 		showToast(`Transaction posted to Splitwise successfully!`, ToastType.SUCCESS);
 
 		// Show a toast and hide the split button
