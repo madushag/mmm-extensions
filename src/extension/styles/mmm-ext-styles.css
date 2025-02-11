@@ -39,17 +39,38 @@
 }
 
 /* Toast Notifications */
-.toast-notification {
+.toast-container {
 	position: fixed;
 	top: var(--spacing-xl);
 	right: var(--spacing-xl);
-	color: var(--color-white);
-	padding: var(--spacing-xl);
-	border-radius: 5px;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: var(--spacing-md);
 	z-index: 9999;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-	transition: opacity var(--transition-slow);
+	pointer-events: none;
+}
+
+.toast-notification {
+	color: var(--color-white);
+	padding: var(--spacing-lg) var(--spacing-xl);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: all var(--transition-normal);
+	opacity: 0;
+	transform: translateX(100%);
+	pointer-events: auto;
+	max-width: 300px;
+	word-break: break-word;
+}
+
+.toast-notification.show {
 	opacity: 1;
+	transform: translateX(0);
+}
+
+.toast-notification.hide {
+	opacity: 0;
+	transform: translateX(100%);
 }
 
 .toast-success {

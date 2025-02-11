@@ -4,6 +4,7 @@
 /* - success, error, warning, and info notifications
 /* - customizable fade-out duration
 /* - automatic cleanup of DOM elements
+/* - stackable notifications with FIFO behavior
 /******************************************************************************************/
 
 export enum ToastType {
@@ -13,19 +14,40 @@ export enum ToastType {
 	INFO = "info"
 }
 
+let toastContainer: HTMLDivElement | null = null;
+
+function ensureContainer(): HTMLDivElement {
+	if (!toastContainer) {
+		toastContainer = document.createElement("div");
+		toastContainer.className = "toast-container";
+		document.body.appendChild(toastContainer);
+	}
+	return toastContainer;
+}
+
 export function showToast(message: string, type: ToastType = ToastType.SUCCESS, fadeOutDuration: number = 3): void {
+	const container = ensureContainer();
 	const toast = document.createElement("div");
 	toast.className = `toast-notification toast-${type}`;
 	toast.innerText = message;
 
-	// Add the toast to the body
-	document.body.appendChild(toast);
+	container.appendChild(toast);
 
-	// Fade out the toast after the specified duration
+	// Force reflow to trigger animation
+	void toast.offsetWidth;
+	toast.classList.add("show");
+
 	setTimeout(() => {
-		toast.style.opacity = "0";
+		toast.classList.add("hide");
 		setTimeout(() => {
-			document.body.removeChild(toast);
-		}, 1000);
+			if (container.contains(toast)) {
+				container.removeChild(toast);
+			}
+			// Remove container if it's empty
+			if (container.childNodes.length === 0) {
+				document.body.removeChild(container);
+				toastContainer = null;
+			}
+		}, 300); // Animation duration
 	}, fadeOutDuration * 1000);
 }

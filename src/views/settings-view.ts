@@ -11,7 +11,7 @@
 import type { CustomSettings } from "../types/entities/CustomSettings.js";
 import { getAllAccountDetails, getAllTags } from "../helpers/helper-graphql.js";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
-import { getSplitwiseFriends, getCurrentUser } from "../helpers/helper-splitwise.js";
+import { getSplitwiseFriends, getCurrentUser, getSplitwiseGroups } from "../helpers/helper-splitwise.js";
 import { showToast, ToastType } from "../toast.js";
 
 const DEFAULT_SETTINGS: CustomSettings = {
@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	defaultNetWorthDuration: "YTD",
 	showPostToSplitwiseButton: false,
 	splitwiseFriendId: "",
-	splitwiseUserId: 0
+	splitwiseUserId: 0,
+	splitwiseGroupId: 0
 };
 
 
@@ -369,6 +370,26 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
                                 The friend to split expenses with on Splitwise
                             </div>
                         </div>
+
+                        <div class="mmm-setting-item" id="mmm-setting-item-splitwise-group">
+                            <div class="mmm-setting-item-content-input">
+                                <label>Select Splitwise Group To Post Utility Expenses</label>
+                                <div class="mmm-setting-input-${theme}" style="position: relative;">
+                                    <select class="mmm-setting-dropdown" data-setting-name="splitwiseGroupId" id="splitwise-group-id">
+                                        <option value="0">Loading groups...</option>
+                                    </select>
+                                    <span class="mmm-setting-input-arrow">
+                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mmm-modal-body-text-small">
+                                Optional: Select a group to post expenses to
+                            </div>
+                        </div>
+											
                     </div>
                 </div>
 
@@ -450,6 +471,7 @@ function loadSettingsAndSetModalValues(): void {
 	const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
 	const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
 	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
+	const splitwiseGroupSelect = document.getElementById('splitwise-group-id') as HTMLSelectElement;
 
 	showSplitCheckbox.checked = settings.showSplitButtonForUnsplitTransactions || false;
 	tagNameSelect.value = settings.splitWithPartnerTagName || '';
@@ -459,6 +481,7 @@ function loadSettingsAndSetModalValues(): void {
 	tagTransactionsCheckbox.checked = settings.tagSplitTransactions || false;
 	defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
 	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
+	splitwiseGroupSelect.value = settings.splitwiseGroupId.toString() || '0';
 
 	showHideSettingItems();
 
@@ -479,6 +502,7 @@ function showHideSettingItems(): void {
 	const accountIdSettingItem = document.getElementById('mmm-setting-item-split-with-partner-account-id') as HTMLElement;
 	const tagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name') as HTMLElement;
 	const splitwiseFriendSettingItem = document.getElementById('mmm-setting-item-splitwise-friend') as HTMLElement;
+	const splitwiseGroupSettingItem = document.getElementById('mmm-setting-item-splitwise-group') as HTMLElement;
 
 	if (!showSplitCheckbox.checked) {
 		hideSettingItem(showSplitSettingItem);
@@ -502,8 +526,10 @@ function showHideSettingItems(): void {
 
 	if (!showPostToSplitwiseCheckbox.checked) {
 		hideSettingItem(splitwiseFriendSettingItem);
+		hideSettingItem(splitwiseGroupSettingItem);
 	} else {
 		showSettingItem(splitwiseFriendSettingItem);
+		showSettingItem(splitwiseGroupSettingItem);
 	}
 }
 
@@ -555,6 +581,42 @@ async function loadSplitwiseFriends(): Promise<void> {
 	}
 }
 
+// Add function to load Splitwise groups
+async function loadSplitwiseGroups(): Promise<void> {
+	const groupSelect = document.getElementById('splitwise-group-id') as HTMLSelectElement;
+	if (!groupSelect) return;
+
+	try {
+		const groups = await getSplitwiseGroups();
+
+		// Clear existing options
+		groupSelect.innerHTML = '';
+
+		// Add default option
+		const defaultOption = document.createElement('option');
+		defaultOption.value = '0';
+		defaultOption.textContent = 'Select a group';
+		groupSelect.appendChild(defaultOption);
+
+		// Add group options
+		groups.forEach((group: any) => {
+			const option = document.createElement('option');
+			option.value = group.id;
+			option.textContent = group.name;
+			groupSelect.appendChild(option);
+		});
+
+		// Set selected value if exists in settings
+		const settings = loadSettings();
+		if (settings.splitwiseGroupId) {
+			groupSelect.value = settings.splitwiseGroupId.toString();
+		}
+	} catch (error) {
+		console.error('Error loading Splitwise groups:', error);
+		groupSelect.innerHTML = '<option value="0">Error loading groups</option>';
+	}
+}
+
 // Update function to load Splitwise data
 async function loadSplitwiseData(): Promise<void> {
 	try {
@@ -567,8 +629,11 @@ async function loadSplitwiseData(): Promise<void> {
 			}
 		}
 
-		// Load friends list
-		await loadSplitwiseFriends();
+		// Load both friends and groups lists
+		await Promise.all([
+			loadSplitwiseFriends(),
+			loadSplitwiseGroups()
+		]);
 
 	} catch (error) {
 		showToast("Failed to load Splitwise data. Please ensure you're logged in to Splitwise.", ToastType.ERROR);

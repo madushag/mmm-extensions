@@ -85,12 +85,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			});
 		return true; // Required for async response
 	}
+	else if (request.type === SplitwiseMessageType.GET_SPLITWISE_GROUPS) {
+		getSplitwiseGroups()
+			.then(groups => {
+				sendResponse({ success: true, groups });
+			})
+			.catch(error => {
+				console.error('Error getting Splitwise groups:', error);
+				sendResponse({ success: false, error: error.message });
+			});
+		return true; // Required for async response
+	}
 });
 
 
 // Post a transaction to Splitwise
 async function postToSplitwise(expenseDetails, myUserId, debUserId) {
-	let groupId = 0;
+	let groupId = expenseDetails.groupId || 0;
 	let description = `${expenseDetails.merchant.name} charged not on Savor card`;
 	const expenseAmount = expenseDetails.amount * -1;
 
@@ -106,7 +117,6 @@ async function postToSplitwise(expenseDetails, myUserId, debUserId) {
 	if (expenseDetails.category.name === "Gas Bill" || expenseDetails.category.name === "Electric Bill") {
 		const monthName = new Date(expenseDetails.date).toLocaleString('default', { month: 'long' });
 		const year = expenseDetails.date.split("-")[0];
-		groupId = 1708251; // HomeRevereSWGroupId
 		description = `${expenseDetails.category.name === "Gas Bill" ? "Gas" : "Electric"} - ${year} ${monthName}`;
 	}
 
@@ -230,6 +240,25 @@ async function getCurrentUser() {
 	}
 
 	return data.user.id;
+}
+
+// Get groups from Splitwise
+async function getSplitwiseGroups() {
+	const token = await getSplitwiseToken();
+	const response = await fetch("https://secure.splitwise.com/api/v3.0/get_groups", {
+		method: "GET",
+		headers: {
+			"Authorization": `Bearer ${token}`,
+			"Content-Type": "application/json"
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
+	const data = await response.json();
+	return data.groups;
 }
 
 

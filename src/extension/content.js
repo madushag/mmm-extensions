@@ -15,7 +15,9 @@ const SplitwiseMessageType = Object.freeze({
 	GET_SPLITWISE_FRIENDS: 'GET_SPLITWISE_FRIENDS',
 	SPLITWISE_FRIENDS_RESPONSE: 'SPLITWISE_FRIENDS_RESPONSE',
 	GET_CURRENT_USER: 'GET_CURRENT_USER',
-	CURRENT_USER_RESPONSE: 'CURRENT_USER_RESPONSE'
+	CURRENT_USER_RESPONSE: 'CURRENT_USER_RESPONSE',
+	GET_SPLITWISE_GROUPS: 'GET_SPLITWISE_GROUPS',
+	SPLITWISE_GROUPS_RESPONSE: 'SPLITWISE_GROUPS_RESPONSE'
 });
 
 const AnalyticsMessageType = Object.freeze({
@@ -72,8 +74,20 @@ window.addEventListener('message', function (event) {
 			}, '*');
 		});
 	}
-
-	if (event.data.type === SplitwiseMessageType.GET_SPLITWISE_FRIENDS) {
+	else if (event.data.type === SplitwiseMessageType.GET_SPLITWISE_GROUPS) {
+		chrome.runtime.sendMessage({
+			type: SplitwiseMessageType.GET_SPLITWISE_GROUPS
+		}, response => {
+			window.postMessage({
+				type: SplitwiseMessageType.SPLITWISE_GROUPS_RESPONSE,
+				messageId: event.data.messageId,
+				groups: response.groups,
+				error: response.error,
+				source: 'MMM_EXTENSION'
+			}, '*');
+		});
+	}
+	else if (event.data.type === SplitwiseMessageType.GET_SPLITWISE_FRIENDS) {
 		chrome.runtime.sendMessage({
 			type: SplitwiseMessageType.GET_SPLITWISE_FRIENDS
 		}, response => {

@@ -17,7 +17,9 @@ export enum SplitwiseMessageType {
 	GET_SPLITWISE_FRIENDS = 'GET_SPLITWISE_FRIENDS',
 	SPLITWISE_FRIENDS_RESPONSE = 'SPLITWISE_FRIENDS_RESPONSE',
 	GET_CURRENT_USER = 'GET_CURRENT_USER',
-	CURRENT_USER_RESPONSE = 'CURRENT_USER_RESPONSE'
+	CURRENT_USER_RESPONSE = 'CURRENT_USER_RESPONSE',
+	GET_SPLITWISE_GROUPS = 'GET_SPLITWISE_GROUPS',
+	SPLITWISE_GROUPS_RESPONSE = 'SPLITWISE_GROUPS_RESPONSE'
 }
 
 /**
@@ -150,6 +152,49 @@ export async function getCurrentUser(): Promise<number> {
 			// Send message to content script
 			window.postMessage({
 				type: SplitwiseMessageType.GET_CURRENT_USER,
+				messageId,
+				source: 'MMM_EXTENSION'
+			}, '*');
+		} catch (error) {
+			window.removeEventListener('message', messageListener);
+			reject(error);
+		}
+	});
+}
+
+/**
+ * Gets the list of groups from Splitwise.
+ * It sends a message to the content script and listens for the response.
+ * On success, it resolves with the list of groups; on failure, it rejects with an error.
+ * 
+ * @returns A promise that resolves to the list of Splitwise groups or rejects with an error.
+ */
+export async function getSplitwiseGroups(): Promise<any[]> {
+	return new Promise((resolve, reject) => {
+		const messageId = Math.random().toString(36).substring(7);
+
+		// Setup the event listener before posting the message
+		const messageListener = (event: MessageEvent) => {
+			// Only accept messages from our extension
+			if (event.data.source !== 'MMM_EXTENSION') return;
+
+			// Handle the response from Splitwise
+			if (event.data.type === SplitwiseMessageType.SPLITWISE_GROUPS_RESPONSE && event.data.messageId === messageId) {
+				window.removeEventListener('message', messageListener);
+
+				if (event.data.error) {
+					reject(new Error(event.data.error));
+				} else {
+					resolve(event.data.groups);
+				}
+			}
+		};
+		window.addEventListener('message', messageListener);
+
+		try {
+			// Send message to content script
+			window.postMessage({
+				type: SplitwiseMessageType.GET_SPLITWISE_GROUPS,
 				messageId,
 				source: 'MMM_EXTENSION'
 			}, '*');

@@ -31,7 +31,7 @@ let SPLIT_WITH_PARTNER_TAG_NAME = "";
 let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
 let SPLITWISE_FRIEND_ID = "";
 let SPLITWISE_USER_ID = 0;
-const HomeRevereSWGroupId = 1708251;
+let SPLITWISE_GROUP_ID = 0;
 
 // Listen for the EXECUTE-TRANSACTIONS-VIEW from the content script
 document.addEventListener('EXECUTE-TRANSACTIONS-VIEW', (event) => {
@@ -46,6 +46,7 @@ function mainHandler(customSettings: CustomSettings) {
 	SPLIT_WITH_PARTNER_ACCOUNT_ID = customSettings.splitWithPartnerAccountId;
 	SPLITWISE_FRIEND_ID = customSettings.splitwiseFriendId;
 	SPLITWISE_USER_ID = customSettings.splitwiseUserId;
+	SPLITWISE_GROUP_ID = customSettings.splitwiseGroupId;
 
 	// Get all the transaction rows, determined by whether the row has an amount and a merchant
 	const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
@@ -247,7 +248,8 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 			},
 			amount: transactionDetails.amount,
 			date: transactionDetails.date,
-			notes: transactionDetails.notes
+			notes: transactionDetails.notes,
+			groupId: SPLITWISE_GROUP_ID // Add the group ID from settings
 		};
 
 		await postToSplitwise(expenseDetails, SPLITWISE_USER_ID, parseInt(SPLITWISE_FRIEND_ID));
