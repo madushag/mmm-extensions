@@ -187,6 +187,18 @@
 	align-items: center;
 }
 
+.mmm-setting-item-content-column {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.mmm-setting-label {
+	font-weight: 500;
+	margin-bottom: 0.25rem;
+}
+
 .mmm-setting-item label {
 	display: flex;
 	align-items: center;
@@ -305,6 +317,16 @@
 	background-color: var(--color-toggle-checked);
 }
 
+.mmm-modal-dark .mmm-categories-container {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-search {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Light Theme Styles */
 .mmm-modal-light {
 	background-color: rgba(255, 255, 255, 0.69);
@@ -396,7 +418,7 @@
 }
 
 /* Placeholder styling */
-.mmm-setting-dropdown option[value=""] {
+mmm-setting-dropdown option[value=""] {
 	color: #aaa;
 	/* Light gray for placeholder */
 }
@@ -520,4 +542,245 @@
 .mmm-setting-content:not(.collapsed) {
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	/* Light border when expanded */
+}
+
+.mmm-setting-categories-container {
+	position: relative;
+	width: 100%;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	padding: 8px;
+	margin-top: 8px;
+	background: var(--background-secondary, var(--color-light-bg));
+}
+
+.mmm-setting-category-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 0;
+}
+
+.mmm-setting-category-item input[type="checkbox"] {
+	margin: 0;
+}
+
+.mmm-setting-category-item label {
+	margin: 0;
+	cursor: pointer;
+}
+
+/* Categories Container Styles */
+.mmm-categories-container {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	border: 1px solid var(--border-color, #ccc);
+	border-radius: 8px;
+	background: var(--background-secondary, var(--color-light-bg));
+}
+
+.mmm-categories-search {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: var(--modal-bg-color);
+	padding: 10px 0;
+}
+
+.mmm-categories-search-input {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
+}
+
+.mmm-categories-search {
+	flex: 0 0 auto;
+	background: var(--background-secondary, var(--color-light-bg));
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--border-color, #ccc);
+}
+
+.mmm-categories-search input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--border-color, #ccc);
+	border-radius: 6px;
+	background: var(--background-primary, var(--color-white));
+	color: var(--text-primary, var(--color-light-text));
+	font-size: 14px;
+	transition: border-color 0.2s ease;
+}
+
+.mmm-categories-search input:focus {
+	outline: none;
+	border-color: var(--accent-color, #00aaff);
+	box-shadow: 0 0 0 2px var(--accent-color-transparent, rgba(0, 170, 255, 0.2));
+}
+
+.mmm-categories-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 10px;
+	padding: 10px;
+}
+
+.mmm-categories-grid::-webkit-scrollbar {
+	width: 8px;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 4px;
+	transition: background-color 0.3s;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark theme scrollbar */
+.mmm-modal-dark .mmm-categories-grid {
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.mmm-category-checkbox-wrapper {
+	position: relative;
+	padding: 5px;
+}
+
+.mmm-category-checkbox {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 6px 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+	background-color: var(--background-primary, var(--color-white));
+}
+
+.mmm-category-checkbox:hover {
+	background-color: var(--background-secondary, var(--color-light-bg));
+}
+
+.mmm-category-checkbox input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.mmm-checkbox-custom {
+	width: 18px;
+	height: 18px;
+	margin-right: 10px;
+	border: 2px solid #777;
+	border-radius: 4px;
+	background-color: var(--color-white);
+	display: inline-block;
+	position: relative;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	transition: all 0.2s ease;
+}
+
+.mmm-category-checkbox input:checked~.mmm-checkbox-custom {
+	background-color: var(--color-toggle-checked);
+	border-color: var(--color-toggle-checked);
+	box-shadow: 0 1px 3px rgba(0, 200, 150, 0.3);
+	transform: scale(1.05);
+}
+
+.mmm-checkbox-custom:after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 5px;
+	top: 2px;
+	width: 6px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 2.5px 2.5px 0;
+	transform: rotate(45deg);
+	transition: all 0.2s ease;
+}
+
+.mmm-category-checkbox input:checked~.mmm-checkbox-custom:after {
+	display: block;
+}
+
+.mmm-category-checkbox:hover .mmm-checkbox-custom {
+	border-color: var(--color-toggle-checked);
+	background-color: rgba(0, 200, 150, 0.1);
+}
+
+.mmm-category-label {
+	font-size: 14px;
+	color: var(--text-primary, var(--color-light-text));
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Dark theme overrides */
+.mmm-modal-dark .mmm-category-checkbox {
+	background-color: var(--color-dark-bg);
+}
+
+.mmm-modal-dark .mmm-category-checkbox:hover {
+	background-color: var(--color-dark-header);
+}
+
+.mmm-modal-dark .mmm-category-label {
+	color: var(--color-dark-text);
+}
+
+.mmm-modal-dark .mmm-categories-search input {
+	background-color: var(--color-dark-bg);
+	color: var(--color-dark-text);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-checkbox-custom {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mmm-modal-dark .mmm-categories-container {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-search {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-grid {
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.5);
 }

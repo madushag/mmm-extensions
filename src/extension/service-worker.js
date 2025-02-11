@@ -103,9 +103,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function postToSplitwise(expenseDetails, myUserId, debUserId) {
 	let groupId = expenseDetails.groupId || 0;
 	let description = `${expenseDetails.merchant.name} charged not on Savor card`;
-	const expenseAmount = expenseDetails.amount * -1;
 
 	// round to 2 decimal places
+	const expenseAmount = expenseDetails.amount * -1;
 	let myOwedShare = Math.round(expenseAmount / 2 * 100) / 100;
 	let debOwedShare = Math.round(expenseAmount / 2 * 100) / 100;
 
@@ -114,10 +114,11 @@ async function postToSplitwise(expenseDetails, myUserId, debUserId) {
 		myOwedShare = myOwedShare - (myOwedShare + debOwedShare - expenseAmount);
 	}
 
-	if (expenseDetails.category.name === "Gas Bill" || expenseDetails.category.name === "Electric Bill") {
+	// If this is a utility bill (indicated by group ID being set), format description accordingly
+	if (groupId > 0) {
 		const monthName = new Date(expenseDetails.date).toLocaleString('default', { month: 'long' });
 		const year = expenseDetails.date.split("-")[0];
-		description = `${expenseDetails.category.name === "Gas Bill" ? "Gas" : "Electric"} - ${year} ${monthName}`;
+		description = `${expenseDetails.category.name} - ${monthName} ${year}`;
 	}
 
 	// Create the expense data object

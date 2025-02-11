@@ -238,6 +238,17 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 	if (!splitSuccess) return false;
 
 	try {
+		// Get custom settings to check for utility handling
+		const settings = getCustomSettings();
+		let groupId = 0;
+
+		// If utilities are being handled and this category is in the utility categories list
+		if (settings.handleUtilities &&
+			transactionDetails.category?.id &&
+			settings.utilityCategories.includes(transactionDetails.category.id)) {
+			groupId = settings.splitwiseGroupId;
+		}
+
 		// Post to Splitwise using the ExpenseDetails interface
 		const expenseDetails: ExpenseDetails = {
 			merchant: {
@@ -249,7 +260,7 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 			amount: transactionDetails.amount,
 			date: transactionDetails.date,
 			notes: transactionDetails.notes,
-			groupId: SPLITWISE_GROUP_ID // Add the group ID from settings
+			groupId: groupId
 		};
 
 		await postToSplitwise(expenseDetails, SPLITWISE_USER_ID, parseInt(SPLITWISE_FRIEND_ID));

@@ -14,4 +14,7 @@ export interface CustomSettings {
 
 	rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;
+
+	handleUtilities: boolean;
+	utilityCategories: string[];
 }

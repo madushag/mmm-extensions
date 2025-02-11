@@ -9,7 +9,7 @@
 /******************************************************************************************/
 
 import type { CustomSettings } from "../types/entities/CustomSettings.js";
-import { getAllAccountDetails, getAllTags } from "../helpers/helper-graphql.js";
+import { getAllAccountDetails, getAllTags, getAllCategories } from "../helpers/helper-graphql.js";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
 import { getSplitwiseFriends, getCurrentUser, getSplitwiseGroups } from "../helpers/helper-splitwise.js";
 import { showToast, ToastType } from "../toast.js";
@@ -26,7 +26,9 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	showPostToSplitwiseButton: false,
 	splitwiseFriendId: "",
 	splitwiseUserId: 0,
-	splitwiseGroupId: 0
+	splitwiseGroupId: 0,
+	handleUtilities: false,
+	utilityCategories: []
 };
 
 
@@ -336,20 +338,26 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
                                 The name of the tag to use when splitting transactions with a partner
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mmm-setting-divider"></div>
-
+                <div class="mmm-settings-section">
+                    <div class="mmm-setting-header-${theme} collapsed">
+                        <h3>Splitwise Settings</h3>
+                        <span class="mmm-setting-arrow">▶</span>
+                    </div>
+                    <div class="mmm-setting-content collapsed">
                         <div class="mmm-setting-item" id="mmm-setting-item-post-to-splitwise">
                             <div class="mmm-setting-item-content">
                                 <label>Show Split & Post to Splitwise Button</label>
-								<label class="toggle-switch">
-									<input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
-									<span class="slider"></span>
-								</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-							<div class="mmm-modal-body-text-small">
-								Show the split and post to Splitwise button
-							</div>
+                            <div class="mmm-modal-body-text-small">
+                                Show the split and post to Splitwise button
+                            </div>
                         </div>
 
                         <div class="mmm-setting-item" id="mmm-setting-item-splitwise-friend">
@@ -371,6 +379,9 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
                             </div>
                         </div>
 
+                        <div class="mmm-setting-divider"></div>
+
+						
                         <div class="mmm-setting-item" id="mmm-setting-item-splitwise-group">
                             <div class="mmm-setting-item-content-input">
                                 <label>Select Splitwise Group To Post Utility Expenses</label>
@@ -389,10 +400,38 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
                                 Optional: Select a group to post expenses to
                             </div>
                         </div>
-											
-                    </div>
-                </div>
 
+                        <div class="mmm-setting-divider"></div>
+
+						<div class="mmm-setting-item" id="mmm-setting-item-handle-utilities">
+							<div class="mmm-setting-item-content">
+								<label>Handle Utilities</label>
+								<label class="toggle-switch">
+									<input type="checkbox" data-setting-name="handleUtilities" id="handle-utilities" />
+									<span class="slider"></span>
+								</label>
+							</div>
+							<div class="mmm-modal-body-text-small">
+								Automatically post utility bills to the selected Splitwise group
+							</div>
+						</div>
+
+						<div class="mmm-setting-item" id="mmm-setting-item-utility-categories">
+							<div class="mmm-setting-item-content-column">
+								<label class="mmm-setting-label">Select Utility Categories</label>
+								<div class="mmm-setting-categories-container" id="utility-categories-container">
+									<div class="mmm-categories-search">
+										<input type="text" id="categories-search" placeholder="Search categories..." />
+									</div>
+									<div class="mmm-categories-grid">Loading categories...</div>
+								</div>
+							</div>
+							<div class="mmm-modal-body-text-small">
+								Select which categories should be considered utilities. Use the search box to filter categories.
+							</div>
+						</div>
+                	</div>
+				</div>
 
                 <div class="mmm-settings-section">
                     <div class="mmm-setting-header-${theme} collapsed">
@@ -425,6 +464,7 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>`;
@@ -460,7 +500,7 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
 }
 
 // Function to load settings and set the modal values
-function loadSettingsAndSetModalValues(): void {
+async function loadSettingsAndSetModalValues(): Promise<void> {
 	const settings = getCustomSettings();
 
 	const showSplitCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
@@ -483,11 +523,91 @@ function loadSettingsAndSetModalValues(): void {
 	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
 	splitwiseGroupSelect.value = settings.splitwiseGroupId.toString() || '0';
 
+	const handleUtilitiesCheckbox = document.getElementById('handle-utilities') as HTMLInputElement;
+	handleUtilitiesCheckbox.checked = settings.handleUtilities || false;
+
+	// Load categories for utilities
+	const categoriesContainer = document.getElementById('utility-categories-container');
+	if (categoriesContainer) {
+		try {
+			const categories = await getAllCategories();
+			const categoriesGridDiv = document.createElement('div');
+			categoriesGridDiv.className = 'mmm-categories-grid';
+
+			categoriesGridDiv.innerHTML = categories.map(category => `
+				<div class="mmm-category-checkbox-wrapper">
+					<label class="mmm-category-checkbox">
+						<input type="checkbox" 
+							id="category-${category.id}" 
+							value="${category.id}"
+							${settings.utilityCategories.includes(category.id) ? 'checked' : ''}
+							class="utility-category-checkbox"
+						/>
+						<span class="mmm-checkbox-custom"></span>
+						<span class="mmm-category-label">${category.name}</span>
+					</label>
+				</div>
+			`).join('');
+
+			// Add search functionality
+			const searchInput = document.createElement('input');
+			searchInput.type = 'text';
+			searchInput.id = 'categories-search';
+			searchInput.className = 'mmm-categories-search-input';
+			searchInput.placeholder = 'Search categories...';
+
+			searchInput.addEventListener('input', (e) => {
+				const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+				const checkboxWrappers = categoriesGridDiv.querySelectorAll('.mmm-category-checkbox-wrapper');
+
+				checkboxWrappers.forEach(wrapper => {
+					const label = wrapper.querySelector('.mmm-category-label');
+					if (label) {
+						const text = label.textContent?.toLowerCase() || '';
+						(wrapper as HTMLElement).style.display = text.includes(searchTerm) ? '' : 'none';
+					}
+				});
+			});
+
+			const searchDiv = document.createElement('div');
+			searchDiv.className = 'mmm-categories-search';
+			searchDiv.appendChild(searchInput);
+
+			categoriesContainer.innerHTML = '';
+			categoriesContainer.appendChild(searchDiv);
+			categoriesContainer.appendChild(categoriesGridDiv);
+
+			// Add event listeners to checkboxes
+			const checkboxes = categoriesGridDiv.querySelectorAll('.utility-category-checkbox');
+			checkboxes.forEach(checkbox => {
+				checkbox.addEventListener('change', (e) => {
+					const target = e.target as HTMLInputElement;
+					const settings = loadSettings();
+					const categories = settings.utilityCategories || [];
+
+					if (target.checked && !categories.includes(target.value)) {
+						categories.push(target.value);
+					} else if (!target.checked) {
+						const index = categories.indexOf(target.value);
+						if (index > -1) {
+							categories.splice(index, 1);
+						}
+					}
+
+					setConfigValue('utilityCategories', categories);
+				});
+			});
+		} catch (error) {
+			console.error('Error loading categories:', error);
+			categoriesContainer.innerHTML = 'Error loading categories';
+		}
+	}
+
 	showHideSettingItems();
 
 	// Load Splitwise data if button is checked
 	if (showPostToSplitwiseCheckbox.checked) {
-		loadSplitwiseData();
+		await loadSplitwiseData();
 	}
 }
 
@@ -503,6 +623,9 @@ function showHideSettingItems(): void {
 	const tagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name') as HTMLElement;
 	const splitwiseFriendSettingItem = document.getElementById('mmm-setting-item-splitwise-friend') as HTMLElement;
 	const splitwiseGroupSettingItem = document.getElementById('mmm-setting-item-splitwise-group') as HTMLElement;
+
+	const handleUtilitiesCheckbox = document.getElementById('handle-utilities') as HTMLInputElement;
+	const utilityCategoriesSettingItem = document.getElementById('mmm-setting-item-utility-categories') as HTMLElement;
 
 	if (!showSplitCheckbox.checked) {
 		hideSettingItem(showSplitSettingItem);
@@ -530,6 +653,12 @@ function showHideSettingItems(): void {
 	} else {
 		showSettingItem(splitwiseFriendSettingItem);
 		showSettingItem(splitwiseGroupSettingItem);
+	}
+
+	if (!handleUtilitiesCheckbox.checked) {
+		hideSettingItem(utilityCategoriesSettingItem);
+	} else {
+		showSettingItem(utilityCategoriesSettingItem);
 	}
 }
 

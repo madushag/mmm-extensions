@@ -17,6 +17,7 @@ import { Account } from "../types/entities/Account";
 import { AccountTypeSummary } from "../types/entities/AccountTypeSummary";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag";
 import { showToast, ToastType } from "../toast.js";
+import { Category } from "../types/entities/Category";
 
 const GRAPHQL_URL = "https://api.monarchmoney.com/graphql";
 const SPLITWISE_API_URL = "https://secure.splitwise.com/api/v3.0/create_expense";
@@ -56,6 +57,8 @@ export async function callGraphQL(data: any): Promise<GraphQLResponse> {
 			showToast(`Error while fetching tag details.`, ToastType.ERROR);
 		} else if (data.operationName === "Web_SetTransactionTags") {
 			showToast(`Error while setting tags on transaction.`, ToastType.ERROR);
+		} else if (data.operationName === "ManageGetCategoryGroups") {
+			showToast(`Error while fetching category details.`, ToastType.ERROR);
 		} else {
 			showToast(`Error while invoking GraphQL API.`, ToastType.ERROR);
 		}
@@ -678,8 +681,41 @@ export async function getAllAccountDetails(): Promise<{ id: string; name: string
 	return accountIdsNames;
 }
 
+// Get all categories
+export async function getAllCategories(): Promise<Category[]> {
+	const payload = {
+		operationName: "ManageGetCategoryGroups",
+		variables: {},
+		query: `query ManageGetCategoryGroups {
+			categoryGroups {
+				id
+				name
+				order
+				type
+				__typename
+			}
+			categories(includeDisabledSystemCategories: false) {
+				id
+				name
+				order
+				icon
+				isSystemCategory
+				systemCategory
+				isDisabled
+				group {
+					id
+					type
+					name
+					__typename
+				}
+				__typename
+			}
+		}`
+	};
 
-
+	const response = await callGraphQL(payload);
+	return (response.data?.categories || []).sort((a, b) => a.name.localeCompare(b.name));
+}
 
 // Helper function to map Monarch categories to Splitwise categories
 function mapMonarchCategoryToSplitwiseCategory(monarchCategoryId: string | undefined): number {
