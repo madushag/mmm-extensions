@@ -495,6 +495,221 @@ export async function getTransactionDrawerDetails(transactionDetails: Transactio
 	return null;
 }
 
+// Update the notes of a transaction
+export async function updateTransactionNotes(transactionId: string, notes: string): Promise<UpdateTransactionResponse> {
+	const json = {
+		operationName: "Web_TransactionDrawerUpdateTransaction",
+		variables: {
+			input: {
+				id: transactionId,
+				notes: notes
+			}
+		},
+		query: `mutation Web_TransactionDrawerUpdateTransaction($input: UpdateTransactionMutationInput!) {
+            updateTransaction(input: $input) {
+                transaction {
+                    id
+                    ...TransactionDrawerFields
+                    __typename
+                }
+                errors {
+                    ...PayloadErrorFields
+                    __typename
+                }
+                __typename
+            }
+        }
+
+        fragment TransactionDrawerSplitMessageFields on Transaction {
+            id
+            amount
+            merchant {
+                id
+                name
+                __typename
+            }
+            category {
+                id
+                icon
+                name
+                __typename
+            }
+            __typename
+        }
+
+        fragment OriginalTransactionFields on Transaction {
+            id
+            date
+            amount
+            merchant {
+                id
+                name
+                __typename
+            }
+            __typename
+        }
+
+        fragment AccountLinkFields on Account {
+            id
+            displayName
+            icon
+            logoUrl
+            __typename
+        }
+
+        fragment TransactionOverviewFields on Transaction {
+            id
+            amount
+            pending
+            date
+            hideFromReports
+            plaidName
+            notes
+            isRecurring
+            reviewStatus
+            needsReview
+            isSplitTransaction
+            dataProviderDescription
+            attachments {
+                id
+                __typename
+            }
+            category {
+                id
+                name
+                icon
+                group {
+                    id
+                    type
+                    __typename
+                }
+                __typename
+            }
+            merchant {
+                name
+                id
+                transactionsCount
+                logoUrl
+                recurringTransactionStream {
+                    frequency
+                    isActive
+                    __typename
+                }
+                __typename
+            }
+            tags {
+                id
+                name
+                color
+                order
+                __typename
+            }
+            account {
+                id
+                displayName
+                icon
+                logoUrl
+                __typename
+            }
+            __typename
+        }
+
+        fragment TransactionDrawerFields on Transaction {
+            id
+            amount
+            pending
+            isRecurring
+            date
+            originalDate
+            hideFromReports
+            needsReview
+            reviewedAt
+            reviewedByUser {
+                id
+                name
+                __typename
+            }
+            plaidName
+            notes
+            hasSplitTransactions
+            isSplitTransaction
+            isManual
+            splitTransactions {
+                id
+                ...TransactionDrawerSplitMessageFields
+                __typename
+            }
+            originalTransaction {
+                id
+                ...OriginalTransactionFields
+                __typename
+            }
+            attachments {
+                id
+                publicId
+                extension
+                sizeBytes
+                filename
+                originalAssetUrl
+                __typename
+            }
+            account {
+                id
+                hideTransactionsFromReports
+                ...AccountLinkFields
+                __typename
+            }
+            category {
+                id
+                __typename
+            }
+            goal {
+                id
+                __typename
+            }
+            merchant {
+                id
+                name
+                transactionCount
+                logoUrl
+                recurringTransactionStream {
+                    id
+                    frequency
+                    __typename
+                }
+                __typename
+            }
+            tags {
+                id
+                name
+                color
+                order
+                __typename
+            }
+            needsReviewByUser {
+                id
+                __typename
+            }
+            ...TransactionOverviewFields
+            __typename
+        }
+
+	fragment PayloadErrorFields on PayloadError {
+				fieldErrors {
+					field
+					messages
+					__typename
+				}
+				message
+				code
+				__typename
+			}`
+	};
+
+	return await callGraphQL(json);
+}
+
+
 // Unsplit a transaction
 export async function unsplitTransaction(originalTransactionId: string): Promise<UpdateTransactionSplitResponse> {
 	const payload = {

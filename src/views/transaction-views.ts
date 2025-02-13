@@ -17,6 +17,7 @@ import {
 	setTransactionTags,
 	splitTransaction,
 	unsplitTransaction,
+	updateTransactionNotes,
 } from '../helpers/helper-graphql.js';
 import { handleGlobalError } from '../helpers/helper-errorhandler.js';
 import { Transaction } from '../types/entities/Transaction.js';
@@ -24,7 +25,7 @@ import { SplitTransaction } from '../types/entities/SplitTransaction.js';
 import { showToast, ToastType } from '../toast.js';
 import { AnalyticsEventType, trackGoogleAnalyticsEvent } from '../helpers/helper-google-analytics.js';
 import { ExpenseDetails } from '../types/entities/ExpenseDetails.js';
-import { postToSplitwise } from '../helpers/helper-splitwise.js';
+import { deleteSplitwiseExpense, postToSplitwise } from '../helpers/helper-splitwise.js';
 
 // Global variables
 let SPLIT_WITH_PARTNER_TAG_NAME = "";
@@ -62,7 +63,40 @@ function mainHandler(customSettings: CustomSettings) {
 		transactionRows.forEach((row) => {
 			addSplitButtonsIfNeeded(row as HTMLElement, customSettings);
 			addUnsplitButtonIfNeeded(row as HTMLElement, customSettings);
+			addDeleteSplitwiseExpenseButtonIfNeeded(row as HTMLElement, customSettings);
 		});
+	}
+}
+
+// Add a delete splitwise expense button to the transaction row if it is not already present.
+function addDeleteSplitwiseExpenseButtonIfNeeded(row: HTMLElement, customSettings: CustomSettings) {
+
+	// Get the transaction details
+	let transactionDetails = getTransactionDetailsForRow(row);
+
+	// Check if the delete splitwise expense button is already present, and if not, add it
+	if (!row.querySelector(".monarch-helper-button-delete-splitwise-expense")) {
+		// Check if the transaction has a splitwise expense id, and a tag indicating it has been posted to splitwise
+		if (transactionDetails?.notes?.includes("Splitwise Expense ID:")
+			&& transactionDetails?.tags?.some(tag => tag.name === customSettings.transactionPostedToSplitwiseTagName)) {
+			// Add the delete splitwise expense button
+			const buttonContainer = document.createElement("div");
+			buttonContainer.className = "button-container";
+
+			// Insert the button container before the transaction icon container
+			const transactionIconContainer = row.querySelector('div[class*="TransactionOverview__Icons"]');
+			if (transactionIconContainer) transactionIconContainer?.parentNode?.insertBefore(buttonContainer, transactionIconContainer);
+
+			// Add the delete splitwise expense button to the button container
+			const buttonDeleteSplitwiseExpense = document.createElement("button");
+			buttonDeleteSplitwiseExpense.className = "monarch-helper-button-delete-splitwise-expense";
+			const existingButton = document.querySelector('button[class*="Button"]');
+			if (existingButton) buttonDeleteSplitwiseExpense.className += " " + existingButton.className;
+			buttonDeleteSplitwiseExpense.innerHTML = "🗑️";
+			buttonDeleteSplitwiseExpense.title = "Delete Splitwise Expense";
+			buttonDeleteSplitwiseExpense.onclick = async (e) => await handleDeleteSplitwiseExpenseButtonClick(e, row);
+			buttonContainer.appendChild(buttonDeleteSplitwiseExpense);
+		}
 	}
 }
 
@@ -97,8 +131,8 @@ function addSplitButtonsIfNeeded(row: HTMLElement, customSettings: CustomSetting
 			buttonSplit.onclick = async (e) => await handleSplitButtonClick(e, row);
 			buttonContainer.appendChild(buttonSplit);
 
-			// Add the split and post to Splitwise button if enabled
-			if (customSettings.showPostToSplitwiseButton) {
+			// Add the split and post to Splitwise button if enabled and not already posted
+			if (customSettings.showPostToSplitwiseButton && !transactionDetails?.tags?.some(tag => tag.name === customSettings.transactionPostedToSplitwiseTagName)) {
 				const buttonSplitAndPostToSW = document.createElement("button");
 				buttonSplitAndPostToSW.className = "monarch-helper-button-splitwise";
 				if (existingButton) buttonSplitAndPostToSW.className += " " + existingButton.className;
@@ -215,7 +249,6 @@ async function handleUnsplitButtonClick(e: MouseEvent, row: HTMLElement) {
 	trackGoogleAnalyticsEvent(AnalyticsEventType.SUCCESS, { eventName: 'unsplit_transaction' });
 }
 
-
 // Handle splitting and posting to Splitwise
 async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement) {
 	if (e) e.stopPropagation();
@@ -233,40 +266,68 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 	let transactionDetails = getTransactionDetailsForRow(row);
 	if (!transactionDetails) return false;
 
-	// First split the transaction
-	const splitSuccess = await handleSplitButtonClick(e, row);
-	if (!splitSuccess) return false;
+	// Dont split it if the transaction is a "Credit Card Payment"
+	if (!transactionDetails.category?.name?.toLowerCase().includes('credit card payment')) {
+		const splitSuccess = await handleSplitButtonClick(e, row);
+		if (!splitSuccess) return false;
+	}
 
 	try {
-		// Get custom settings to check for utility handling
+		// Get custom settings to check for utility handling and credit card payments
 		const settings = getCustomSettings();
 		let groupId = 0;
+		let description = '';
 
 		// If utilities are being handled and this category is in the utility categories list
 		if (settings.handleUtilities &&
 			transactionDetails.category?.id &&
 			settings.utilityCategories.includes(transactionDetails.category.id)) {
 			groupId = settings.splitwiseGroupId;
+			const monthName = new Date(transactionDetails.date).toLocaleString('default', { month: 'long' });
+			const year = transactionDetails.date.split("-")[0];
+			description = `${transactionDetails.category.name} - ${monthName} ${year}`;
+		}
+		// If this is a credit card payment and credit card handling is enabled
+		else if (settings.handleCreditCardPayments &&
+			transactionDetails.category?.name?.toLowerCase().includes('credit card payment')) {
+			groupId = settings.creditCardPaymentGroupId;
+			const monthName = new Date(transactionDetails.date).toLocaleString('default', { month: 'long' });
+			const year = transactionDetails.date.split("-")[0];
+			description = `Credit Card Payment - ${monthName} ${year}`;
+		}
+		// Default description for regular expenses
+		else {
+			description = `${transactionDetails.merchant?.name || 'Unknown'} charged not on shared card`;
 		}
 
 		// Post to Splitwise using the ExpenseDetails interface
+		const merchantInfo = { name: transactionDetails.merchant?.name || 'Unknown' };
+		const categoryInfo = { name: transactionDetails.category?.name || 'Uncategorized' };
+
 		const expenseDetails: ExpenseDetails = {
-			merchant: {
-				name: transactionDetails.merchant?.name || 'Unknown'
-			},
-			category: {
-				name: transactionDetails.category?.name || 'Uncategorized'
-			},
+			merchant: merchantInfo,
+			category: categoryInfo,
 			amount: transactionDetails.amount,
 			date: transactionDetails.date,
 			notes: transactionDetails.notes,
-			groupId: groupId
+			groupId: groupId,
+			description: description
 		};
 
-		await postToSplitwise(expenseDetails, SPLITWISE_USER_ID, parseInt(SPLITWISE_FRIEND_ID));
-		showToast(`Transaction posted to Splitwise successfully!`, ToastType.SUCCESS);
+		var response = await postToSplitwise(expenseDetails, SPLITWISE_USER_ID, parseInt(SPLITWISE_FRIEND_ID));
+		var splitwiseExpenseId = response.expenses[0].id;
+
+		// add a tag to the transaction to indicate that it has been posted to Splitwise
+		var postedToSplitwiseTagId = (await getTagIdWithTagName(getCustomSettings().transactionPostedToSplitwiseTagName))?.id;
+		if (postedToSplitwiseTagId) {
+			await setTransactionTags(transactionDetails.id, [postedToSplitwiseTagId]);
+		}
+
+		// add a note to the transaction and store the splitwise expense id
+		await updateTransactionNotes(transactionDetails.id, `Splitwise Expense ID: ${splitwiseExpenseId}`);
 
 		// Show a toast and hide the split button
+		showToast(`Transaction posted to Splitwise successfully!`, ToastType.SUCCESS);
 		const splitButton = row.querySelector<HTMLElement>(".monarch-helper-button-splitwise");
 		if (splitButton) splitButton.style.display = "none";
 
@@ -276,6 +337,48 @@ async function handleSplitAndPostToSWButtonClick(e: MouseEvent, row: HTMLElement
 
 	} catch (error) {
 		handleGlobalError(error, "handleSplitAndPostToSWButtonClick");
+		return false;
+	}
+}
+
+// Handle the delete splitwise expense button click event
+async function handleDeleteSplitwiseExpenseButtonClick(e: MouseEvent, row: HTMLElement) {
+	e.stopPropagation();
+
+	let transactionDetails = getTransactionDetailsForRow(row);
+	if (!transactionDetails) return false;
+
+	try {
+		// extract the splitwise expense id from the notes
+		const splitwiseExpenseId = transactionDetails.notes?.match(/Splitwise Expense ID: (\d+)/)?.[1];
+		if (!splitwiseExpenseId) {
+			showToast("No Splitwise expense ID found. Please ensure the transaction has a Splitwise expense ID.", ToastType.ERROR);
+			return false;
+		}
+
+		// Delete the splitwise expense
+		await deleteSplitwiseExpense(splitwiseExpenseId);
+
+		// Remove the tag indicating the transaction was posted to Splitwise
+		// get all the tags on the transaction, and just remove the posted to splitwise tag
+		let tags = transactionDetails.tags?.filter(tag => tag.name !== getCustomSettings().transactionPostedToSplitwiseTagName);
+		if (tags) {
+			await setTransactionTags(transactionDetails.id, tags.map(tag => tag.id));
+		}
+
+		// Clear the notes containing the Splitwise expense ID, but just remove the text "Splitwise Expense ID: ###"
+		await updateTransactionNotes(transactionDetails.id, transactionDetails.notes?.replace(/Splitwise Expense ID: \d+/, ""));
+
+		showToast(`Splitwise expense deleted successfully!`, ToastType.SUCCESS);
+
+		const deleteButton = row.querySelector<HTMLElement>(".monarch-helper-button-delete-splitwise-expense");
+		if (deleteButton) deleteButton.style.display = "none";
+
+		trackGoogleAnalyticsEvent(AnalyticsEventType.SUCCESS, { eventName: 'delete_splitwise_expense' });
+
+		return true;
+	} catch (error) {
+		handleGlobalError(error, "handleDeleteSplitwiseExpenseButtonClick");
 		return false;
 	}
 }

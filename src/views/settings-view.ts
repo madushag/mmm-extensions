@@ -28,7 +28,10 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	splitwiseUserId: 0,
 	splitwiseGroupId: 0,
 	handleUtilities: false,
-	utilityCategories: []
+	utilityCategories: [],
+	handleCreditCardPayments: false,
+	creditCardPaymentGroupId: 0,
+	transactionPostedToSplitwiseTagName: ""
 };
 
 
@@ -419,6 +422,9 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
 						<div class="mmm-setting-item" id="mmm-setting-item-utility-categories">
 							<div class="mmm-setting-item-content-column">
 								<label class="mmm-setting-label">Select Utility Categories</label>
+								<div class="mmm-modal-body-text-small">
+									Select which categories should be considered utilities. Use the search box to filter categories.
+								</div>
 								<div class="mmm-setting-categories-container" id="utility-categories-container">
 									<div class="mmm-categories-search">
 										<input type="text" id="categories-search" placeholder="Search categories..." />
@@ -426,10 +432,65 @@ function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { 
 									<div class="mmm-categories-grid">Loading categories...</div>
 								</div>
 							</div>
-							<div class="mmm-modal-body-text-small">
-								Select which categories should be considered utilities. Use the search box to filter categories.
-							</div>
 						</div>
+
+                        <div class="mmm-setting-divider"></div>
+
+                        <div class="mmm-setting-item" id="mmm-setting-item-handle-credit-card-payments">
+                            <div class="mmm-setting-item-content">
+                                <label>Handle Credit Card Payments</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" data-setting-name="handleCreditCardPayments" id="handle-credit-card-payments" />
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mmm-modal-body-text-small">
+                                Automatically post credit card payments to a Splitwise group
+                            </div>
+                        </div>
+
+                        <div class="mmm-setting-item" id="mmm-setting-item-credit-card-payment-group">
+                            <div class="mmm-setting-item-content-input">
+                                <label>Select Splitwise Group For Credit Card Payments</label>
+                                <div class="mmm-setting-input-${theme}" style="position: relative;">
+                                    <select class="mmm-setting-dropdown" data-setting-name="creditCardPaymentGroupId" id="credit-card-payment-group-id">
+                                        <option value="0">Loading groups...</option>
+                                    </select>
+                                    <span class="mmm-setting-input-arrow">
+                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mmm-modal-body-text-small">
+                                Select a group to post credit card payments to
+                            </div>
+                        </div>
+
+                        <div class="mmm-setting-item" id="mmm-setting-item-transaction-posted-to-splitwise-tag-name">
+                            <div class="mmm-setting-item-content-input">
+                                <label>Select Tag For Credit Card Payments</label>
+                                <div class="mmm-setting-input-${theme}" style="position: relative;">
+                                    <select class="mmm-setting-dropdown" data-setting-name="transactionPostedToSplitwiseTagName" id="transaction-posted-to-splitwise-tag-name">
+                                        ${allTags ? allTags.map(tag => `
+                                            <option value="${tag.name}" style="background-color: ${tag.color};">
+                                                ${tag.name}
+                                            </option>
+                                        `).join('') : ''}
+                                    </select>
+                                    <span class="mmm-setting-input-arrow">
+                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mmm-modal-body-text-small">
+                                Select a tag to mark credit card payment transactions
+                            </div>
+                        </div>
+
                 	</div>
 				</div>
 
@@ -549,12 +610,19 @@ async function loadSettingsAndSetModalValues(): Promise<void> {
 				</div>
 			`).join('');
 
-			// Add search functionality
-			const searchInput = document.createElement('input');
-			searchInput.type = 'text';
-			searchInput.id = 'categories-search';
-			searchInput.className = 'mmm-categories-search-input';
-			searchInput.placeholder = 'Search categories...';
+			// Add search functionality - use existing search input if it exists
+			const existingSearch = document.getElementById('categories-search');
+			let searchInput: HTMLInputElement;
+
+			if (existingSearch) {
+				searchInput = existingSearch as HTMLInputElement;
+			} else {
+				searchInput = document.createElement('input');
+				searchInput.type = 'text';
+				searchInput.id = 'categories-search';
+				searchInput.className = 'mmm-categories-search-input';
+				searchInput.placeholder = 'Search categories...';
+			}
 
 			searchInput.addEventListener('input', (e) => {
 				const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
@@ -571,7 +639,9 @@ async function loadSettingsAndSetModalValues(): Promise<void> {
 
 			const searchDiv = document.createElement('div');
 			searchDiv.className = 'mmm-categories-search';
-			searchDiv.appendChild(searchInput);
+			if (!existingSearch) {
+				searchDiv.appendChild(searchInput);
+			}
 
 			categoriesContainer.innerHTML = '';
 			categoriesContainer.appendChild(searchDiv);
@@ -603,6 +673,14 @@ async function loadSettingsAndSetModalValues(): Promise<void> {
 		}
 	}
 
+	const handleCreditCardPaymentsCheckbox = document.getElementById('handle-credit-card-payments') as HTMLInputElement;
+	const creditCardPaymentGroupSelect = document.getElementById('credit-card-payment-group-id') as HTMLSelectElement;
+	const transactionPostedToSplitwiseTagName = document.getElementById('transaction-posted-to-splitwise-tag-name') as HTMLSelectElement;
+
+	handleCreditCardPaymentsCheckbox.checked = settings.handleCreditCardPayments || false;
+	creditCardPaymentGroupSelect.value = settings.creditCardPaymentGroupId.toString() || '0';
+	transactionPostedToSplitwiseTagName.value = settings.transactionPostedToSplitwiseTagName || '';
+
 	showHideSettingItems();
 
 	// Load Splitwise data if button is checked
@@ -626,6 +704,10 @@ function showHideSettingItems(): void {
 
 	const handleUtilitiesCheckbox = document.getElementById('handle-utilities') as HTMLInputElement;
 	const utilityCategoriesSettingItem = document.getElementById('mmm-setting-item-utility-categories') as HTMLElement;
+
+	const handleCreditCardPaymentsCheckbox = document.getElementById('handle-credit-card-payments') as HTMLInputElement;
+	const creditCardPaymentGroupSettingItem = document.getElementById('mmm-setting-item-credit-card-payment-group') as HTMLElement;
+	const transactionPostedToSplitwiseTagNameSettingItem = document.getElementById('mmm-setting-item-transaction-posted-to-splitwise-tag-name') as HTMLElement;
 
 	if (!showSplitCheckbox.checked) {
 		hideSettingItem(showSplitSettingItem);
@@ -659,6 +741,14 @@ function showHideSettingItems(): void {
 		hideSettingItem(utilityCategoriesSettingItem);
 	} else {
 		showSettingItem(utilityCategoriesSettingItem);
+	}
+
+	if (!handleCreditCardPaymentsCheckbox.checked) {
+		hideSettingItem(creditCardPaymentGroupSettingItem);
+		hideSettingItem(transactionPostedToSplitwiseTagNameSettingItem);
+	} else {
+		showSettingItem(creditCardPaymentGroupSettingItem);
+		showSettingItem(transactionPostedToSplitwiseTagNameSettingItem);
 	}
 }
 
@@ -713,36 +803,52 @@ async function loadSplitwiseFriends(): Promise<void> {
 // Add function to load Splitwise groups
 async function loadSplitwiseGroups(): Promise<void> {
 	const groupSelect = document.getElementById('splitwise-group-id') as HTMLSelectElement;
-	if (!groupSelect) return;
+	const creditCardGroupSelect = document.getElementById('credit-card-payment-group-id') as HTMLSelectElement;
+	if (!groupSelect && !creditCardGroupSelect) return;
 
 	try {
 		const groups = await getSplitwiseGroups();
 
-		// Clear existing options
-		groupSelect.innerHTML = '';
+		// Helper function to populate a group select dropdown
+		const populateGroupSelect = (select: HTMLSelectElement, selectedValue: string) => {
+			// Clear existing options
+			select.innerHTML = '';
 
-		// Add default option
-		const defaultOption = document.createElement('option');
-		defaultOption.value = '0';
-		defaultOption.textContent = 'Select a group';
-		groupSelect.appendChild(defaultOption);
+			// Add default option
+			const defaultOption = document.createElement('option');
+			defaultOption.value = '0';
+			defaultOption.textContent = 'Select a group';
+			select.appendChild(defaultOption);
 
-		// Add group options
-		groups.forEach((group: any) => {
-			const option = document.createElement('option');
-			option.value = group.id;
-			option.textContent = group.name;
-			groupSelect.appendChild(option);
-		});
+			// Add group options
+			groups.forEach((group: any) => {
+				const option = document.createElement('option');
+				option.value = group.id;
+				option.textContent = group.name;
+				select.appendChild(option);
+			});
 
-		// Set selected value if exists in settings
+			// Set selected value
+			select.value = selectedValue;
+		};
+
+		// Get current settings
 		const settings = loadSettings();
-		if (settings.splitwiseGroupId) {
-			groupSelect.value = settings.splitwiseGroupId.toString();
+
+		// Populate utility groups dropdown
+		if (groupSelect) {
+			populateGroupSelect(groupSelect, settings.splitwiseGroupId.toString());
+		}
+
+		// Populate credit card payment groups dropdown
+		if (creditCardGroupSelect) {
+			populateGroupSelect(creditCardGroupSelect, settings.creditCardPaymentGroupId.toString());
 		}
 	} catch (error) {
 		console.error('Error loading Splitwise groups:', error);
-		groupSelect.innerHTML = '<option value="0">Error loading groups</option>';
+		const errorOption = '<option value="0">Error loading groups</option>';
+		if (groupSelect) groupSelect.innerHTML = errorOption;
+		if (creditCardGroupSelect) creditCardGroupSelect.innerHTML = errorOption;
 	}
 }
 

@@ -17,4 +17,8 @@ export interface CustomSettings {
 
 	handleUtilities: boolean;
 	utilityCategories: string[];
+
+	handleCreditCardPayments: boolean;
+	creditCardPaymentGroupId: number;
+	transactionPostedToSplitwiseTagName: string;
 }

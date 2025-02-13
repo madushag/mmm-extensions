@@ -96,16 +96,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			});
 		return true; // Required for async response
 	}
+	else if (request.type === 'DELETE_SPLITWISE_EXPENSE') {
+		deleteSplitwiseExpense(request.data.transactionId)
+			.then(response => {
+				sendResponse({ success: true, response });
+			})
+			.catch(error => {
+				console.error('Error in delete expense handler:', error);
+				sendResponse({ success: false, error: error.message });
+			});
+		return true; // Will respond asynchronously
+	}
 });
 
 
 // Post a transaction to Splitwise
 async function postToSplitwise(expenseDetails, myUserId, debUserId) {
 	let groupId = expenseDetails.groupId || 0;
-	let description = `${expenseDetails.merchant.name} charged not on Savor card`;
+	let description = expenseDetails.description;
 
 	// round to 2 decimal places
-	const expenseAmount = expenseDetails.amount * -1;
+
+	// if amount is negative, then make it positive, otherwise dont change the sign of the amount
+	const expenseAmount = expenseDetails.amount < 0 ? expenseDetails.amount * -1 : expenseDetails.amount;
 	let myOwedShare = Math.round(expenseAmount / 2 * 100) / 100;
 	let debOwedShare = Math.round(expenseAmount / 2 * 100) / 100;
 
@@ -153,6 +166,30 @@ async function postToSplitwise(expenseDetails, myUserId, debUserId) {
 	return response.json();
 }
 
+
+// Delete a Splitwise expense
+async function deleteSplitwiseExpense(transactionId) {
+	try {
+		// Extract the Splitwise expense ID from the transaction notes
+		const token = await getSplitwiseToken();
+		const response = await fetch(`https://secure.splitwise.com/api/v3.0/delete_expense/${transactionId}`, {
+			method: "POST",
+			headers: {
+				"Authorization": `Bearer ${token}`,
+				"Content-Type": "application/json"
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error deleting Splitwise expense:', error);
+		throw error;
+	}
+}
 
 // Get the Splitwise token
 async function getSplitwiseToken() {

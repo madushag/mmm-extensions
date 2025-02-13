@@ -10,4 +10,5 @@ export interface ExpenseDetails {
 	date: string;
 	notes?: string;
 	groupId?: number;
+	description?: string;
 }

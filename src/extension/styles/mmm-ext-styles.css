@@ -190,19 +190,19 @@
 .mmm-setting-item-content-column {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0.1rem;
 	width: 100%;
 }
 
 .mmm-setting-label {
 	font-weight: 500;
-	margin-bottom: 0.25rem;
+	margin-bottom: 1px;
 }
 
 .mmm-setting-item label {
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-md);
+	gap: var(--spacing-sm);
 	cursor: pointer;
 	font-weight: 500;
 }
@@ -478,28 +478,23 @@ mmm-setting-dropdown option[value=""] {
 
 /* Updated styles for the settings content to make it scrollable */
 .mmm-setting-content {
-	overflow-y: auto;
-	/* Enable vertical scrolling */
-	max-height: 500px;
-	/* Set a maximum height for the scrollable area */
+	overflow-y: auto; /* Enable vertical scrolling */
+	max-height: 500px; /* Set a maximum height for the scrollable area */
 	transition: max-height 0.3s ease-out;
-	border-radius: 0 0 15px 15px;
-	/* Rounded bottom corners */
-	padding: var(--spacing-md);
-	/* Padding for spacing */
-	background-color: var(--color-light-bg);
-	/* Keep existing background color */
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	/* Light border when expanded */
-	scrollbar-width: thin;
-	/* For Firefox */
-	scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
-	/* For Firefox */
+	border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+	padding-top: 1px; /* Padding for spacing */
+	padding-right: var(--spacing-md); /* Padding for spacing */
+	padding-left: var(--spacing-md); /* Padding for spacing */
+	padding-bottom: var(--spacing-md); /* Padding for spacing */
+	background-color: var(--color-light-bg); /* Keep existing background color */
+	border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+	scrollbar-width: thin; /* For Firefox */
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* For Firefox */
 }
 
 /* Custom scrollbar for Webkit browsers */
 .mmm-setting-content::-webkit-scrollbar {
-	width: 8px;
+	width: 6px;
 }
 
 .mmm-setting-content::-webkit-scrollbar-track {
@@ -508,7 +503,7 @@ mmm-setting-dropdown option[value=""] {
 }
 
 .mmm-setting-content::-webkit-scrollbar-thumb {
-	background-color: rgba(0, 0, 0, 0.3);
+	background-color: rgba(0, 0, 0, 0.2);
 	border-radius: 4px;
 	transition: background-color 0.3s;
 }
@@ -544,14 +539,18 @@ mmm-setting-dropdown option[value=""] {
 	/* Light border when expanded */
 }
 
+/* Settings Container Base Styles */
 .mmm-setting-categories-container {
 	position: relative;
 	width: 100%;
 	border: 1px solid var(--border-color);
 	border-radius: 4px;
-	padding: 8px;
-	margin-top: 8px;
+	padding: 4px;
+	margin-top: 1px;
 	background: var(--background-secondary, var(--color-light-bg));
+	max-height: 300px;
+	display: flex;
+	flex-direction: column;
 }
 
 .mmm-setting-category-item {
@@ -578,35 +577,25 @@ mmm-setting-dropdown option[value=""] {
 	border: 1px solid var(--border-color, #ccc);
 	border-radius: 8px;
 	background: var(--background-secondary, var(--color-light-bg));
+	max-height: 300px;
+	overflow: hidden;
 }
 
 .mmm-categories-search {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	background: var(--modal-bg-color);
-	padding: 10px 0;
-}
-
-.mmm-categories-search-input {
-	width: 100%;
-	padding: 8px;
-	border: 1px solid var(--border-color);
-	border-radius: 4px;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-}
-
-.mmm-categories-search {
 	flex: 0 0 auto;
 	background: var(--background-secondary, var(--color-light-bg));
-	padding: 0.75rem;
+	padding: 12px;
+	padding-top: 1px;
 	border-bottom: 1px solid var(--border-color, #ccc);
+	margin: 0;
 }
 
 .mmm-categories-search input {
 	width: 100%;
-	padding: 8px 12px;
+	padding: 6px 10px;
 	border: 1px solid var(--border-color, #ccc);
 	border-radius: 6px;
 	background: var(--background-primary, var(--color-white));
@@ -624,52 +613,27 @@ mmm-setting-dropdown option[value=""] {
 .mmm-categories-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	gap: 10px;
-	padding: 10px;
+	gap: 4px;
+	padding: 8px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
+	max-height: 250px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
-.mmm-categories-grid::-webkit-scrollbar {
-	width: 8px;
-}
-
-.mmm-categories-grid::-webkit-scrollbar-track {
-	background: transparent;
-	border-radius: 4px;
-}
-
-.mmm-categories-grid::-webkit-scrollbar-thumb {
-	background-color: rgba(0, 0, 0, 0.3);
-	border-radius: 4px;
-	transition: background-color 0.3s;
-}
-
-.mmm-categories-grid::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Dark theme scrollbar */
-.mmm-modal-dark .mmm-categories-grid {
-	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-}
-
-.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb {
-	background-color: rgba(255, 255, 255, 0.3);
-}
-
-.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(255, 255, 255, 0.5);
-}
-
+/* Category Checkbox Styles */
 .mmm-category-checkbox-wrapper {
 	position: relative;
-	padding: 5px;
+	padding: 2px;
 }
 
 .mmm-category-checkbox {
 	display: flex;
 	align-items: center;
 	cursor: pointer;
-	padding: 6px 8px;
+	padding: 4px 6px;
 	border-radius: 4px;
 	transition: background-color 0.2s ease;
 	background-color: var(--background-primary, var(--color-white));
@@ -700,6 +664,16 @@ mmm-setting-dropdown option[value=""] {
 	transition: all 0.2s ease;
 }
 
+.mmm-category-label {
+	font-size: 14px;
+	color: var(--text-primary, var(--color-light-text));
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Category Checkbox States */
 .mmm-category-checkbox input:checked~.mmm-checkbox-custom {
 	background-color: var(--color-toggle-checked);
 	border-color: var(--color-toggle-checked);
@@ -730,16 +704,32 @@ mmm-setting-dropdown option[value=""] {
 	background-color: rgba(0, 200, 150, 0.1);
 }
 
-.mmm-category-label {
-	font-size: 14px;
-	color: var(--text-primary, var(--color-light-text));
-	flex: 1;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+/* Scrollbar Styles */
+.mmm-categories-grid::-webkit-scrollbar,
+.mmm-setting-content::-webkit-scrollbar {
+	width: 6px;
 }
 
-/* Dark theme overrides */
+.mmm-categories-grid::-webkit-scrollbar-track,
+.mmm-setting-content::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+	margin: 4px 0;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb,
+.mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+	transition: background-color 0.2s ease;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb:hover,
+.mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark Theme Category Overrides */
 .mmm-modal-dark .mmm-category-checkbox {
 	background-color: var(--color-dark-bg);
 }
@@ -773,14 +763,17 @@ mmm-setting-dropdown option[value=""] {
 	border-color: rgba(255, 255, 255, 0.1);
 }
 
-.mmm-modal-dark .mmm-categories-grid {
+.mmm-modal-dark .mmm-categories-grid,
+.mmm-modal-dark .mmm-setting-content {
 	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb {
-	background-color: rgba(255, 255, 255, 0.3);
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb,
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.2);
 }
 
-.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(255, 255, 255, 0.5);
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover,
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.3);
 }
