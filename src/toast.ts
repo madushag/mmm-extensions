@@ -1,19 +1,53 @@
-// Function to show a toast notification. Include a fade out duration parameter in seconds
-type ToastType = "success" | "error" | "warning" | "info";
+/******************************************************************************************/
+/* This file provides toast notification functionality for the extension.
+/* It allows showing temporary pop-up messages to users with different types:
+/* - success, error, warning, and info notifications
+/* - customizable fade-out duration
+/* - automatic cleanup of DOM elements
+/* - stackable notifications with FIFO behavior
+/******************************************************************************************/
 
-export function showToast(message: string, type: ToastType = "success", fadeOutDuration: number = 3): void {
-    const toast = document.createElement("div");
-    toast.className = `toast-notification toast-${type}`;
-    toast.innerText = message;
+export enum ToastType {
+	SUCCESS = "success",
+	ERROR = "error",
+	WARNING = "warning",
+	INFO = "info"
+}
 
-    // Add the toast to the body
-    document.body.appendChild(toast);
+let toastContainer: HTMLDivElement | null = null;
 
-    // Fade out the toast after the specified duration
-    setTimeout(() => {
-        toast.style.opacity = "0";
-        setTimeout(() => {
-            document.body.removeChild(toast);
-        }, 1000);
-    }, fadeOutDuration * 1000);
+function ensureContainer(): HTMLDivElement {
+	if (!toastContainer) {
+		toastContainer = document.createElement("div");
+		toastContainer.className = "toast-container";
+		document.body.appendChild(toastContainer);
+	}
+	return toastContainer;
+}
+
+export function showToast(message: string, type: ToastType = ToastType.SUCCESS, fadeOutDuration: number = 3): void {
+	const container = ensureContainer();
+	const toast = document.createElement("div");
+	toast.className = `toast-notification toast-${type}`;
+	toast.innerText = message;
+
+	container.appendChild(toast);
+
+	// Force reflow to trigger animation
+	void toast.offsetWidth;
+	toast.classList.add("show");
+
+	setTimeout(() => {
+		toast.classList.add("hide");
+		setTimeout(() => {
+			if (container.contains(toast)) {
+				container.removeChild(toast);
+			}
+			// Remove container if it's empty
+			if (container.childNodes.length === 0) {
+				document.body.removeChild(container);
+				toastContainer = null;
+			}
+		}, 300); // Animation duration
+	}, fadeOutDuration * 1000);
 }

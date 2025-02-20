@@ -6,8 +6,19 @@ export interface CustomSettings {
 	showSplitButtonOnAllAccounts: boolean;
 	showUnsplitButtonForSplitTransactions: boolean;
 	tagSplitTransactions: boolean;
-	
-    rememberNetWorthDuration: boolean;
+
+	showPostToSplitwiseButton: boolean;
+	splitwiseFriendId: string;
+	splitwiseUserId: number;
+	splitwiseGroupId: number;
+
+	rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;
 
+	handleUtilities: boolean;
+	utilityCategories: string[];
+
+	handleCreditCardPayments: boolean;
+	creditCardPaymentGroupId: number;
+	transactionPostedToSplitwiseTagName: string;
 }

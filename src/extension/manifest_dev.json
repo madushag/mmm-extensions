@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Maddy's Monarch Money Extension",
+  "name": "Maddy's Monarch Money Extension - DEV",
   "version": "0.0.0.5",
   "description": "Enhances Monarch Money with custom settings and features",
   "content_scripts": [
@@ -37,9 +37,9 @@
         "views/transaction-views.js",
         "helpers/helper-graphql.js",
         "helpers/helper-errorhandler.js",
-        "toast.js",
         "helpers/helper-splitwise.js",
-        "helpers/helper-google-analytics.js"
+        "helpers/helper-google-analytics.js",
+        "toast.js"
       ],
       "type": "module",
       "matches": [

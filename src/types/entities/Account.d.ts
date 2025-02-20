@@ -1,3 +1,12 @@
+/******************************************************************************************/
+/* Type definition for Account entities in the Monarch Money API.
+/* Defines the structure for:
+/* - Account core properties (ID, name, balance)
+/* - Display and sync settings
+/* - Institution and credential relationships
+/* - Net worth inclusion settings
+/******************************************************************************************/
+
 import { Subtype } from "./AccountSubtype";
 import { Credential } from "./Credential";
 import { Institution } from "./Institution";

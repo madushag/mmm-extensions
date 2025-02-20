@@ -1,416 +1,779 @@
 /* mmm-styles.css */
 /* CSS Variables */
 :root {
-    /* Colors */
-    --color-white: #FFFFFF;
-    --color-success: #077a50;
-    --color-error: #e01313;
-    --color-dark-bg: rgb(38, 38, 38);
-    --color-dark-header: rgb(25, 25, 24);
-    --color-light-bg: rgb(255, 255, 255);
-    --color-light-header: rgb(236, 231, 222);
-    --color-light-text: rgb(34, 32, 29);
-    --color-dark-text: rgb(255, 255, 255);
-    --color-toggle-checked: rgb(0, 200, 150);
-    
-    /* Spacing */
-    --spacing-sm: 5px;
-    --spacing-md: 8px;
-    --spacing-lg: 16px;
-    --spacing-xl: 20px;
-    
-    /* Modal */
-    --modal-width: 90%;
-    --modal-max-width: 500px;
-    --modal-border-radius: 8px;
-    --modal-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    
-    /* Toggle Switch */
-    --toggle-width: 48px;
-    --toggle-height: 24px;
-    --toggle-slider-size: 20px;
-    --toggle-dark-bg: rgb(64, 64, 64);
-    --toggle-light-bg: rgb(220, 224, 228);
-    
-    /* Transitions */
-    --transition-fast: 0.2s ease-out;
-    --transition-normal: 0.4s ease;
-    --transition-slow: 0.5s ease-in-out;
+	/* Colors */
+	--color-white: #FFFFFF;
+	--color-success: #077a50;
+	--color-error: #e01313;
+	--color-dark-bg: rgb(38, 38, 38);
+	--color-dark-header: rgb(25, 25, 24);
+	--color-light-bg: rgb(255, 255, 255);
+	--color-light-header: rgb(236, 231, 222);
+	--color-light-text: rgb(34, 32, 29);
+	--color-dark-text: rgb(255, 255, 255);
+	--color-toggle-checked: rgb(0, 200, 150);
+
+	/* Spacing */
+	--spacing-sm: 5px;
+	--spacing-md: 8px;
+	--spacing-lg: 16px;
+	--spacing-xl: 20px;
+
+	/* Modal */
+	--modal-width: 90%;
+	--modal-max-width: 500px;
+	--modal-border-radius: 8px;
+	--modal-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+	/* Toggle Switch */
+	--toggle-width: 48px;
+	--toggle-height: 24px;
+	--toggle-slider-size: 20px;
+	--toggle-dark-bg: rgb(64, 64, 64);
+	--toggle-light-bg: rgb(220, 224, 228);
+
+	/* Transitions */
+	--transition-fast: 0.2s ease-out;
+	--transition-normal: 0.4s ease;
+	--transition-slow: 0.5s ease-in-out;
 }
 
 /* Toast Notifications */
-.toast-notification {
-    position: fixed;
-    top: var(--spacing-xl);
-    right: var(--spacing-xl);
-    color: var(--color-white);
-    padding: var(--spacing-xl);
-    border-radius: 5px;
-    z-index: 9999;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    transition: opacity var(--transition-slow);
-    opacity: 1;
+.toast-container {
+	position: fixed;
+	top: var(--spacing-xl);
+	right: var(--spacing-xl);
+	display: flex;
+	flex-direction: column-reverse;
+	gap: var(--spacing-md);
+	z-index: 9999;
+	pointer-events: none;
 }
 
-.toast-success { background-color: var(--color-success); }
-.toast-error { background-color: var(--color-error); }
+.toast-notification {
+	color: var(--color-white);
+	padding: var(--spacing-lg) var(--spacing-xl);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: all var(--transition-normal);
+	opacity: 0;
+	transform: translateX(100%);
+	pointer-events: auto;
+	max-width: 300px;
+	word-break: break-word;
+}
+
+.toast-notification.show {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.toast-notification.hide {
+	opacity: 0;
+	transform: translateX(100%);
+}
+
+.toast-success {
+	background-color: var(--color-success);
+}
+
+.toast-error {
+	background-color: var(--color-error);
+}
 
 /* Helper Button Styles */
 .monarch-helper-button-split {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-radius: 4px;
-    cursor: pointer;
+	padding: var(--spacing-sm) var(--spacing-lg);
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 .monarch-helper-button-unsplit {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-radius: 4px;
-    cursor: pointer;
+	padding: var(--spacing-sm) var(--spacing-lg);
+	border-radius: 4px;
+	cursor: pointer;
 }
 
 .button-container {
-    display: flex;
-    gap: 0;
+	display: flex;
+	gap: 0;
 }
 
 /* Modal Base Styles */
 .mmm-modal {
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity var(--transition-fast);
+	position: fixed;
+	z-index: 9999;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	opacity: 0;
+	transition: opacity var(--transition-fast);
 }
 
 .mmm-modal-content {
-    margin: var(--spacing-xl) auto;
-    border-radius: var(--modal-border-radius);
-    width: var(--modal-width);
-    max-width: var(--modal-max-width);
-    position: relative;
-    box-shadow: var(--modal-box-shadow);
-    transform: translateY(0);
-    opacity: 1;
-    transition: transform var(--transition-fast), opacity var(--transition-fast);
+	margin: var(--spacing-xl) auto;
+	border-radius: var(--modal-border-radius);
+	width: var(--modal-width);
+	max-width: var(--modal-max-width);
+	position: relative;
+	box-shadow: var(--modal-box-shadow);
+	transform: translateY(0);
+	opacity: 1;
+	transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
-.mmm-modal.show { opacity: 1; }
+.mmm-modal.show {
+	opacity: 1;
+}
 
 .mmm-modal[style*="display: none"] .mmm-modal-content {
-    transform: translateY(var(--spacing-xl));
-    opacity: 0;
+	transform: translateY(var(--spacing-xl));
+	opacity: 0;
 }
 
 .mmm-modal-header {
-    padding: var(--spacing-xl);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: var(--modal-border-radius) var(--modal-border-radius) 0 0;
+	padding: var(--spacing-xl);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: var(--modal-border-radius) var(--modal-border-radius) 0 0;
 }
 
 .mmm-modal-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 500;
+	margin: 0;
+	font-size: 20px;
+	font-weight: 500;
 }
 
 .mmm-modal-close {
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
 }
 
 .mmm-modal-body {
-    padding: var(--spacing-xl);
-    padding-top: var(--spacing-md);
+	padding: var(--spacing-xl);
+	padding-top: var(--spacing-md);
 }
 
 
 .mmm-modal-body-text-small {
-    font-size: 14px;
+	font-size: 14px;
 }
 
 /* Settings Section Base Styles */
 .mmm-settings-section {
-    padding: var(--spacing-sm) 0;
+	padding: var(--spacing-sm) 0;
 }
 
 .mmm-settings-section h3 {
-    font-size: var(--spacing-lg);
-    font-weight: 600;
-    margin-bottom: var(--spacing-lg);
+	font-size: var(--spacing-lg);
+	font-weight: 600;
+	margin-bottom: var(--spacing-lg);
 }
 
 .mmm-setting-item {
-    margin: var(--spacing-xl) 0;
+	margin: var(--spacing-xl) 0;
 }
 
 .mmm-setting-item-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.mmm-setting-item-content-column {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	width: 100%;
+}
+
+.mmm-setting-label {
+	font-weight: 500;
+	margin-bottom: 1px;
 }
 
 .mmm-setting-item label {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    cursor: pointer;
-    font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	cursor: pointer;
+	font-weight: 500;
 }
 
 .mmm-setting-item-content-input {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
 }
 
 .mmm-setting-input:focus {
-    outline: none;
+	outline: none;
 }
 
 .mmm-setting-input-dark {
-    width: 100%;
-    padding: var(--spacing-sm);
-    border-radius: 4px;
-    font-size: 18px;
-    transition: border-color var(--transition-normal);
-    background-color: var(--color-dark-bg);
-    color: var(--color-white);
+	width: 100%;
+	padding: var(--spacing-sm);
+	border-radius: 4px;
+	font-size: 18px;
+	transition: border-color var(--transition-normal);
+	background-color: var(--color-dark-bg);
+	color: var(--color-white);
 }
 
 .mmm-setting-input-light {
-    width: 100%;
-    padding: var(--spacing-sm);
-    border-radius: 4px;
-    font-size: 16px;
-    transition: border-color var(--transition-normal);
-    background-color: var(--color-light-bg);
-    color: var(--color-light-text);
+	width: 100%;
+	padding: var(--spacing-sm);
+	border-radius: 4px;
+	font-size: 16px;
+	transition: border-color var(--transition-normal);
+	background-color: var(--color-light-bg);
+	color: var(--color-light-text);
 }
 
 .mmm-setting-item input {
-    width: 100%;
-    border-radius: 4px;
-    border: 1px solid #ccc; /* Light border */
-    padding: var(--spacing-sm);
+	width: 100%;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	/* Light border */
+	padding: var(--spacing-sm);
 }
 
 /* Toggle Switch Base Styles */
 .toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: var(--toggle-width);
-    height: var(--toggle-height);
-    cursor: pointer;
+	position: relative;
+	display: inline-block;
+	width: var(--toggle-width);
+	height: var(--toggle-height);
+	cursor: pointer;
 }
 
 .toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    margin: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	margin: 0;
 }
 
 .toggle-switch .slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    transition: var(--transition-normal);
-    border-radius: var(--toggle-height);
+	position: absolute;
+	cursor: pointer;
+	inset: 0;
+	transition: var(--transition-normal);
+	border-radius: var(--toggle-height);
 }
 
 .toggle-switch .slider:before {
-    position: absolute;
-    content: "";
-    height: var(--toggle-slider-size);
-    width: var(--toggle-slider-size);
-    left: 2px;
-    bottom: 2px;
-    background-color: var(--color-white);
-    transition: var(--transition-normal);
-    border-radius: 50%;
+	position: absolute;
+	content: "";
+	height: var(--toggle-slider-size);
+	width: var(--toggle-slider-size);
+	left: 2px;
+	bottom: 2px;
+	background-color: var(--color-white);
+	transition: var(--transition-normal);
+	border-radius: 50%;
 }
 
-.toggle-switch input:checked + .slider:before {
-    transform: translateX(calc(var(--toggle-width) - var(--toggle-slider-size) - 4px));
+.toggle-switch input:checked+.slider:before {
+	transform: translateX(calc(var(--toggle-width) - var(--toggle-slider-size) - 4px));
 }
 
 /* Dark Theme Styles */
 .mmm-modal-dark {
-    background-color: rgba(0, 0, 0, 0.767);
+	background-color: rgba(0, 0, 0, 0.767);
 }
 
 .mmm-modal-content-dark {
-    background-color: var(--color-dark-bg);
-    color: var(--color-white);
+	background-color: var(--color-dark-bg);
+	color: var(--color-white);
 }
 
 .mmm-modal-header-dark {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: var(--color-dark-header);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	background-color: var(--color-dark-header);
 }
 
 .mmm-modal-close-dark {
-    color: #aaa;
+	color: #aaa;
 }
 
 .mmm-modal-close-dark:hover {
-    color: var(--color-white);
+	color: var(--color-white);
 }
 
 .mmm-modal-dark .toggle-switch .slider {
-    background-color: var(--toggle-dark-bg);
+	background-color: var(--toggle-dark-bg);
 }
 
-.mmm-modal-dark .toggle-switch input:checked + .slider {
-    background-color: var(--color-toggle-checked);
+.mmm-modal-dark .toggle-switch input:checked+.slider {
+	background-color: var(--color-toggle-checked);
+}
+
+.mmm-modal-dark .mmm-categories-container {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-search {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Light Theme Styles */
 .mmm-modal-light {
-    background-color: rgba(255, 255, 255, 0.69);
+	background-color: rgba(255, 255, 255, 0.69);
 }
 
 .mmm-modal-content-light {
-    background-color: var(--color-light-bg);
-    color: var(--color-light-text);
+	background-color: var(--color-light-bg);
+	color: var(--color-light-text);
 }
 
 .mmm-modal-header-light {
-    border-bottom: 1px solid rgba(221, 221, 221, 0.5);
-    background-color: var(--color-light-header);
+	border-bottom: 1px solid rgba(221, 221, 221, 0.5);
+	background-color: var(--color-light-header);
 }
 
 .mmm-modal-close-light {
-    color: var(--color-light-text);
+	color: var(--color-light-text);
 }
 
 .mmm-modal-close-light:hover {
-    color: var(--color-error);
+	color: var(--color-error);
 }
 
 .mmm-modal-light .toggle-switch .slider {
-    background-color: var(--toggle-light-bg);
+	background-color: var(--toggle-light-bg);
 }
 
-.mmm-modal-light .toggle-switch input:checked + .slider {
-    background-color: var(--color-toggle-checked);
+.mmm-modal-light .toggle-switch input:checked+.slider {
+	background-color: var(--color-toggle-checked);
 }
 
 /* General styles for the select element */
 .mmm-setting-dropdown {
-    width: 100%; /* Full width */
-    padding: var(--spacing-sm); /* Padding for better spacing */
-    padding-right: 30px;
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 4px; /* Rounded corners */
-    background-color: #fff; /* White background */
-    appearance: none; /* Remove default styling */
-    cursor: pointer; /* Pointer cursor */
-    position: relative; /* Positioning for dropdown arrow */
+	width: 100%;
+	/* Full width */
+	padding: var(--spacing-sm);
+	/* Padding for better spacing */
+	padding-right: 30px;
+	border: 1px solid #ccc;
+	/* Light border */
+	border-radius: 4px;
+	/* Rounded corners */
+	background-color: #fff;
+	/* White background */
+	appearance: none;
+	/* Remove default styling */
+	cursor: pointer;
+	/* Pointer cursor */
+	position: relative;
+	/* Positioning for dropdown arrow */
 }
 
 /* Focus outline style */
 .mmm-setting-dropdown:focus {
-    outline: none; /* Remove default outline */
-    border: 2px solid #00aaff; /* Custom border color */
-    box-shadow: 0 0 5px rgba(0, 170, 255, 0.5); /* Glow effect */
+	outline: none;
+	/* Remove default outline */
+	border: 2px solid #00aaff;
+	/* Custom border color */
+	box-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
+	/* Glow effect */
 }
 
 /* Style for the dropdown arrow */
 .mmm-setting-input-arrow {
-    content: '▼'; /* Dropdown arrow */
-    position: absolute; /* Positioning */
-    right: 18px; /* Right padding */
-    top: 56%; /* Center vertically */
-    transform: translateY(-50%); /* Adjust for centering */
-    pointer-events: none; /* Prevent interaction */
+	content: '▼';
+	/* Dropdown arrow */
+	position: absolute;
+	/* Positioning */
+	right: 18px;
+	/* Right padding */
+	top: 56%;
+	/* Center vertically */
+	transform: translateY(-50%);
+	/* Adjust for centering */
+	pointer-events: none;
+	/* Prevent interaction */
 }
 
 /* Style for the dropdown options */
 .mmm-setting-dropdown option {
-    padding: 10px; /* Padding for options */
+	padding: 10px;
+	/* Padding for options */
 }
 
 /* Hover effect for options */
 .mmm-setting-dropdown option:hover {
-    background-color: #f0f0f0; /* Light gray on hover */
+	background-color: #f0f0f0;
+	/* Light gray on hover */
 }
 
 /* Placeholder styling */
-.mmm-setting-dropdown option[value=""] {
-    color: #aaa; /* Light gray for placeholder */
+mmm-setting-dropdown option[value=""] {
+	color: #aaa;
+	/* Light gray for placeholder */
 }
 
 /* Custom styles for the dropdown container */
 .mmm-setting-input {
-    position: relative; /* Positioning for dropdown arrow */
+	position: relative;
+	/* Positioning for dropdown arrow */
 }
 
 .mmm-setting-divider {
-    border-bottom: 1px solid #ccc; /* Light border */
-    margin: var(--spacing-xl) 0;
+	border-bottom: 1px solid #ccc;
+	/* Light border */
+	margin: var(--spacing-xl) 0;
 }
 
 .mmm-setting-header-light {
-    display: flex;
-    align-items: center;
-    background-color: rgb(236, 235, 233);
-    padding: 0px var(--spacing-md); /* Reduced vertical padding */
-    border-radius: 8px 8px 0 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: -1px;
-    transition: background-color 0.3s;
-    line-height: 100%;
+	display: flex;
+	align-items: center;
+	background-color: rgb(236, 235, 233);
+	padding: 0px var(--spacing-md);
+	/* Reduced vertical padding */
+	border-radius: 8px 8px 0 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: -1px;
+	transition: background-color 0.3s;
+	line-height: 100%;
 }
 
 .mmm-setting-header-light.collapsed {
-    border-radius: 8px; 
+	border-radius: 8px;
 }
 
 .mmm-setting-arrow {
-    margin-left: auto; /* Push the arrow to the right */
-    display: inline-flex; /* Ensure it stays inline */
-    justify-content: center;
-    align-items: center;
-    width: 30px; /* Adjust size as needed */
-    height: 30px; /* Adjust size as needed */
-    border-radius: 50%; /* Makes it circular */
-    background-color: var(--color-light-bg); /* Background color */
-    color: var(--color-light-text); /* Arrow color */
-    cursor: pointer; /* Pointer cursor */
-    transition: background-color 0.3s; /* Smooth transition */
-    font-size: 0.8em;
+	margin-left: auto;
+	/* Push the arrow to the right */
+	display: inline-flex;
+	/* Ensure it stays inline */
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	/* Adjust size as needed */
+	height: 30px;
+	/* Adjust size as needed */
+	border-radius: 50%;
+	/* Makes it circular */
+	background-color: var(--color-light-bg);
+	/* Background color */
+	color: var(--color-light-text);
+	/* Arrow color */
+	cursor: pointer;
+	/* Pointer cursor */
+	transition: background-color 0.3s;
+	/* Smooth transition */
+	font-size: 0.8em;
 }
 
+/* Updated styles for the settings content to make it scrollable */
 .mmm-setting-content {
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    max-height: 500px;
-    border-radius: 0 0 15px 15px; /* Rounded bottom corners */
-    padding: var(--spacing-md); /* Padding for spacing */
-    background-color: var(--color-light-bg); /* Keep existing background color */
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+	overflow-y: auto; /* Enable vertical scrolling */
+	max-height: 500px; /* Set a maximum height for the scrollable area */
+	transition: max-height 0.3s ease-out;
+	border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+	padding-top: 1px; /* Padding for spacing */
+	padding-right: var(--spacing-md); /* Padding for spacing */
+	padding-left: var(--spacing-md); /* Padding for spacing */
+	padding-bottom: var(--spacing-md); /* Padding for spacing */
+	background-color: var(--color-light-bg); /* Keep existing background color */
+	border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+	scrollbar-width: thin; /* For Firefox */
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent; /* For Firefox */
 }
 
+/* Custom scrollbar for Webkit browsers */
+.mmm-setting-content::-webkit-scrollbar {
+	width: 6px;
+}
+
+.mmm-setting-content::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+}
+
+.mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	transition: background-color 0.3s;
+}
+
+.mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark theme scrollbar */
+.mmm-modal-dark .mmm-setting-content {
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure the collapsed state hides the content */
 .mmm-setting-content.collapsed {
-    border-radius: 0 0 15px 15px; /* Ensure rounded corners are visible when collapsed */
-    max-height: 0;
-    visibility: hidden; /* Hide the content */
+	border-radius: 0 0 15px 15px;
+	/* Ensure rounded corners are visible when collapsed */
+	max-height: 0;
+	visibility: hidden;
+	/* Hide the content */
 }
 
 .mmm-setting-content:not(.collapsed) {
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Light border when expanded */
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	/* Light border when expanded */
 }
 
+/* Settings Container Base Styles */
+.mmm-setting-categories-container {
+	position: relative;
+	width: 100%;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	padding: 4px;
+	margin-top: 1px;
+	background: var(--background-secondary, var(--color-light-bg));
+	max-height: 300px;
+	display: flex;
+	flex-direction: column;
+}
 
+.mmm-setting-category-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 0;
+}
+
+.mmm-setting-category-item input[type="checkbox"] {
+	margin: 0;
+}
+
+.mmm-setting-category-item label {
+	margin: 0;
+	cursor: pointer;
+}
+
+/* Categories Container Styles */
+.mmm-categories-container {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	border: 1px solid var(--border-color, #ccc);
+	border-radius: 8px;
+	background: var(--background-secondary, var(--color-light-bg));
+	max-height: 300px;
+	overflow: hidden;
+}
+
+.mmm-categories-search {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	flex: 0 0 auto;
+	background: var(--background-secondary, var(--color-light-bg));
+	padding: 12px;
+	padding-top: 1px;
+	border-bottom: 1px solid var(--border-color, #ccc);
+	margin: 0;
+}
+
+.mmm-categories-search input {
+	width: 100%;
+	padding: 6px 10px;
+	border: 1px solid var(--border-color, #ccc);
+	border-radius: 6px;
+	background: var(--background-primary, var(--color-white));
+	color: var(--text-primary, var(--color-light-text));
+	font-size: 14px;
+	transition: border-color 0.2s ease;
+}
+
+.mmm-categories-search input:focus {
+	outline: none;
+	border-color: var(--accent-color, #00aaff);
+	box-shadow: 0 0 0 2px var(--accent-color-transparent, rgba(0, 170, 255, 0.2));
+}
+
+.mmm-categories-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 4px;
+	padding: 8px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
+	max-height: 250px;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* Category Checkbox Styles */
+.mmm-category-checkbox-wrapper {
+	position: relative;
+	padding: 2px;
+}
+
+.mmm-category-checkbox {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 4px 6px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+	background-color: var(--background-primary, var(--color-white));
+}
+
+.mmm-category-checkbox:hover {
+	background-color: var(--background-secondary, var(--color-light-bg));
+}
+
+.mmm-category-checkbox input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.mmm-checkbox-custom {
+	width: 18px;
+	height: 18px;
+	margin-right: 10px;
+	border: 2px solid #777;
+	border-radius: 4px;
+	background-color: var(--color-white);
+	display: inline-block;
+	position: relative;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	transition: all 0.2s ease;
+}
+
+.mmm-category-label {
+	font-size: 14px;
+	color: var(--text-primary, var(--color-light-text));
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Category Checkbox States */
+.mmm-category-checkbox input:checked~.mmm-checkbox-custom {
+	background-color: var(--color-toggle-checked);
+	border-color: var(--color-toggle-checked);
+	box-shadow: 0 1px 3px rgba(0, 200, 150, 0.3);
+	transform: scale(1.05);
+}
+
+.mmm-checkbox-custom:after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 5px;
+	top: 2px;
+	width: 6px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 2.5px 2.5px 0;
+	transform: rotate(45deg);
+	transition: all 0.2s ease;
+}
+
+.mmm-category-checkbox input:checked~.mmm-checkbox-custom:after {
+	display: block;
+}
+
+.mmm-category-checkbox:hover .mmm-checkbox-custom {
+	border-color: var(--color-toggle-checked);
+	background-color: rgba(0, 200, 150, 0.1);
+}
+
+/* Scrollbar Styles */
+.mmm-categories-grid::-webkit-scrollbar,
+.mmm-setting-content::-webkit-scrollbar {
+	width: 6px;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-track,
+.mmm-setting-content::-webkit-scrollbar-track {
+	background: transparent;
+	border-radius: 4px;
+	margin: 4px 0;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb,
+.mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+	transition: background-color 0.2s ease;
+}
+
+.mmm-categories-grid::-webkit-scrollbar-thumb:hover,
+.mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark Theme Category Overrides */
+.mmm-modal-dark .mmm-category-checkbox {
+	background-color: var(--color-dark-bg);
+}
+
+.mmm-modal-dark .mmm-category-checkbox:hover {
+	background-color: var(--color-dark-header);
+}
+
+.mmm-modal-dark .mmm-category-label {
+	color: var(--color-dark-text);
+}
+
+.mmm-modal-dark .mmm-categories-search input {
+	background-color: var(--color-dark-bg);
+	color: var(--color-dark-text);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-checkbox-custom {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mmm-modal-dark .mmm-categories-container {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-search {
+	background-color: var(--color-dark-bg);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-categories-grid,
+.mmm-modal-dark .mmm-setting-content {
+	scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb,
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover,
+.mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(255, 255, 255, 0.3);
+}
