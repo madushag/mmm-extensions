@@ -6,9 +6,10 @@
 /* - Handle message events between content script and page for Splitwise operations
 /******************************************************************************************/
 
-import { ExpenseDetails } from '../types/entities/ExpenseDetails.js';
-import { SplitwiseResponse } from '../types/splitwise-responses/splitWiseResponse.js';
+import { ExpenseDetails } from '../../types/entities/ExpenseDetails.js';
+import { SplitwiseResponse } from '../../types/splitwise-responses/splitWiseResponse.js';
 
+// Message types for communication between content script and service worker
 export enum SplitwiseMessageType {
 	POST_TO_SPLITWISE = 'POST_TO_SPLITWISE',
 	SPLITWISE_EXPENSE_RESPONSE = 'SPLITWISE_EXPENSE_RESPONSE',
@@ -253,4 +254,54 @@ export async function deleteSplitwiseExpense(transactionId: string): Promise<Spl
 			reject(error);
 		}
 	});
+}
+
+/**
+ * Gets the Splitwise token
+ * @returns A promise that resolves to the Splitwise token or rejects with an error.
+ */
+export async function getSplitwiseToken(config: any): Promise<string> {
+	// Check if we have a cached token
+	const cached = await chrome.storage.local.get(['splitwise_token', 'splitwise_token_expiry']);
+	if (cached.splitwise_token && cached.splitwise_token_expiry) {
+		if (Date.now() < cached.splitwise_token_expiry - 300000) {
+			console.log('Using cached token');
+			return cached.splitwise_token;
+		}
+	}
+
+	// Start OAuth flow
+	const redirectUri = config.redirect_uri;
+	const authUrl = `${config.auth_url}?client_id=${config.client_id}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(config.scope)}`;
+
+	try {
+		const redirectUrl = await chrome.identity.launchWebAuthFlow({
+			url: authUrl,
+			interactive: true
+		});
+
+		// With implicit grant, the token comes directly in the URL fragment
+		const urlHash = new URL(redirectUrl).hash.substring(1);
+		const params = new URLSearchParams(urlHash);
+		const accessToken = params.get('access_token');
+
+		if (!accessToken) {
+			throw new Error('No access token received');
+		}
+
+		// Cache the token with expiry
+		await chrome.storage.local.set({
+			splitwise_token: accessToken,
+			splitwise_token_expiry: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days in milliseconds
+		});
+		return accessToken;
+
+	} catch (error) {
+		console.error('Detailed Splitwise OAuth error:', {
+			message: error.message,
+			stack: error.stack,
+			error
+		});
+		throw error;
+	}
 }
