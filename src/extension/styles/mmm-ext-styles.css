@@ -254,6 +254,13 @@
 	color: var(--color-light-text);
 }
 
+.toggle-label-text-dark {
+	color: var(--color-dark-text);
+}
+
+.toggle-label-text-light {
+	color: var(--color-light-text);
+}
 
 
 /* Dark Theme Styles */

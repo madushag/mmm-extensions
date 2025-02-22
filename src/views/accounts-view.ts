@@ -54,13 +54,17 @@ function accountsDetailsViewHandler(customSettings: CustomSettings): void {
 
 function addHideChartButton() {
 
+	// If the hide chart container already exists, adjust for theme and do nothing else
 	if (document.getElementById('mmm-hide-chart-container')) {
 		return;
 	}
+
 	const accountBalanceGraphHeader = document.querySelector('div[class^="Flex-sc"][class*="AccountBalanceGraph__Header-sc"]');
 	const dateRangeSelectorButton = accountBalanceGraphHeader?.querySelector('button[class*="AccountBalanceGraph__DateRangeOptionButton-sc"]');
 
 	if (dateRangeSelectorButton) {
+		const theme = detectTheme();
+
 		// Create a container for the flex grid
 		const flexContainer = document.createElement('div');
 		flexContainer.style.display = 'flex';
@@ -88,6 +92,7 @@ function addHideChartButton() {
 		const toggleLabelText = document.createElement('span');
 		toggleLabelText.textContent = 'Hide Chart';
 		toggleLabelText.className = 'toggle-label-text';
+		toggleLabelText.classList.add(`toggle-label-text-${theme}`);
 
 		// Assemble the toggle switch
 		toggleLabel.appendChild(toggleInput);
@@ -115,4 +120,16 @@ function addHideChartButton() {
 			}
 		});
 	}
+}
+
+// Function to detect the current theme
+function detectTheme(): 'dark' | 'light' {
+	const pageRoot = document.querySelector('div[class^="Page__Root"]');
+	if (pageRoot?.classList.contains('jyUbNP')) {
+		return 'dark';
+	}
+	else if (pageRoot?.classList.contains('jAzUjM')) {
+		return 'light';
+	}
+	return 'light'; // Default to light theme if no theme is detected
 }
