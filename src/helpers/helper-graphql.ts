@@ -7,22 +7,18 @@
 /* - Interface with Splitwise for expense sharing
 /******************************************************************************************/
 
-import { UpdateTransactionResponse } from "../types/graphql-responses/updateTransactionResponse";
-import { SetTransactionTagsResponse } from "../types/graphql-responses/setTransactionTagsResponse";
-import { GetTransactionDetailsResponse } from "../types/graphql-responses/getTransactionDetailsResponse";
-import { UpdateTransactionSplitResponse } from "../types/graphql-responses/updateTransactionSplitResponse";
-import { GraphQLResponse } from "../types/graphql-responses/graphQLResponse";
-import { Transaction } from "../types/entities/Transaction";
-import { Account } from "../types/entities/Account";
-import { AccountTypeSummary } from "../types/entities/AccountTypeSummary";
-import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag";
+import { UpdateTransactionResponse } from "../types/graphql-responses/updateTransactionResponse.js";
+import { SetTransactionTagsResponse } from "../types/graphql-responses/setTransactionTagsResponse.js";
+import { GetTransactionDetailsResponse } from "../types/graphql-responses/getTransactionDetailsResponse.js";
+import { UpdateTransactionSplitResponse } from "../types/graphql-responses/updateTransactionSplitResponse.js";
+import { GraphQLResponse } from "../types/graphql-responses/graphQLResponse.js";
+import { Transaction } from "../types/entities/Transaction.js";
+import { AccountTypeSummary } from "../types/entities/AccountTypeSummary.js";
+import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
 import { showToast, ToastType } from "../toast.js";
-import { Category } from "../types/entities/Category";
+import { Category } from "../types/entities/Category.js";
 
 const GRAPHQL_URL = "https://api.monarchmoney.com/graphql";
-const SPLITWISE_API_URL = "https://secure.splitwise.com/api/v3.0/create_expense";
-const GROUP_ID = 0;
-const HomeRevereSWGroupId = 1708251;
 
 // Helper function to get the GraphQL token from localStorage
 const getGraphqlToken = (): string => {
@@ -709,7 +705,6 @@ export async function updateTransactionNotes(transactionId: string, notes: strin
 	return await callGraphQL(json);
 }
 
-
 // Unsplit a transaction
 export async function unsplitTransaction(originalTransactionId: string): Promise<UpdateTransactionSplitResponse> {
 	const payload = {
@@ -932,17 +927,4 @@ export async function getAllCategories(): Promise<Category[]> {
 	return (response.data?.categories || []).sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// Helper function to map Monarch categories to Splitwise categories
-function mapMonarchCategoryToSplitwiseCategory(monarchCategoryId: string | undefined): number {
-	// Default to "General" category if no mapping found
-	if (!monarchCategoryId) return 18;
-
-	// TODO: Add proper category mapping
-	const categoryMap: Record<string, number> = {
-		// Add mappings based on your categories
-		// Format: 'monarch_category_id': splitwise_category_id
-	};
-
-	return categoryMap[monarchCategoryId] || 18; // Default to "General" if no mapping found
-}
 
