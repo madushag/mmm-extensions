@@ -42,7 +42,6 @@ class MutationObserverHandler {
 		this.transactionObserver = new MutationObserver(
 			this.debounce((mutations) => {
 				console.log('mutation observer triggered');
-
 				if (window.location.href.split('?')[0] !== previousUrl) {
 					previousUrl = window.location.href.split('?')[0];
 					onPageStructureChanged(true);
@@ -293,8 +292,6 @@ window.addEventListener('message', function (event) {
 	}
 });
 
-
-
 // Core logic to handle each page structure change
 async function onPageStructureChanged(urlHasChanged = false) {
 	let urlParts = new URL(window.location.href).pathname.split('/');
@@ -317,12 +314,18 @@ async function onPageStructureChanged(urlHasChanged = false) {
 	// Check if the part of the URL that determines the page is /accounts, after removing the query parameters
 	// (e.g., https://app.monarchmoney.com/accounts?chartType=performance&dateRange=YTD&timeframe=month)
 	if (urlParts[1] === "accounts") {
-		// store the dateRange parameter from the URL
-		storedDateRange = (new URL(window.location.href)).searchParams.get("dateRange");
-
-		if (urlHasChanged) {
+		// if there is no urlParts[2] element, then in main accounts page
+		if (!urlParts[2]) {
+			// store the dateRange parameter from the URL
+			storedDateRange = (new URL(window.location.href)).searchParams.get("dateRange");
 			injectRequiredScripts();
-			handleAccountsView(); // Handle the accounts view
+			handleAccountsView();
+		}
+		// if there is a urlParts[2] element, handle the transactions view
+		else if (urlParts[2] === "details") {
+			injectRequiredScripts();
+			handleAccountsDetailsView();
+			handleTransactionsView();
 		}
 	}
 }
@@ -377,20 +380,34 @@ function handleTransactionsView() {
 
 // Handle the Accounts view
 function handleAccountsView() {
-	if (!checkForNetWorthControlsButton) {
-		// Check if the interval is not already set
-		checkForNetWorthControlsButton = setInterval(() => {
-			const netWorthControlsButton = document.querySelector('button[class*="NetWorthChartControls__TimeFrameOptionButton"]');
-			if (netWorthControlsButton) {
-				clearInterval(checkForNetWorthControlsButton);
-				checkForNetWorthControlsButton = null;
-				if (areScriptsInjected) {
-					document.dispatchEvent(new CustomEvent('EXECUTE-ACCOUNTS-VIEW'));
-				}
+	// Check if the interval is not already set
+	checkForNetWorthControlsButton = setInterval(() => {
+		const netWorthControlsButton = document.querySelector('button[class*="NetWorthChartControls__TimeFrameOptionButton"]');
+		if (netWorthControlsButton) {
+			clearInterval(checkForNetWorthControlsButton);
+			checkForNetWorthControlsButton = null;
+			if (areScriptsInjected) {
+				document.dispatchEvent(new CustomEvent('EXECUTE-ACCOUNTS-VIEW'));
 			}
-		}, 1000);
-	}
+		}
+	}, 1000);
 }
+
+// Handle the Accounts view
+function handleAccountsDetailsView() {
+	// Check if the interval is not already set
+	checkForAccountBalanceGraphHeader = setInterval(() => {
+		const accountBalanceGraphHeader = document.querySelector('div[class^="Flex-sc"][class*="AccountBalanceGraph__Header-sc"]');
+		if (accountBalanceGraphHeader) {
+			clearInterval(checkForAccountBalanceGraphHeader);
+			checkForAccountBalanceGraphHeader = null;
+			if (areScriptsInjected) {
+				document.dispatchEvent(new CustomEvent('EXECUTE-ACCOUNTS-DETAILS-VIEW'));
+			}
+		}
+	}, 1000);
+}
+
 
 /******************************************************************************************/
 // Inject the required scripts
