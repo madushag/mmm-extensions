@@ -18,6 +18,7 @@ export enum AnalyticsMessageType {
 	SEND_TO_GANALYTICS_SUCCESS = 'SEND_TO_GANALYTICS_SUCCESS',
 	SEND_TO_GANALYTICS_ERROR = 'SEND_TO_GANALYTICS_ERROR'
 }
+
 const GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
 const GA_DEBUG_ENDPOINT = 'https://www.google-analytics.com/debug/mp/collect';
 
@@ -79,7 +80,6 @@ class Analytics {
 	async getOrCreateSessionId(): Promise<string> {
 		let { sessionData } = await chrome.storage.session.get('sessionData') as { sessionData?: SessionData };
 		const currentTimeInMs = Date.now();
-
 		if (sessionData?.timestamp) {
 			const durationInMin = (currentTimeInMs - Number(sessionData.timestamp)) / 60000;
 			if (durationInMin > SESSION_EXPIRATION_IN_MIN) {
@@ -89,7 +89,6 @@ class Analytics {
 				await chrome.storage.session.set({ sessionData });
 			}
 		}
-
 		if (!sessionData) {
 			sessionData = {
 				session_id: currentTimeInMs.toString(),
@@ -97,7 +96,6 @@ class Analytics {
 			};
 			await chrome.storage.session.set({ sessionData });
 		}
-
 		return sessionData.session_id;
 	}
 
@@ -108,7 +106,6 @@ class Analytics {
 		if (!params.engagement_time_msec) {
 			params.engagement_time_msec = DEFAULT_ENGAGEMENT_TIME_MSEC;
 		}
-
 		try {
 			const response = await fetch(
 				`${this.debug ? GA_DEBUG_ENDPOINT : GA_ENDPOINT}?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`,
@@ -146,4 +143,3 @@ class Analytics {
 }
 
 export default new Analytics();
-
