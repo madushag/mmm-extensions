@@ -6,8 +6,8 @@
 /* - Handle message events between content script and page for Splitwise operations
 /******************************************************************************************/
 
-import { ExpenseDetails } from '../types/entities/ExpenseDetails.d.js';
-import { SplitwiseResponse } from '../types/splitwise-responses/splitWiseResponse.d.js';
+import { ExpenseDetails } from '../types/entities/ExpenseDetails.js';
+import { SplitwiseResponse } from '../types/splitwise-responses/splitWiseResponse.js';
 
 export enum SplitwiseMessageType {
 	POST_TO_SPLITWISE = 'POST_TO_SPLITWISE',
@@ -28,7 +28,7 @@ export enum SplitwiseMessageType {
  * Posts an expense to Splitwise using the provided expense details and user IDs.
  * It sends a message to the content script and listens for the response.
  * On success, it resolves with the response from Splitwise; on failure, it rejects with an error.
- * 
+ *
  * @param expenseDetails - The details of the expense to be posted.
  * @param myUserId - The ID of the user posting the expense.
  * @param debUserId - The ID of the user being debited for the expense.
@@ -44,6 +44,7 @@ export async function postToSplitwise(
 
 		// Setup the event listener before posting the message
 		const messageListener = (event: MessageEvent) => {
+
 			// Only accept messages from our extension
 			if (event.data.source !== 'MMM_EXTENSION') return;
 
@@ -83,7 +84,7 @@ export async function postToSplitwise(
  * Gets the list of friends from Splitwise.
  * It sends a message to the content script and listens for the response.
  * On success, it resolves with the list of friends; on failure, it rejects with an error.
- * 
+ *
  * @returns A promise that resolves to the list of Splitwise friends or rejects with an error.
  */
 export async function getSplitwiseFriends(): Promise<any[]> {
@@ -126,7 +127,7 @@ export async function getSplitwiseFriends(): Promise<any[]> {
  * Get the current user's information from Splitwise using message passing
  * @returns Promise with the current user's ID or throws an error
  */
-export async function getCurrentUser(): Promise<number> {
+export async function getCurrentSplitwiseUser(): Promise<number> {
 	return new Promise((resolve, reject) => {
 		const messageId = Math.random().toString(36).substring(7);
 
@@ -168,7 +169,7 @@ export async function getCurrentUser(): Promise<number> {
  * Gets the list of groups from Splitwise.
  * It sends a message to the content script and listens for the response.
  * On success, it resolves with the list of groups; on failure, it rejects with an error.
- * 
+ *
  * @returns A promise that resolves to the list of Splitwise groups or rejects with an error.
  */
 export async function getSplitwiseGroups(): Promise<any[]> {
@@ -211,7 +212,7 @@ export async function getSplitwiseGroups(): Promise<any[]> {
  * Deletes an expense from Splitwise using its ID.
  * It sends a message to the content script and listens for the response.
  * On success, it resolves with the response from Splitwise; on failure, it rejects with an error.
- * 
+ *
  * @param transactionId - The ID of the transaction to get the Splitwise expense ID from
  * @returns A promise that resolves to the Splitwise response or rejects with an error.
  */
