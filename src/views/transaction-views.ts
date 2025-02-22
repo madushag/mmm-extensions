@@ -34,7 +34,6 @@ let SPLIT_WITH_PARTNER_TAG_NAME = "";
 let SPLIT_WITH_PARTNER_ACCOUNT_ID = "";
 let SPLITWISE_FRIEND_ID = "";
 let SPLITWISE_USER_ID = 0;
-let SPLITWISE_GROUP_ID = 0;
 
 // Listen for the EXECUTE-TRANSACTIONS-VIEW from the content script
 document.addEventListener('EXECUTE-TRANSACTIONS-VIEW', (event: Event) => {
@@ -49,7 +48,6 @@ function mainHandler(customSettings: CustomSettings) {
 	SPLIT_WITH_PARTNER_ACCOUNT_ID = customSettings.splitWithPartnerAccountId;
 	SPLITWISE_FRIEND_ID = customSettings.splitwiseFriendId;
 	SPLITWISE_USER_ID = customSettings.splitwiseUserId;
-	SPLITWISE_GROUP_ID = customSettings.splitwiseUtilityGroupId;
 
 	// Get all the transaction rows, determined by whether the row has an amount and a merchant
 	const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
