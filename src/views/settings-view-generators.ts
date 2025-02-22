@@ -262,7 +262,7 @@ export function generateUtilitySettings(theme: 'dark' | 'light'): string {
             <div class="mmm-modal-body-text-small">
                 Select which categories should be considered utilities. Use the search box to filter categories.
             </div>
-            <div class="mmm-setting-categories-container" id="utility-categories-container">
+            <div class="mmm-setting-categories-container mmm-setting-categories-container-${theme}" id="utility-categories-container">
                 <div class="mmm-categories-search">
                     <input type="text" id="categories-search" placeholder="Search categories..." />
                 </div>
