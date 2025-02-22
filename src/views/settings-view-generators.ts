@@ -1,4 +1,4 @@
-import { getCustomSettings, saveCustomSettings } from "./settings-view.js";
+import { getCustomSettings, loadSplitwiseData, saveCustomSettings } from "./settings-view.js";
 import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
 import { getAllCategories } from "../helpers/helper-graphql.js";
 
@@ -79,7 +79,7 @@ export function generateSplitButtonSettings(
         <div class="mmm-setting-item-content">
             <label>Show Split Button for Unsplit Transactions ✂️</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="showSplitButtonForUnsplitTransactions" id="show-split-button-for-unsplit-transactions" />
+                <input type="checkbox" data-setting-name="showSplitButtonForUnsplitTransactions" id="show-split-button-for-unsplit-transactions" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -92,7 +92,7 @@ export function generateSplitButtonSettings(
         <div class="mmm-setting-item-content">
             <label>Show Split Button On All Accounts</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="showSplitButtonOnAllAccounts" id="show-split-button-on-all-accounts" />
+                <input type="checkbox" data-setting-name="showSplitButtonOnAllAccounts" id="show-split-button-on-all-accounts" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -105,7 +105,7 @@ export function generateSplitButtonSettings(
         <div class="mmm-setting-item-content-input">
             <label>Select Specific Account to Split Transactions</label>
             <div class="mmm-setting-input-${theme}" style="position: relative; overflow: hidden;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="splitWithPartnerAccountId" id="split-with-partner-account-id" style="max-width: 100%;">
+                <select class="mmm-setting-dropdown" data-setting-name="splitWithPartnerAccountId" id="split-with-partner-account-id" style="max-width: 100%;">
                     ${accountIdsNames ? accountIdsNames.map(account => `
                         <option value="${account.id}">
                             ${account.name}
@@ -130,7 +130,7 @@ export function generateUnsplitButtonSettings(): string {
         <div class="mmm-setting-item-content">
             <label>Show Unsplit Button for Split Transactions 🔀</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="showUnsplitButtonForSplitTransactions" id="show-unsplit-button-for-split-transactions" />
+                <input type="checkbox" data-setting-name="showUnsplitButtonForSplitTransactions" id="show-unsplit-button-for-split-transactions" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -151,7 +151,7 @@ export function generateTagSettings(
         <div class="mmm-setting-item-content">
             <label>Tag Split Transactions</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="tagSplitTransactions" id="tag-split-transactions" />
+                <input type="checkbox" data-setting-name="tagSplitTransactions" id="tag-split-transactions" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -164,7 +164,7 @@ export function generateTagSettings(
         <div class="mmm-setting-item-content-input">
             <label>Tag For Split Transactions</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="splitWithPartnerTagName" id="split-with-partner-tag-name">
+                <select class="mmm-setting-dropdown" data-setting-name="splitWithPartnerTagName" id="split-with-partner-tag-name">
                     ${generateTagOptions(allTags)}
                 </select>
                 <span class="mmm-setting-input-arrow">
@@ -209,7 +209,7 @@ export function generateSplitwiseToggle(): string {
         <div class="mmm-setting-item-content">
             <label>Show Split & Post to Splitwise Button 📤</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
+                <input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -226,7 +226,7 @@ export function generateSplitwiseFriendSettings(theme: 'dark' | 'light'): string
         <div class="mmm-setting-item-content-input">
             <label>Splitwise Friend</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="splitwiseFriendId" id="splitwise-friend-id">
+                <select class="mmm-setting-dropdown" data-setting-name="splitwiseFriendId" id="splitwise-friend-id">
                     <option value="">Loading friends...</option>
                 </select>
                 <span class="mmm-setting-input-arrow">
@@ -247,7 +247,7 @@ export function generateUtilitySettings(theme: 'dark' | 'light'): string {
         <div class="mmm-setting-item-content">
             <label>Handle Utilities 💡</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="handleUtilities" id="handle-utilities" />
+                <input type="checkbox" data-setting-name="handleUtilities" id="handle-utilities" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -275,7 +275,7 @@ export function generateUtilitySettings(theme: 'dark' | 'light'): string {
         <div class="mmm-setting-item-content-input">
             <label>Splitwise Group To Post Utility Expenses</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="splitwiseGroupId" id="splitwise-utility-group-id">
+                <select class="mmm-setting-dropdown" data-setting-name="splitwiseUtilityGroupId" id="splitwise-utility-group-id">
                     <option value="0">Loading groups...</option>
                 </select>
                 <span class="mmm-setting-input-arrow">
@@ -296,7 +296,7 @@ export function generateCreditCardSettings(theme: 'dark' | 'light', allTags: Hou
         <div class="mmm-setting-item-content">
             <label>Handle Credit Card Payments 💳</label>
             <label class="toggle-switch">
-                <input type="checkbox" mmm-data-setting-name="handleCreditCardPayments" id="handle-credit-card-payments" />
+                <input type="checkbox" data-setting-name="handleCreditCardPayments" id="handle-credit-card-payments" />
                 <span class="slider"></span>
             </label>
         </div>
@@ -309,7 +309,7 @@ export function generateCreditCardSettings(theme: 'dark' | 'light', allTags: Hou
         <div class="mmm-setting-item-content-input">
             <label>Splitwise Group For Credit Card Payments</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="creditCardPaymentGroupId" id="credit-card-payment-group-id">
+                <select class="mmm-setting-dropdown" data-setting-name="creditCardPaymentGroupId" id="credit-card-payment-group-id">
                     <option value="0">Loading groups...</option>
                 </select>
                 <span class="mmm-setting-input-arrow">
@@ -326,7 +326,7 @@ export function generateCreditCardSettings(theme: 'dark' | 'light', allTags: Hou
         <div class="mmm-setting-item-content-input">
             <label>Tag For Posted Transactions</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="transactionPostedToSplitwiseTagName" id="transaction-posted-to-splitwise-tag-name">
+                <select class="mmm-setting-dropdown" data-setting-name="transactionPostedToSplitwiseTagName" id="transaction-posted-to-splitwise-tag-name">
                     ${generateTagOptions(allTags)}
                 </select>
                 <span class="mmm-setting-input-arrow">
@@ -361,7 +361,7 @@ export function generateNetWorthSettings(theme: 'dark' | 'light'): string {
         <div class="mmm-setting-item-content-input">
             <label>Default Net Worth Duration</label>
             <div class="mmm-setting-input-${theme}" style="position: relative;">
-                <select class="mmm-setting-dropdown" mmm-data-setting-name="defaultNetWorthDuration" id="default-net-worth-duration">
+                <select class="mmm-setting-dropdown" data-setting-name="defaultNetWorthDuration" id="default-net-worth-duration">
                     <option value="1M">1 Month</option>
                     <option value="3M">3 Months</option>
                     <option value="6M">6 Months</option>
@@ -399,16 +399,18 @@ async function attachSectionEventListeners(theme: 'dark' | 'light'): Promise<voi
 	document.querySelectorAll(`.mmm-setting-header-${theme}`).forEach(async (header) => {
 		header.addEventListener('click', async () => {
 			const sectionId = header.id;
+
 			if (sectionId === 'mmm-setting-header-splitwise') {
 				const settings = getCustomSettings();
 				if (settings.showPostToSplitwiseButton) {
-					// Since loadSplitwiseData is not exported, we'll let the settings-view handle this
-					document.dispatchEvent(new CustomEvent('LOAD-SPLITWISE-DATA'));
+					await loadSplitwiseData();
 				}
 			}
+
 			const h = header as HTMLElement;
 			const content = h.nextElementSibling as HTMLElement;
 			const arrow = h.querySelector('.mmm-setting-arrow');
+
 			// First collapse all sections
 			document.querySelectorAll('.mmm-setting-content').forEach(section => {
 				if (section !== content) {
@@ -421,6 +423,7 @@ async function attachSectionEventListeners(theme: 'dark' | 'light'): Promise<voi
 					}
 				}
 			});
+
 			// Then toggle the clicked section
 			if (content && arrow) {
 				content.classList.toggle('collapsed');
@@ -429,7 +432,6 @@ async function attachSectionEventListeners(theme: 'dark' | 'light'): Promise<voi
 		});
 	});
 }
-
 
 
 // New function to handle utility categories loading
@@ -449,7 +451,7 @@ export async function loadUtilityCategories(selectedCategories: string[]): Promi
 						value="${category.id}"
 						${selectedCategories.includes(category.id) ? 'checked' : ''}
 						class="utility-category-checkbox"
-						mmm-data-setting-name="utilityCategories"
+						data-setting-name="utilityCategories"
 					/>
 					<span class="mmm-checkbox-custom"></span>
 					<span class="mmm-category-label">${category.name}</span>

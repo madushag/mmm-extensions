@@ -160,10 +160,9 @@ function attachModalEventListeners(modal: HTMLElement): void {
 		}
 
 		// Save all settings
-		const settingElements = document.querySelectorAll<HTMLInputElement>('[mmm-data-setting-name]');
+		const settingElements = document.querySelectorAll<HTMLInputElement>('[data-setting-name]');
 		const settings = getCustomSettings();
 		settingElements.forEach(el => {
-
 			// Skip utility category checkboxes
 			if (el.dataset.settingName && !el.id.includes('category-')) {
 				const settingName = el.dataset.settingName as keyof CustomSettings;
@@ -183,6 +182,7 @@ function attachModalEventListeners(modal: HTMLElement): void {
 		}, 500); // Match the transition-slow timing
 	});
 }
+
 // Function to hide a setting item
 function hideSettingItem(settingItem: HTMLElement): void {
 	settingItem.style.maxHeight = '0';
@@ -194,6 +194,7 @@ function hideSettingItem(settingItem: HTMLElement): void {
 		settingItem.style.overflow = ''; // Reset overflow after hiding
 	}, 500);
 }
+
 // Function to show a setting item
 function showSettingItem(settingItem: HTMLElement): void {
 	// First make it visible but hidden to calculate full height
@@ -214,6 +215,7 @@ function showSettingItem(settingItem: HTMLElement): void {
 		settingItem.style.overflow = '';
 	}, 500);
 }
+
 // Helper function to calculate total height including nested elements
 function calculateTotalHeight(element) {
 	// Temporarily remove transitions and maxHeight to get true height
@@ -278,7 +280,7 @@ async function loadSettingsAndSetModalValues(): Promise<void> {
 	defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
 
 	// Load Splitwise data
-	await loadSplitwiseData();
+	// await loadSplitwiseData();
 
 	showHideSettingItems(null);
 }
@@ -319,6 +321,7 @@ function showHideSettingItems(target: HTMLElement | null): void {
 			}
 		});
 	};
+
 	// Handle split button visibility
 	// If the target is null, handle the visibility of all items. This happens on initial load
 	if (target === null) {
@@ -461,6 +464,7 @@ async function loadSplitwiseGroups(): Promise<void> {
 			creditCardGroupSelect.innerHTML = errorOption;
 	}
 }
+
 // Update function to load Splitwise data
 export async function loadSplitwiseData(): Promise<void> {
 	try {
@@ -486,23 +490,27 @@ export async function loadSplitwiseData(): Promise<void> {
 		setConfigValue('showPostToSplitwiseButton', false);
 	}
 }
+
 // Use the passed in settingValues object which contains the 'mmm-settings' to obtain the setting value, otherwise get from local storage
 function getConfigValue(key, settingValues) {
 	const customSettings = getCustomSettings();
 	return settingValues?.[key] || customSettings[key] || '';
 }
+
 // Function to set all the config values
 export function saveConfigValues(settings) {
 	Object.keys(settings).forEach(key => {
 		setConfigValue(key, settings[key]);
 	});
 }
+
 // Function to set a config value
 function setConfigValue(key, value) {
 	const customSettings = getCustomSettings();
 	customSettings[key] = value;
 	saveCustomSettings(customSettings);
 }
+
 // Function to detect the current theme
 function detectTheme(): 'dark' | 'light' {
 	const pageRoot = document.querySelector('div[class^="Page__Root"]');
