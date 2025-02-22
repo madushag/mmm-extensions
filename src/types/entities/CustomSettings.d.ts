@@ -10,7 +10,7 @@ export interface CustomSettings {
 	showPostToSplitwiseButton: boolean;
 	splitwiseFriendId: string;
 	splitwiseUserId: number;
-	splitwiseGroupId: number;
+	splitwiseUtilityGroupId: number;
 
 	rememberNetWorthDuration: boolean;
 	defaultNetWorthDuration: string;

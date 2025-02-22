@@ -1,59 +1,63 @@
 {
-  "manifest_version": 3,
-  "name": "Maddy's Monarch Money Extension",
-  "version": "0.0.0.5",
-  "description": "Enhances Monarch Money with custom settings and features",
-  "content_scripts": [
-    {
-      "matches": [
-        "https://app.monarchmoney.com/*"
-      ],
-      "world": "ISOLATED",
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "styles/mmm-ext-styles.css"
-      ],
-      "run_at": "document_end"
-    }
-  ],
-  "background": {
-    "service_worker": "service-worker.js",
-    "type": "module"
-  },
-  "permissions": [
-    "storage",
-    "identity"
-  ],
-  "host_permissions": [
-    "https://secure.splitwise.com/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "views/accounts-view.js",
-        "views/settings-view.js",
-        "views/transaction-views.js",
-        "helpers/helper-graphql.js",
-        "helpers/helper-errorhandler.js",
-        "toast.js",
-        "helpers/helper-splitwise.js",
-        "helpers/helper-google-analytics.js"
-      ],
-      "type": "module",
-      "matches": [
-        "https://app.monarchmoney.com/*"
-      ]
-    }
-  ],
-  "icons": {
-    "16": "icons/icon_16x16.png",
-    "32": "icons/icon_32x32.png",
-    "48": "icons/icon_48x48.png",
-    "128": "icons/icon_128x128.png"
-  },
-  "action": {
-    "default_title": "Maddy's Monarch Money Extension"
-  }
+	"update_url": "https://clients2.google.com/service/update2/crx",
+	"manifest_version": 3,
+	"name": "Maddy's Monarch Money Extension",
+	"version": "0.0.0.5",
+	"description": "Enhances Monarch Money with custom settings and features",
+	"content_scripts": [
+		{
+			"matches": [
+				"https://app.monarchmoney.com/*"
+			],
+			"world": "ISOLATED",
+			"js": [
+				"content.js"
+			],
+			"css": [
+				"styles/mmm-ext-styles.css",
+				"styles/toast-styles.css"
+			],
+			"run_at": "document_end"
+		}
+	],
+	"background": {
+		"service_worker": "service-worker.js",
+		"type": "module"
+	},
+	"permissions": [
+		"storage",
+		"identity"
+	],
+	"host_permissions": [
+		"https://secure.splitwise.com/*"
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"views/accounts-view.js",
+				"views/settings-view.js",
+				"views/settings-view-generators.js",
+				"views/transaction-views.js",
+				"helpers/helper-graphql.js",
+				"helpers/helper-errorhandler.js",
+				"helpers/helper-constants.js",
+				"toast.js",
+				"helpers/splitwise/helper-splitwise.js",
+				"helpers/helper-google-analytics.js"
+			],
+			"type": "module",
+			"matches": [
+				"https://app.monarchmoney.com/*"
+			]
+		}
+	],
+	"icons": {
+		"16": "icons/icon_16x16.png",
+		"32": "icons/icon_32x32.png",
+		"48": "icons/icon_48x48.png",
+		"128": "icons/icon_128x128.png"
+	},
+	"action": {
+		"default_title": "Maddy's Monarch Money Extension"
+	}
 }

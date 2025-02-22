@@ -10,7 +10,6 @@ import { CustomSettings } from "../types/entities/CustomSettings.js";
 import { getCustomSettings, saveConfigValues } from "./settings-view.js";
 
 
-
 // Listen for the CustomEvent from the content script
 document.addEventListener('EXECUTE-ACCOUNTS-VIEW', (event) => {
 	let customSettings = getCustomSettings();
@@ -18,7 +17,7 @@ document.addEventListener('EXECUTE-ACCOUNTS-VIEW', (event) => {
 });
 
 // Main handler function in the injected script
-function mainHandler(customSettings: CustomSettings) {
+function mainHandler(customSettings: CustomSettings): void {
 	if (customSettings.rememberNetWorthDuration) {
 
 		console.log("in accounts main handler");
@@ -28,9 +27,6 @@ function mainHandler(customSettings: CustomSettings) {
 		} else {
 			console.log("in accounts main handler and showPostToSplitwiseButton is false");
 		}
-
-		// this is a test to generate a request ID
-
 
 		// Parse the URL and extract the networth duration from the dateRange parameter
 		const url = new URL(window.location.href);
@@ -45,6 +41,3 @@ function mainHandler(customSettings: CustomSettings) {
 
 	}
 }
-
-
-

@@ -1,0 +1,57 @@
+/* Toast Notifications */
+:root {
+	--color-white: #FFFFFF;
+	--color-success: #077a50;
+	--color-error: #e01313;
+	--color-info: rgba(0, 123, 255, 0.8); /* Light blue background for info messages */
+	--spacing-md: 8px;
+	--spacing-lg: 16px;
+	--spacing-xl: 20px;
+	--transition-normal: 0.4s ease;
+}
+
+.toast-container {
+	position: fixed;
+	top: var(--spacing-xl);
+	right: var(--spacing-xl);
+	display: flex;
+	flex-direction: column-reverse;
+	gap: var(--spacing-md);
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.toast-notification {
+	color: var(--color-white);
+	padding: var(--spacing-lg) var(--spacing-xl);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: all var(--transition-normal);
+	opacity: 0;
+	transform: translateX(100%);
+	pointer-events: auto;
+	max-width: 300px;
+	word-break: break-word;
+}
+
+.toast-notification.show {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.toast-notification.hide {
+	opacity: 0;
+	transform: translateX(100%);
+}
+
+.toast-info {
+	background-color: var(--color-info);
+}
+
+.toast-success {
+	background-color: var(--color-success);
+}
+
+.toast-error {
+	background-color: var(--color-error);
+} 

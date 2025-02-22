@@ -30,16 +30,15 @@ export function showToast(message: string, type: ToastType = ToastType.SUCCESS, 
 	const toast = document.createElement("div");
 	toast.className = `toast-notification toast-${type}`;
 	toast.innerText = message;
-
 	container.appendChild(toast);
 
 	// Force reflow to trigger animation
 	void toast.offsetWidth;
 	toast.classList.add("show");
 
-	setTimeout(() => {
+	window.setTimeout(() => {
 		toast.classList.add("hide");
-		setTimeout(() => {
+		window.setTimeout(() => {
 			if (container.contains(toast)) {
 				container.removeChild(toast);
 			}
@@ -48,6 +47,6 @@ export function showToast(message: string, type: ToastType = ToastType.SUCCESS, 
 				document.body.removeChild(container);
 				toastContainer = null;
 			}
-		}, 300); // Animation duration
+		}, 300);
 	}, fadeOutDuration * 1000);
 }
