@@ -8,11 +8,12 @@
 /* - Net worth duration preferences
 /******************************************************************************************/
 
-import type { CustomSettings } from "../types/entities/CustomSettings.js";
-import { getAllAccountDetails, getAllTags, getAllCategories } from "../helpers/helper-graphql.js";
-import { HouseholdTransactionTag } from "../types/entities/HouseholdTransactionTag.js";
-import { getSplitwiseFriends, getCurrentUser, getSplitwiseGroups } from "../helpers/helper-splitwise.js";
+import { CustomSettings } from "../types/entities/CustomSettings.js";
+import { getAllMonarchAccountDetails, getAllTags, getAllCategories } from "../helpers/helper-graphql.js";
+import { getSplitwiseFriends, getCurrentSplitwiseUser, getSplitwiseGroups } from "../helpers/splitwise/helper-splitwise.js";
 import { showToast, ToastType } from "../toast.js";
+import { createModalHtml, loadUtilityCategories } from "./settings-view-generators.js";
+
 
 const DEFAULT_SETTINGS: CustomSettings = {
 	splitWithPartnerTagName: "",
@@ -26,7 +27,7 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	showPostToSplitwiseButton: false,
 	splitwiseFriendId: "",
 	splitwiseUserId: 0,
-	splitwiseGroupId: 0,
+	splitwiseUtilityGroupId: 0,
 	handleUtilities: false,
 	utilityCategories: [],
 	handleCreditCardPayments: false,
@@ -34,16 +35,14 @@ const DEFAULT_SETTINGS: CustomSettings = {
 	transactionPostedToSplitwiseTagName: ""
 };
 
-
 // Listen for the CustomEvent from the content script
 document.addEventListener('EXECUTE-CUSTOM-SETTINGS', (event) => {
 	// Bootstrap settings   
 	addCustomSettingsLink();
 });
 
-
 // Function to add the custom settings link
-function addCustomSettingsLink(): void {
+function addCustomSettingsLink() {
 	// Add custom settings section
 	const settingsContainer = document.querySelector('div[class*="Settings__SubNavCard"]')?.querySelector('div[class^="Menu"]');
 
@@ -52,9 +51,8 @@ function addCustomSettingsLink(): void {
 
 		// Detect the current class of a child of the settings container that doesn't have the class "nav-item-active" applied to it,
 		// and add it to the custom settings link
-		const existingChildAnchorElementStyles = settingsContainer.querySelector<HTMLAnchorElement>('a:not([class*="nav-item-active"])');
-		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector<HTMLDivElement>('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
-
+		const existingChildAnchorElementStyles = settingsContainer.querySelector('a:not([class*="nav-item-active"])');
+		const existingDivElementStyles = existingChildAnchorElementStyles?.querySelector('div[class^="Menu__MenuItem"]:not([class*="nav-item-active"])');
 		// Add an anchor element to the settings container to contain the custom settings link
 		const customSettingsAnchorElement = document.createElement('a');
 		customSettingsAnchorElement.href = '#';
@@ -69,7 +67,6 @@ function addCustomSettingsLink(): void {
 
 		// Add the custom settings link to the anchor element   
 		customSettingsAnchorElement.appendChild(customSettingsDivElement);
-
 		// Add the anchor element to the settings container
 		settingsContainer.appendChild(customSettingsAnchorElement);
 
@@ -101,15 +98,20 @@ function addCustomSettingsLink(): void {
 async function showCustomSettingsModal(): Promise<void> {
 	const theme = detectTheme();
 	const allTags = await getAllTags();
-	const accountIdsNames = await getAllAccountDetails();
-	if (!accountIdsNames) return;
 
-	// Create the modal
-	createModalHtml(allTags, accountIdsNames, theme);
+	const accountIdsNames = await getAllMonarchAccountDetails();
+	if (!accountIdsNames || accountIdsNames.length === 0) {
+		// log an error to analytics, show an error toast and then return
+		document.dispatchEvent(new CustomEvent('SEND_TO_GANALYTICS_ERROR',
+			{ detail: { eventName: "mmm_custom_settings_modal_error", params: { error: "No Monarch accounts found" } } }));
+		showToast('Error loading Monarch accounts', ToastType.ERROR);
+		return;
+	}
 
-	const modal = document.getElementById("mmm-settings-modal") as HTMLElement;
-
+	// Add the modal to the DOM
+	await createModalHtml(allTags, accountIdsNames, theme);
 	// Show the modal
+	const modal = document.getElementById("mmm-settings-modal");
 	setTimeout(() => {
 		modal.classList.add('show');
 		loadSettingsAndSetModalValues();
@@ -138,21 +140,38 @@ async function showCustomSettingsModal(): Promise<void> {
 
 // Function to attach event listeners to the modal
 function attachModalEventListeners(modal: HTMLElement): void {
+
 	// Save settings on change
 	modal.addEventListener('change', async (e: Event) => {
+		e.stopPropagation();
+
 		const target = e.target as HTMLInputElement;
-		showHideSettingItems();
+
+		// Skip showHideSettingItems and saving for utility category changes and utility search inbox changes as they are handled separately
+		if (!target.classList.contains('utility-category-checkbox')
+			&& !target.id.includes('categories-search')
+			&& target.tagName !== 'SELECT') {
+			showHideSettingItems(target);
+		}
 
 		// Special handling for Splitwise toggle
 		if (target.id === 'show-post-to-splitwise' && target.checked) {
 			await loadSplitwiseData();
 		}
 
-		const settingElements = document.querySelectorAll<HTMLInputElement>('[data-setting-name]');
+		// Save all settings
+		const settingElements = document.querySelectorAll<HTMLInputElement>('[mmm-data-setting-name]');
+		const settings = getCustomSettings();
 		settingElements.forEach(el => {
-			const value = el.type === 'checkbox' ? el.checked : el.value;
-			setConfigValue(el.dataset.settingName! as keyof CustomSettings, value);
+
+			// Skip utility category checkboxes
+			if (el.dataset.settingName && !el.id.includes('category-')) {
+				const settingName = el.dataset.settingName as keyof CustomSettings;
+				const value = el.type === 'checkbox' ? el.checked : el.value;
+				settings[settingName] = value as never;
+			}
 		});
+		saveCustomSettings(settings);
 	});
 
 	// Close modal on X click with fade out
@@ -164,602 +183,189 @@ function attachModalEventListeners(modal: HTMLElement): void {
 		}, 500); // Match the transition-slow timing
 	});
 }
-
-// Use the passed in settingValues object which contains the 'mmm-settings' to obtain the setting value, otherwise get from local storage
-function getConfigValue(key: string, settingValues?: Record<string, any>): boolean | string {
-	const customSettings = loadSettings();
-	return settingValues?.[key] || customSettings[key as keyof CustomSettings] || '';
-}
-
-// Function to set all the config values
-export function saveConfigValues(settings: CustomSettings): void {
-	Object.keys(settings).forEach(key => {
-		setConfigValue(key as keyof CustomSettings, settings[key as keyof CustomSettings]);
-	});
-}
-
-// Function to set a config value
-
-function setConfigValue<K extends keyof CustomSettings>(key: K, value: CustomSettings[K]): void {
-	const customSettings = loadSettings();
-	customSettings[key] = value;
-	saveSettings(customSettings);
-}
-
-
 // Function to hide a setting item
 function hideSettingItem(settingItem: HTMLElement): void {
 	settingItem.style.maxHeight = '0';
 	settingItem.style.opacity = '0';
+	settingItem.style.overflow = 'hidden';
 	settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
-	setTimeout(() => settingItem.style.display = 'none', 500);
+	setTimeout(() => {
+		settingItem.style.display = 'none';
+		settingItem.style.overflow = ''; // Reset overflow after hiding
+	}, 500);
 }
-
 // Function to show a setting item
 function showSettingItem(settingItem: HTMLElement): void {
+	// First make it visible but hidden to calculate full height
 	settingItem.style.display = 'block';
-	settingItem.style.maxHeight = settingItem.scrollHeight + 'px'; // Set to full height for animation
+	settingItem.style.opacity = '0';
+	settingItem.style.maxHeight = '0';
+	settingItem.style.overflow = 'hidden';
+	// Force a reflow to ensure the browser registers the display change
+	settingItem.offsetHeight;
+	// Calculate the total height including all nested content
+	const totalHeight = calculateTotalHeight(settingItem);
+	// Now set the actual height and fade in
+	settingItem.style.maxHeight = `${totalHeight}px`;
 	settingItem.style.opacity = '1';
-	setTimeout(() => settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)', 500);
+	settingItem.style.transition = 'max-height var(--transition-slow), opacity var(--transition-slow)';
+	// Remove overflow restriction after animation
+	setTimeout(() => {
+		settingItem.style.overflow = '';
+	}, 500);
 }
-
-// Get the custom settings values and set defaults if they are not set, and return the values
-export function getCustomSettings(): CustomSettings {
-	return loadSettings();
-}
-
-
-// Function to detect the current theme
-function detectTheme(): 'dark' | 'light' {
-	const pageRoot = document.querySelector<HTMLElement>('div[class^="Page__Root"]');
-
-	if (pageRoot?.classList.contains('jyUbNP')) {
-		return 'dark';
-	} else if (pageRoot?.classList.contains('jAzUjM')) {
-		return 'light';
-	}
-	return 'light'; // Default to light theme if no theme is detected
-}
-
-// Function to create the modal HTML
-function createModalHtml(allTags: HouseholdTransactionTag[], accountIdsNames: { id: string, name: string }[], theme: 'dark' | 'light'): void {
-	const modalHtml = `
-    <div id="mmm-settings-modal" class="mmm-modal mmm-modal-${theme}">
-        <div class="mmm-modal-content mmm-modal-content-${theme}">
-
-            <div class="mmm-modal-header mmm-modal-header-${theme}">
-                <h2>MMM Extensions Custom Settings</h2>
-                <span class="mmm-modal-close mmm-modal-close-${theme}">&times;</span>
-            </div>
-
-            <div class="mmm-modal-body mmm-modal-body-${theme}">
-
-                <div class="mmm-settings-section">
-                    <div class="mmm-setting-header-${theme} collapsed">
-                        <h3>Split Transaction Settings</h3>
-                        <span class="mmm-setting-arrow">▶</span>
-                    </div>
-                    <div class="mmm-setting-content collapsed">
-                        <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content">
-                                <label>Show Split Button for Unsplit Transactions</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="showSplitButtonForUnsplitTransactions" id="show-split-button-for-unsplit-transactions" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Show the split button for transactions from the unsplit account
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-show-split-button-on-all-accounts">
-                            <div class="mmm-setting-item-content">
-                                <label>Show Split Button On All Accounts</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="showSplitButtonOnAllAccounts" id="show-split-button-on-all-accounts" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Show the split button for transactions from all accounts
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-split-with-partner-account-id">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Select Specific Account to Split Transactions</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative; overflow: hidden;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="splitWithPartnerAccountId" id="split-with-partner-account-id" style="max-width: 100%;">
-                                        ${accountIdsNames ? accountIdsNames.map(account => `
-                                            <option value="${account.id}">
-                                                ${account.name}
-                                            </option>
-                                        `).join('') : ''}
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                The account that you want to show the split button for
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-divider"></div>
-
-                        <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content">
-                                <label>Show Unsplit Button for Split Transactions</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="showUnsplitButtonForSplitTransactions" id="show-unsplit-button-for-split-transactions" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Show the unsplit button for split transactions
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-divider"></div>
-
-                        <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content">
-                                <label>Tag Split Transactions</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="tagSplitTransactions" id="tag-split-transactions" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Tag split transactions with a tag
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-split-with-partner-tag-name">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Split With Partner Tag Name</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="splitWithPartnerTagName" id="split-with-partner-tag-name">
-                                        ${allTags ? allTags.map(tag => `
-                                            <option value="${tag.name}" style="background-color: ${tag.color};">
-                                                ${tag.name}
-                                            </option>
-                                        `).join('') : ''}
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                The name of the tag to use when splitting transactions with a partner
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mmm-settings-section">
-                    <div class="mmm-setting-header-${theme} collapsed">
-                        <h3>Splitwise Settings</h3>
-                        <span class="mmm-setting-arrow">▶</span>
-                    </div>
-                    <div class="mmm-setting-content collapsed">
-                        <div class="mmm-setting-item" id="mmm-setting-item-post-to-splitwise">
-                            <div class="mmm-setting-item-content">
-                                <label>Show Split & Post to Splitwise Button</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="showPostToSplitwiseButton" id="show-post-to-splitwise" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Show the split and post to Splitwise button
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-splitwise-friend">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Select Splitwise Friend</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="splitwiseFriendId" id="splitwise-friend-id">
-                                        <option value="">Loading friends...</option>
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                The friend to split expenses with on Splitwise
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-divider"></div>
-
-						
-                        <div class="mmm-setting-item" id="mmm-setting-item-splitwise-group">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Select Splitwise Group To Post Utility Expenses</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="splitwiseGroupId" id="splitwise-group-id">
-                                        <option value="0">Loading groups...</option>
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Optional: Select a group to post expenses to
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-divider"></div>
-
-						<div class="mmm-setting-item" id="mmm-setting-item-handle-utilities">
-							<div class="mmm-setting-item-content">
-								<label>Handle Utilities</label>
-								<label class="toggle-switch">
-									<input type="checkbox" data-setting-name="handleUtilities" id="handle-utilities" />
-									<span class="slider"></span>
-								</label>
-							</div>
-							<div class="mmm-modal-body-text-small">
-								Automatically post utility bills to the selected Splitwise group
-							</div>
-						</div>
-
-						<div class="mmm-setting-item" id="mmm-setting-item-utility-categories">
-							<div class="mmm-setting-item-content-column">
-								<label class="mmm-setting-label">Select Utility Categories</label>
-								<div class="mmm-modal-body-text-small">
-									Select which categories should be considered utilities. Use the search box to filter categories.
-								</div>
-								<div class="mmm-setting-categories-container" id="utility-categories-container">
-									<div class="mmm-categories-search">
-										<input type="text" id="categories-search" placeholder="Search categories..." />
-									</div>
-									<div class="mmm-categories-grid">Loading categories...</div>
-								</div>
-							</div>
-						</div>
-
-                        <div class="mmm-setting-divider"></div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-handle-credit-card-payments">
-                            <div class="mmm-setting-item-content">
-                                <label>Handle Credit Card Payments</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" data-setting-name="handleCreditCardPayments" id="handle-credit-card-payments" />
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Automatically post credit card payments to a Splitwise group
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-credit-card-payment-group">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Select Splitwise Group For Credit Card Payments</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="creditCardPaymentGroupId" id="credit-card-payment-group-id">
-                                        <option value="0">Loading groups...</option>
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Select a group to post credit card payments to
-                            </div>
-                        </div>
-
-                        <div class="mmm-setting-item" id="mmm-setting-item-transaction-posted-to-splitwise-tag-name">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Select Tag For Credit Card Payments</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="transactionPostedToSplitwiseTagName" id="transaction-posted-to-splitwise-tag-name">
-                                        ${allTags ? allTags.map(tag => `
-                                            <option value="${tag.name}" style="background-color: ${tag.color};">
-                                                ${tag.name}
-                                            </option>
-                                        `).join('') : ''}
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Select a tag to mark credit card payment transactions
-                            </div>
-                        </div>
-
-                	</div>
-				</div>
-
-                <div class="mmm-settings-section">
-                    <div class="mmm-setting-header-${theme} collapsed">
-                        <h3>Other Settings</h3>
-                        <span class="mmm-setting-arrow">▶</span>
-                    </div>
-                    <div class="mmm-setting-content collapsed">
-                        <div class="mmm-setting-item">
-                            <div class="mmm-setting-item-content-input">
-                                <label>Default Net Worth Duration</label>
-                                <div class="mmm-setting-input-${theme}" style="position: relative;">
-                                    <select class="mmm-setting-dropdown" data-setting-name="defaultNetWorthDuration" id="default-net-worth-duration">
-                                        <option value="1M">1 Month</option>
-                                        <option value="3M">3 Months</option>
-                                        <option value="6M">6 Months</option>
-                                        <option value="YTD">Year to date</option>
-                                        <option value="1Y">1 Year</option>
-                                        <option value="ALL">All time</option>
-                                    </select>
-                                    <span class="mmm-setting-input-arrow">
-                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" size="16" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="mmm-modal-body-text-small">
-                                Default net worth duration to display on the accounts page
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>`;
-
-	// Add modal to body if it doesn't already exist
-	if (!document.getElementById("mmm-settings-modal")) {
-		document.body.insertAdjacentHTML('beforeend', modalHtml);
-	}
-
-	// Handle setting section collapse. When one of the headers is clicked, expans/collapse just that header
-	// and all other headers should collapse
-	document.querySelectorAll(`.mmm-setting-header-${theme}`).forEach(header => {
-		header.addEventListener('click', () => {
-			// Collapse all other headers
-			document.querySelectorAll(`.mmm-setting-header-${theme}`).forEach(otherHeader => {
-				if (otherHeader !== header) {
-					otherHeader.classList.add('collapsed');
-					otherHeader.nextElementSibling?.classList.add('collapsed');
-					otherHeader.querySelector('.mmm-setting-arrow')!.textContent = '▶';
-				}
-			});
-
-			// Toggle clicked header
-			header.classList.toggle('collapsed');
-			const content = header.nextElementSibling;
-			const arrow = header.querySelector('.mmm-setting-arrow');
-			if (content && arrow) {
-				content.classList.toggle('collapsed');
-				arrow.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
-			}
-		});
-	});
+// Helper function to calculate total height including nested elements
+function calculateTotalHeight(element) {
+	// Temporarily remove transitions and maxHeight to get true height
+	const originalTransition = element.style.transition;
+	const originalMaxHeight = element.style.maxHeight;
+	const originalHeight = element.style.height;
+	element.style.transition = 'none';
+	element.style.maxHeight = 'none';
+	element.style.height = 'auto';
+	// Get the full height including margins
+	const computedStyle = window.getComputedStyle(element);
+	const marginTop = parseFloat(computedStyle.marginTop);
+	const marginBottom = parseFloat(computedStyle.marginBottom);
+	// Calculate total height including all nested content
+	const totalHeight = element.offsetHeight + marginTop + marginBottom;
+	// Restore original styles
+	element.style.transition = originalTransition;
+	element.style.maxHeight = originalMaxHeight;
+	element.style.height = originalHeight;
+	// Add extra padding for nested elements
+	return totalHeight + 50; // Add some buffer for nested elements
 }
 
 // Function to load settings and set the modal values
 async function loadSettingsAndSetModalValues(): Promise<void> {
 	const settings = getCustomSettings();
 
+	// Split/Unsplit settings elements
 	const showSplitCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
-	const tagNameSelect = document.getElementById('split-with-partner-tag-name') as HTMLSelectElement;
-	const accountIdSelect = document.getElementById('split-with-partner-account-id') as HTMLSelectElement;
 	const showAllAccountsCheckbox = document.getElementById('show-split-button-on-all-accounts') as HTMLInputElement;
 	const showUnsplitCheckbox = document.getElementById('show-unsplit-button-for-split-transactions') as HTMLInputElement;
 	const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
-	const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
-	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
-	const splitwiseGroupSelect = document.getElementById('splitwise-group-id') as HTMLSelectElement;
-
+	const tagNameSelect = document.getElementById('split-with-partner-tag-name') as HTMLSelectElement;
+	// Load the settings
 	showSplitCheckbox.checked = settings.showSplitButtonForUnsplitTransactions || false;
-	tagNameSelect.value = settings.splitWithPartnerTagName || '';
-	accountIdSelect.value = settings.splitWithPartnerAccountId || '';
 	showAllAccountsCheckbox.checked = settings.showSplitButtonOnAllAccounts || false;
 	showUnsplitCheckbox.checked = settings.showUnsplitButtonForSplitTransactions || false;
 	tagTransactionsCheckbox.checked = settings.tagSplitTransactions || false;
-	defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
-	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
-	splitwiseGroupSelect.value = settings.splitwiseGroupId.toString() || '0';
+	tagNameSelect.value = settings.splitWithPartnerTagName || '';
 
+	// Splitwise settings elements
+	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
+	const splitwiseFriendAccountId = document.getElementById('split-with-partner-account-id') as HTMLSelectElement;
 	const handleUtilitiesCheckbox = document.getElementById('handle-utilities') as HTMLInputElement;
-	handleUtilitiesCheckbox.checked = settings.handleUtilities || false;
-
-	// Load categories for utilities
-	const categoriesContainer = document.getElementById('utility-categories-container');
-	if (categoriesContainer) {
-		try {
-			const categories = await getAllCategories();
-			const categoriesGridDiv = document.createElement('div');
-			categoriesGridDiv.className = 'mmm-categories-grid';
-
-			categoriesGridDiv.innerHTML = categories.map(category => `
-				<div class="mmm-category-checkbox-wrapper">
-					<label class="mmm-category-checkbox">
-						<input type="checkbox" 
-							id="category-${category.id}" 
-							value="${category.id}"
-							${settings.utilityCategories.includes(category.id) ? 'checked' : ''}
-							class="utility-category-checkbox"
-						/>
-						<span class="mmm-checkbox-custom"></span>
-						<span class="mmm-category-label">${category.name}</span>
-					</label>
-				</div>
-			`).join('');
-
-			// Add search functionality - use existing search input if it exists
-			const existingSearch = document.getElementById('categories-search');
-			let searchInput: HTMLInputElement;
-
-			if (existingSearch) {
-				searchInput = existingSearch as HTMLInputElement;
-			} else {
-				searchInput = document.createElement('input');
-				searchInput.type = 'text';
-				searchInput.id = 'categories-search';
-				searchInput.className = 'mmm-categories-search-input';
-				searchInput.placeholder = 'Search categories...';
-			}
-
-			searchInput.addEventListener('input', (e) => {
-				const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
-				const checkboxWrappers = categoriesGridDiv.querySelectorAll('.mmm-category-checkbox-wrapper');
-
-				checkboxWrappers.forEach(wrapper => {
-					const label = wrapper.querySelector('.mmm-category-label');
-					if (label) {
-						const text = label.textContent?.toLowerCase() || '';
-						(wrapper as HTMLElement).style.display = text.includes(searchTerm) ? '' : 'none';
-					}
-				});
-			});
-
-			const searchDiv = document.createElement('div');
-			searchDiv.className = 'mmm-categories-search';
-			if (!existingSearch) {
-				searchDiv.appendChild(searchInput);
-			}
-
-			categoriesContainer.innerHTML = '';
-			categoriesContainer.appendChild(searchDiv);
-			categoriesContainer.appendChild(categoriesGridDiv);
-
-			// Add event listeners to checkboxes
-			const checkboxes = categoriesGridDiv.querySelectorAll('.utility-category-checkbox');
-			checkboxes.forEach(checkbox => {
-				checkbox.addEventListener('change', (e) => {
-					const target = e.target as HTMLInputElement;
-					const settings = loadSettings();
-					const categories = settings.utilityCategories || [];
-
-					if (target.checked && !categories.includes(target.value)) {
-						categories.push(target.value);
-					} else if (!target.checked) {
-						const index = categories.indexOf(target.value);
-						if (index > -1) {
-							categories.splice(index, 1);
-						}
-					}
-
-					setConfigValue('utilityCategories', categories);
-				});
-			});
-		} catch (error) {
-			console.error('Error loading categories:', error);
-			categoriesContainer.innerHTML = 'Error loading categories';
-		}
-	}
-
+	const splitwiseUtilityGroupId = document.getElementById('splitwise-utility-group-id') as HTMLSelectElement;
 	const handleCreditCardPaymentsCheckbox = document.getElementById('handle-credit-card-payments') as HTMLInputElement;
-	const creditCardPaymentGroupSelect = document.getElementById('credit-card-payment-group-id') as HTMLSelectElement;
+	const creditCardSplitwiseGroupId = document.getElementById('credit-card-payment-group-id') as HTMLSelectElement;
 	const transactionPostedToSplitwiseTagName = document.getElementById('transaction-posted-to-splitwise-tag-name') as HTMLSelectElement;
-
+	// Load the settings
+	showPostToSplitwiseCheckbox.checked = settings.showPostToSplitwiseButton || false;
+	splitwiseFriendAccountId.value = settings.splitWithPartnerAccountId || '';
+	handleUtilitiesCheckbox.checked = settings.handleUtilities || false;
+	// Load categories for utilities
+	await loadUtilityCategories(settings.utilityCategories || []);
+	splitwiseUtilityGroupId.value = settings.splitwiseUtilityGroupId.toString() || '0';
 	handleCreditCardPaymentsCheckbox.checked = settings.handleCreditCardPayments || false;
-	creditCardPaymentGroupSelect.value = settings.creditCardPaymentGroupId.toString() || '0';
+	creditCardSplitwiseGroupId.value = settings.creditCardPaymentGroupId.toString() || '0';
 	transactionPostedToSplitwiseTagName.value = settings.transactionPostedToSplitwiseTagName || '';
 
-	showHideSettingItems();
+	// Other settings
+	const defaultNetWorthDurationSelect = document.getElementById('default-net-worth-duration') as HTMLSelectElement;
+	defaultNetWorthDurationSelect.value = settings.defaultNetWorthDuration || 'YTD';
 
-	// Load Splitwise data if button is checked
-	if (showPostToSplitwiseCheckbox.checked) {
-		await loadSplitwiseData();
-	}
+	// Load Splitwise data
+	await loadSplitwiseData();
+
+	showHideSettingItems(null);
 }
 
 // Function to show or hide setting items based on the settings
-function showHideSettingItems(): void {
-	const showSplitCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
+function showHideSettingItems(target: HTMLElement | null): void {
+	const showSplitButtonCheckbox = document.getElementById('show-split-button-for-unsplit-transactions') as HTMLInputElement;
 	const showAllAccountsCheckbox = document.getElementById('show-split-button-on-all-accounts') as HTMLInputElement;
 	const tagTransactionsCheckbox = document.getElementById('tag-split-transactions') as HTMLInputElement;
 	const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
-
-	const showSplitSettingItem = document.getElementById('mmm-setting-item-show-split-button-on-all-accounts') as HTMLElement;
-	const accountIdSettingItem = document.getElementById('mmm-setting-item-split-with-partner-account-id') as HTMLElement;
-	const tagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name') as HTMLElement;
-	const splitwiseFriendSettingItem = document.getElementById('mmm-setting-item-splitwise-friend') as HTMLElement;
-	const splitwiseGroupSettingItem = document.getElementById('mmm-setting-item-splitwise-group') as HTMLElement;
-
 	const handleUtilitiesCheckbox = document.getElementById('handle-utilities') as HTMLInputElement;
-	const utilityCategoriesSettingItem = document.getElementById('mmm-setting-item-utility-categories') as HTMLElement;
-
 	const handleCreditCardPaymentsCheckbox = document.getElementById('handle-credit-card-payments') as HTMLInputElement;
+	// Split button settings
+	const showSplitOnAllAccountsSettingItem = document.getElementById('mmm-setting-item-show-split-button-on-all-accounts') as HTMLElement;
+	const partnerAccountIdSettingItem = document.getElementById('mmm-setting-item-split-with-partner-account-id') as HTMLElement;
+	const tagSettingItem = document.getElementById('mmm-setting-item-split-with-partner-tag-name') as HTMLElement;
+	// Splitwise settings group
+	const splitwiseSettingsGroup = document.getElementById('splitwise-settings-group') as HTMLElement;
+	const utilityCategoriesSettingItem = document.getElementById('mmm-setting-item-utility-categories') as HTMLElement;
+	const splitwiseUtilityGroupSettingItem = document.getElementById('mmm-setting-item-splitwise-utility-group') as HTMLElement;
 	const creditCardPaymentGroupSettingItem = document.getElementById('mmm-setting-item-credit-card-payment-group') as HTMLElement;
 	const transactionPostedToSplitwiseTagNameSettingItem = document.getElementById('mmm-setting-item-transaction-posted-to-splitwise-tag-name') as HTMLElement;
-
-	if (!showSplitCheckbox.checked) {
-		hideSettingItem(showSplitSettingItem);
-		hideSettingItem(accountIdSettingItem);
-	} else {
-		showSettingItem(showSplitSettingItem);
-		showSettingItem(accountIdSettingItem);
+	// Handle visibility with a slight delay to ensure proper animation sequencing
+	const handleVisibility = (show, ...elements) => {
+		// const settingName = triggerElement.dataset.settingName;
+		// const storedSettings = loadSettings();
+		// const settingValue = storedSettings[settingName as keyof CustomSettings];
+		elements.forEach((element, index) => {
+			if (element) {
+				setTimeout(() => {
+					if (show) {
+						showSettingItem(element);
+					}
+					else {
+						hideSettingItem(element);
+					}
+				}, index * 50); // Stagger animations slightly
+			}
+		});
+	};
+	// Handle split button visibility
+	// If the target is null, handle the visibility of all items. This happens on initial load
+	if (target === null) {
+		handleVisibility(showSplitButtonCheckbox.checked, showSplitOnAllAccountsSettingItem, partnerAccountIdSettingItem);
+		handleVisibility(!showAllAccountsCheckbox.checked, partnerAccountIdSettingItem);
+		handleVisibility(tagTransactionsCheckbox.checked, tagSettingItem);
+		handleVisibility(showPostToSplitwiseCheckbox.checked, splitwiseSettingsGroup);
+		handleVisibility(handleUtilitiesCheckbox.checked, utilityCategoriesSettingItem, splitwiseUtilityGroupSettingItem);
+		handleVisibility(handleCreditCardPaymentsCheckbox.checked, creditCardPaymentGroupSettingItem, transactionPostedToSplitwiseTagNameSettingItem);
 	}
-
-	if (showAllAccountsCheckbox.checked) {
-		hideSettingItem(accountIdSettingItem);
-	} else {
-		showSettingItem(accountIdSettingItem);
+	// Handle split button visibility
+	else if (target === showSplitButtonCheckbox) {
+		if (showSplitButtonCheckbox.checked) {
+			handleVisibility(showSplitButtonCheckbox.checked, showSplitOnAllAccountsSettingItem);
+			handleVisibility(showAllAccountsCheckbox.checked, partnerAccountIdSettingItem);
+		}
+		else {
+			handleVisibility(false, showSplitOnAllAccountsSettingItem, partnerAccountIdSettingItem);
+		}
 	}
-
-	if (!tagTransactionsCheckbox.checked) {
-		hideSettingItem(tagSettingItem);
-	} else {
-		showSettingItem(tagSettingItem);
+	else if (target === showAllAccountsCheckbox) {
+		handleVisibility(!showAllAccountsCheckbox.checked, partnerAccountIdSettingItem);
 	}
-
-	if (!showPostToSplitwiseCheckbox.checked) {
-		hideSettingItem(splitwiseFriendSettingItem);
-		hideSettingItem(splitwiseGroupSettingItem);
-	} else {
-		showSettingItem(splitwiseFriendSettingItem);
-		showSettingItem(splitwiseGroupSettingItem);
+	else if (target === tagTransactionsCheckbox) {
+		handleVisibility(tagTransactionsCheckbox.checked, tagSettingItem);
 	}
-
-	if (!handleUtilitiesCheckbox.checked) {
-		hideSettingItem(utilityCategoriesSettingItem);
-	} else {
-		showSettingItem(utilityCategoriesSettingItem);
+	// Handle Splitwise settings visibility
+	else if (target === showPostToSplitwiseCheckbox) {
+		handleVisibility(showPostToSplitwiseCheckbox.checked, splitwiseSettingsGroup);
 	}
-
-	if (!handleCreditCardPaymentsCheckbox.checked) {
-		hideSettingItem(creditCardPaymentGroupSettingItem);
-		hideSettingItem(transactionPostedToSplitwiseTagNameSettingItem);
-	} else {
-		showSettingItem(creditCardPaymentGroupSettingItem);
-		showSettingItem(transactionPostedToSplitwiseTagNameSettingItem);
+	else if (target === handleUtilitiesCheckbox) {
+		handleVisibility(handleUtilitiesCheckbox.checked, utilityCategoriesSettingItem, splitwiseUtilityGroupSettingItem);
+	}
+	else if (target === handleCreditCardPaymentsCheckbox) {
+		handleVisibility(handleCreditCardPaymentsCheckbox.checked, creditCardPaymentGroupSettingItem, transactionPostedToSplitwiseTagNameSettingItem);
 	}
 }
 
 // Function to load the settings from local storage
-function loadSettings(): CustomSettings {
+// This function merges the default settings with the stored settings
+export function getCustomSettings(): CustomSettings {
 	const stored = JSON.parse(localStorage.getItem('mmm-settings') || '{}');
 	return { ...DEFAULT_SETTINGS, ...stored };
 }
 
 // Function to save the settings to local storage
-function saveSettings(settings: CustomSettings): void {
+export function saveCustomSettings(settings: CustomSettings): void {
 	localStorage.setItem('mmm-settings', JSON.stringify(settings));
 }
 
@@ -790,11 +396,12 @@ async function loadSplitwiseFriends(): Promise<void> {
 		});
 
 		// Set selected value if exists in settings
-		const settings = loadSettings();
+		const settings = getCustomSettings();
 		if (settings.splitwiseFriendId) {
 			friendSelect.value = settings.splitwiseFriendId;
 		}
-	} catch (error) {
+	}
+	catch (error) {
 		console.error('Error loading Splitwise friends:', error);
 		friendSelect.innerHTML = '<option value="">Error loading friends</option>';
 	}
@@ -802,7 +409,7 @@ async function loadSplitwiseFriends(): Promise<void> {
 
 // Add function to load Splitwise groups
 async function loadSplitwiseGroups(): Promise<void> {
-	const groupSelect = document.getElementById('splitwise-group-id') as HTMLSelectElement;
+	const groupSelect = document.getElementById('splitwise-utility-group-id') as HTMLSelectElement;
 	const creditCardGroupSelect = document.getElementById('credit-card-payment-group-id') as HTMLSelectElement;
 	if (!groupSelect && !creditCardGroupSelect) return;
 
@@ -833,44 +440,43 @@ async function loadSplitwiseGroups(): Promise<void> {
 		};
 
 		// Get current settings
-		const settings = loadSettings();
+		const settings = getCustomSettings();
 
 		// Populate utility groups dropdown
 		if (groupSelect) {
-			populateGroupSelect(groupSelect, settings.splitwiseGroupId.toString());
+			populateGroupSelect(groupSelect, settings.splitwiseUtilityGroupId.toString());
 		}
 
 		// Populate credit card payment groups dropdown
 		if (creditCardGroupSelect) {
 			populateGroupSelect(creditCardGroupSelect, settings.creditCardPaymentGroupId.toString());
 		}
-	} catch (error) {
+	}
+	catch (error) {
 		console.error('Error loading Splitwise groups:', error);
 		const errorOption = '<option value="0">Error loading groups</option>';
-		if (groupSelect) groupSelect.innerHTML = errorOption;
-		if (creditCardGroupSelect) creditCardGroupSelect.innerHTML = errorOption;
+		if (groupSelect)
+			groupSelect.innerHTML = errorOption;
+		if (creditCardGroupSelect)
+			creditCardGroupSelect.innerHTML = errorOption;
 	}
 }
-
 // Update function to load Splitwise data
-async function loadSplitwiseData(): Promise<void> {
+export async function loadSplitwiseData(): Promise<void> {
 	try {
-		// Load user ID if not already stored
 		const settings = getCustomSettings();
+		// Load user ID if not already stored
 		if (!settings.splitwiseUserId) {
-			const userId = await getCurrentUser();
+			const userId = await getCurrentSplitwiseUser();
 			if (userId) {
 				setConfigValue('splitwiseUserId', userId);
 			}
 		}
-
 		// Load both friends and groups lists
-		await Promise.all([
-			loadSplitwiseFriends(),
-			loadSplitwiseGroups()
-		]);
-
-	} catch (error) {
+		await loadSplitwiseFriends();
+		await loadSplitwiseGroups();
+	}
+	catch (error) {
 		showToast("Failed to load Splitwise data. Please ensure you're logged in to Splitwise.", ToastType.ERROR);
 		// Reset the Splitwise button since we couldn't load the data
 		const showPostToSplitwiseCheckbox = document.getElementById('show-post-to-splitwise') as HTMLInputElement;
@@ -880,6 +486,31 @@ async function loadSplitwiseData(): Promise<void> {
 		setConfigValue('showPostToSplitwiseButton', false);
 	}
 }
-
-
-
+// Use the passed in settingValues object which contains the 'mmm-settings' to obtain the setting value, otherwise get from local storage
+function getConfigValue(key, settingValues) {
+	const customSettings = getCustomSettings();
+	return settingValues?.[key] || customSettings[key] || '';
+}
+// Function to set all the config values
+export function saveConfigValues(settings) {
+	Object.keys(settings).forEach(key => {
+		setConfigValue(key, settings[key]);
+	});
+}
+// Function to set a config value
+function setConfigValue(key, value) {
+	const customSettings = getCustomSettings();
+	customSettings[key] = value;
+	saveCustomSettings(customSettings);
+}
+// Function to detect the current theme
+function detectTheme(): 'dark' | 'light' {
+	const pageRoot = document.querySelector('div[class^="Page__Root"]');
+	if (pageRoot?.classList.contains('jyUbNP')) {
+		return 'dark';
+	}
+	else if (pageRoot?.classList.contains('jAzUjM')) {
+		return 'light';
+	}
+	return 'light'; // Default to light theme if no theme is detected
+}

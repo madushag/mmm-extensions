@@ -38,49 +38,6 @@
 	--transition-slow: 0.5s ease-in-out;
 }
 
-/* Toast Notifications */
-.toast-container {
-	position: fixed;
-	top: var(--spacing-xl);
-	right: var(--spacing-xl);
-	display: flex;
-	flex-direction: column-reverse;
-	gap: var(--spacing-md);
-	z-index: 9999;
-	pointer-events: none;
-}
-
-.toast-notification {
-	color: var(--color-white);
-	padding: var(--spacing-lg) var(--spacing-xl);
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	transition: all var(--transition-normal);
-	opacity: 0;
-	transform: translateX(100%);
-	pointer-events: auto;
-	max-width: 300px;
-	word-break: break-word;
-}
-
-.toast-notification.show {
-	opacity: 1;
-	transform: translateX(0);
-}
-
-.toast-notification.hide {
-	opacity: 0;
-	transform: translateX(100%);
-}
-
-.toast-success {
-	background-color: var(--color-success);
-}
-
-.toast-error {
-	background-color: var(--color-error);
-}
-
 /* Helper Button Styles */
 .monarch-helper-button-split {
 	padding: var(--spacing-sm) var(--spacing-lg);
