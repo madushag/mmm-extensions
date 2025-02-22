@@ -27,11 +27,163 @@ const AnalyticsMessageType = Object.freeze({
 	SEND_TO_GANALYTICS_ERROR: 'SEND_TO_GANALYTICS_ERROR'
 });
 
+const MutationObserverMessageType = Object.freeze({
+	PAUSE_OBSERVER: 'PAUSE_OBSERVER',
+	RESUME_OBSERVER: 'RESUME_OBSERVER'
+});
+
+// Class to handle the mutation observer and related functions
+class MutationObserverHandler {
+	constructor() {
+
+		this.observeElementParentElement = null;
+		this.previousUrl = window.location.href.split('?')[0];
+
+		this.transactionObserver = new MutationObserver(
+			this.debounce((mutations) => {
+				console.log('mutation observer triggered');
+
+				if (window.location.href.split('?')[0] !== previousUrl) {
+					previousUrl = window.location.href.split('?')[0];
+					onPageStructureChanged(true);
+				} else {
+					onPageStructureChanged(false);
+				}
+			}, 500)
+		);
+
+		this.urlObserver = new MutationObserver(
+			this.debounce((mutations) => {
+				// If the URL has changed, reinitialize the transactions observation
+				if (window.location.href.split('?')[0] !== previousUrl) {
+					console.log('url changed');
+					previousUrl = window.location.href.split('?')[0];
+					monarchObserverHandler.initializeTransactionsObservation();
+				}
+			}, 500)
+		);
+	}
+
+	// Debounce a function (used to debounce the mutation observer)
+	debounce(func, wait) {
+		let timeout;
+		return function executedFunction(...args) {
+			const later = () => {
+				clearTimeout(timeout);
+				func(...args);
+			};
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+		};
+	}
+
+	initializeUrlObserver() {
+		this.urlObserver.observe(document.body, {
+			childList: true,
+			subtree: true,
+			attributes: false,
+			characterData: false
+		});
+	}
+
+	// Initialize the observation of the page elements
+	initializeTransactionsObservation() {
+		this.observerHandler(true);
+	}
+
+	// Observe the element
+	observeElement(observeElement) {
+		if (observeElement) {
+			this.transactionObserver.observe(observeElement, {
+				childList: true,
+				subtree: true,
+				attributes: false,
+				characterData: false
+			});
+		}
+	}
+
+	// Disable the mutation observer
+	disable() {
+		// console.log('disabling mutation observer');
+		this.transactionObserver.disconnect();
+	}
+
+	// Enable the mutation observer
+	enable() {
+		// console.log('enabling mutation observer');
+		this.observerHandler(false);
+	}
+
+	observerHandler(runFirstTime = false) {
+		let urlParts = new URL(window.location.href).pathname.split('/');
+		if (urlParts[1] === "accounts" && urlParts[2] === "details") {
+			const checkForParentElement = setInterval(() => {
+				// Check if the page is the accounts details page
+				this.observeElementParentElement = document.querySelector('div[class^="Grid__GridItem"][class*="AccountDetails__StyleGridItem"]');
+				if (this.observeElementParentElement) {
+					clearInterval(checkForParentElement);
+
+					const checkForElement = setInterval(() => {
+						const observeElement = this.observeElementParentElement.querySelector('div[class^="Flex-sc"][class*="TransactionsList__ListContainer"]');
+						if (observeElement) {
+							clearInterval(checkForElement);
+							this.disable();
+							if (runFirstTime) {
+								onPageStructureChanged(true);
+							}
+							this.observeElement(observeElement);
+						}
+					}, 250);
+				}
+			}, 250);
+		}
+		else if (urlParts[1] === "transactions") {
+			const checkForElement = setInterval(() => {
+				const observeElement = document.querySelector('div[class^="Flex-sc"][class*="TransactionsList__ListContainer"]');
+				if (observeElement) {
+					clearInterval(checkForElement);
+					this.disable();
+					if (runFirstTime) {
+						onPageStructureChanged(true);
+					}
+					this.observeElement(observeElement);
+				}
+			}, 250);
+			console.log('set interval for transactions', checkForElement);
+		}
+		else if (urlParts[1] === "categories" && !isNaN(urlParts[2])) {
+			const checkForElement = setInterval(() => {
+				const observeElement = document.querySelector('div[class^="Flex-sc"][class*="TransactionsList__ListContainer"]');
+				if (observeElement) {
+					clearInterval(checkForElement);
+					this.disable();
+					if (runFirstTime) {
+						onPageStructureChanged(true);
+					}
+					this.observeElement(observeElement);
+				}
+			}, 250);
+		}
+		else if (urlParts[1] === "settings") {
+			onPageStructureChanged(false);
+		}
+	}
+}
+
+
 // Flag to check if the accounts view has been handled
 let checkForNetWorthControlsButton = null;
 let storedDateRange = null;
 let previousUrl = window.location.href.split('?')[0]; // Initialize previous URL, remove query parameters
 let areScriptsInjected = false;
+
+// Initialize the observer handler
+const monarchObserverHandler = new MutationObserverHandler();
+monarchObserverHandler.initializeTransactionsObservation();
+monarchObserverHandler.initializeUrlObserver();
+
+
 
 /****************************** GANALYTICS EVENT LISTENERS ******************************/
 
@@ -62,8 +214,15 @@ window.addEventListener('message', function (event) {
 	// Only accept messages from our extension
 	if (event.data.source !== 'MMM_EXTENSION') return;
 
+	// Listen for observer control messages from page scripts
+	if (event.data.type === MutationObserverMessageType.PAUSE_OBSERVER) {
+		monarchObserverHandler.disable();
+	}
+	else if (event.data.type === MutationObserverMessageType.RESUME_OBSERVER) {
+		monarchObserverHandler.enable();
+	}
 	// Forward Splitwise-related messages to the service worker
-	if (event.data.type === SplitwiseMessageType.GET_CURRENT_USER) {
+	else if (event.data.type === SplitwiseMessageType.GET_CURRENT_USER) {
 		chrome.runtime.sendMessage({
 			type: SplitwiseMessageType.GET_CURRENT_USER
 		}, response => {
@@ -134,28 +293,7 @@ window.addEventListener('message', function (event) {
 	}
 });
 
-/****************************** PAGE STRUCTURE CHANGE LISTENER ******************************/
 
-// Create a MutationObserver to watch for changes in the URL
-const observer = new MutationObserver((mutations) => {
-	mutations.forEach((mutation) => {
-		// Check if the mutation target is not the head element. 
-		// We do this to prevent the mutation observer from being triggered when we inject scripts into the page.
-		if (mutation.target.nodeName !== 'HEAD') {
-			// Check if the URL has changed
-			if (window.location.href.split('?')[0] !== previousUrl) {
-				previousUrl = window.location.href.split('?')[0]; // Update the previous URL, remove query parameters
-				onPageStructureChanged(true);
-			}
-			else {
-				onPageStructureChanged(false);
-			}
-		}
-	});
-});
-
-// Start observing the document for changes in the child nodes
-observer.observe(document, { childList: true, subtree: true });
 
 // Core logic to handle each page structure change
 async function onPageStructureChanged(urlHasChanged = false) {
@@ -212,7 +350,6 @@ function handleSettingsView() {
 function handleTransactionsView() {
 	// Check for transaction rows every second
 	const checkForTransactions = setInterval(() => {
-
 		// Get all the transaction rows, determined by whether the row has an amount and a merchant
 		const transactionRows = Array.from(document.querySelectorAll('div[class*="TransactionsListRow"]'))
 			.filter((row) => {
@@ -226,12 +363,16 @@ function handleTransactionsView() {
 		if (transactionRows.length > 0) {
 			clearInterval(checkForTransactions);
 			if (areScriptsInjected) {
+
+				// Pause the mutation observer before modifying the DOM
+				monarchObserverHandler.disable();
+
 				// Dispatch the execute event in transaction-views.ts
 				document.dispatchEvent(new CustomEvent('EXECUTE-TRANSACTIONS-VIEW'));
 			}
 		}
 
-	}, 1000);
+	}, 500);
 }
 
 // Handle the Accounts view
@@ -244,7 +385,6 @@ function handleAccountsView() {
 				clearInterval(checkForNetWorthControlsButton);
 				checkForNetWorthControlsButton = null;
 				if (areScriptsInjected) {
-					console.log("dispatching execute accounts view");
 					document.dispatchEvent(new CustomEvent('EXECUTE-ACCOUNTS-VIEW'));
 				}
 			}
@@ -263,7 +403,7 @@ function injectRequiredScripts() {
 			{ src: 'helpers/helper-graphql.js', type: 'module' },
 			{ src: 'helpers/helper-google-analytics.js', type: 'module' },
 			{ src: 'toast.js', type: 'module' },
-			{ src: 'helpers/helper-splitwise.js', type: 'module' }
+			{ src: 'helpers/splitwise/helper-splitwise.js', type: 'module' }
 		];
 
 		scripts.forEach(script => {
