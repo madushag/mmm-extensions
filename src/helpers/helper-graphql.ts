@@ -777,7 +777,7 @@ export async function unsplitTransaction(originalTransactionId: string): Promise
 }
 
 // Get all account details
-export async function getAllAccountDetails(): Promise<{ id: string; name: string }[]> {
+export async function getAllMonarchAccountDetails(): Promise<{ id: string; name: string }[]> {
 	const payload = {
 		operationName: "Web_GetAccountsPage",
 
