@@ -13,7 +13,7 @@
 	--color-dark-text: rgb(255, 255, 255);
 	--color-toggle-checked: rgb(0, 200, 150);
 	--border-color: rgba(0, 0, 0, 0.1);
-	--background-secondary: rgb(236, 235, 233);
+	--background-secondary: rgb(255, 255, 255);
 
 	/* Spacing */
 	--spacing-sm: 5px;
@@ -603,7 +603,7 @@ mmm-setting-dropdown option[value=""] {
 	padding: 4px;
 	margin-top: 1px;
 	background: var(--background-secondary, var(--color-light-bg));
-	max-height: 300px;
+	max-height: 400px;
 	display: flex;
 	flex-direction: column;
 }
@@ -664,8 +664,8 @@ mmm-setting-dropdown option[value=""] {
 .mmm-categories-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	gap: 4px;
-	padding: 8px;
+	gap: 0px;
+	padding: 0px;
 	overflow-y: auto;
 	flex: 1;
 	min-height: 0;
@@ -827,4 +827,77 @@ mmm-setting-dropdown option[value=""] {
 .mmm-modal-dark .mmm-categories-grid::-webkit-scrollbar-thumb:hover,
 .mmm-modal-dark .mmm-setting-content::-webkit-scrollbar-thumb:hover {
 	background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Selected Categories Styles */
+.mmm-selected-categories {
+    margin: 10px 0;
+    padding: 0px 10px 10px 10px;
+    border-radius: 4px;
+    background: var(--background-secondary);
+}
+
+.mmm-selected-categories-header {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.mmm-selected-categories-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mmm-selected-category {
+    background: var(--background-tertiary);
+    color: var(--text-primary);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.mmm-no-categories {
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Dark Theme Category Overrides */
+.mmm-modal-dark .mmm-selected-categories {
+    background-color: var(--color-dark-bg);
+    border: 1px none rgba(255, 255, 255, 0.1);
+}
+
+.mmm-modal-dark .mmm-selected-categories-header {
+    color: var(--color-dark-text);
+}
+
+.mmm-modal-dark .mmm-selected-category {
+    background-color: var(--color-dark-header);
+    color: var(--color-dark-text);
+}
+
+.mmm-modal-dark .mmm-no-categories {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Light Theme Category Overrides */
+.mmm-modal-light .mmm-selected-categories {
+    background-color: var(--color-light-bg);
+    border: 1px none rgba(0, 0, 0, 0.1);
+}
+
+.mmm-modal-light .mmm-selected-categories-header {
+    color: var(--color-light-text);
+}
+
+.mmm-modal-light .mmm-selected-category {
+    background-color: var(--color-light-header);
+    color: var(--color-light-text);
+}
+
+.mmm-modal-light .mmm-no-categories {
+    color: rgba(0, 0, 0, 0.5);
 }

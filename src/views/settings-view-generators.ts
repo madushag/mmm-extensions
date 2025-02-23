@@ -263,6 +263,10 @@ export function generateUtilitySettings(theme: 'dark' | 'light'): string {
                 Select which categories should be considered utilities. Use the search box to filter categories.
             </div>
             <div class="mmm-setting-categories-container mmm-setting-categories-container-${theme}" id="utility-categories-container">
+                <div class="mmm-selected-categories">
+                    <div class="mmm-selected-categories-header">Selected Categories:</div>
+                    <div id="selected-categories-list" class="mmm-selected-categories-list"></div>
+                </div>
                 <div class="mmm-categories-search">
                     <input type="text" id="categories-search" placeholder="Search categories..." />
                 </div>
@@ -433,8 +437,30 @@ async function attachSectionEventListeners(theme: 'dark' | 'light'): Promise<voi
 	});
 }
 
+// New function to update selected categories display
+function updateSelectedCategoriesDisplay(categories: string[]): void {
+	const selectedList = document.getElementById('selected-categories-list');
+	if (!selectedList) return;
 
-// New function to handle utility categories loading
+	if (categories.length === 0) {
+		selectedList.innerHTML = '<div class="mmm-no-categories">No categories selected</div>';
+		return;
+	}
+
+	const selectedCategories = Array.from(document.querySelectorAll<HTMLInputElement>('.utility-category-checkbox'))
+		.filter(cb => cb.checked)
+		.map(cb => {
+			const label = cb.closest('label')?.querySelector('.mmm-category-label')?.textContent;
+			return label || '';
+		})
+		.filter(name => name !== '');
+
+	selectedList.innerHTML = selectedCategories
+		.map(name => `<div class="mmm-selected-category">${name}</div>`)
+		.join('');
+}
+
+// Update the loadUtilityCategories function to include initial selected categories display
 export async function loadUtilityCategories(selectedCategories: string[]): Promise<void> {
 	const categoriesGridDiv = document.querySelector('.mmm-categories-grid');
 	if (!categoriesGridDiv)
@@ -462,6 +488,9 @@ export async function loadUtilityCategories(selectedCategories: string[]): Promi
 		// Update grid content
 		categoriesGridDiv.innerHTML = categoriesHtml;
 
+		// Initial update of selected categories display
+		updateSelectedCategoriesDisplay(selectedCategories);
+
 		// Add event listeners to checkboxes
 		const checkboxes = categoriesGridDiv.querySelectorAll<HTMLInputElement>('.utility-category-checkbox');
 		checkboxes.forEach(checkbox => {
@@ -477,14 +506,17 @@ export async function loadUtilityCategories(selectedCategories: string[]): Promi
 
 				if (target.checked && !categories.includes(target.value)) {
 					categories.push(target.value);
-				}
-				else if (!target.checked) {
+				} else if (!target.checked) {
 					const index = categories.indexOf(target.value);
 					if (index > -1) {
 						categories.splice(index, 1);
 					}
 				}
-				// Directly save the setting without triggering the modal change event
+
+				// Update the selected categories display
+				updateSelectedCategoriesDisplay(categories);
+
+				// Save settings
 				saveCustomSettings({
 					...settings,
 					utilityCategories: categories
@@ -496,7 +528,6 @@ export async function loadUtilityCategories(selectedCategories: string[]): Promi
 		const searchInput = document.getElementById('categories-search') as HTMLInputElement;
 		if (searchInput) {
 			searchInput.addEventListener('input', (e) => {
-
 				e.stopPropagation();
 
 				const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
