@@ -853,9 +853,31 @@ mmm-setting-dropdown option[value=""] {
 .mmm-selected-category {
     background: var(--background-tertiary);
     color: var(--text-primary);
-    padding: 2px 4px;
+    padding: 0px 5px;
     border-radius: 4px;
     font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mmm-selected-category-remove {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 15px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.mmm-selected-category-remove:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .mmm-no-categories {
@@ -879,6 +901,10 @@ mmm-setting-dropdown option[value=""] {
     color: var(--color-dark-text);
 }
 
+.mmm-modal-dark .mmm-selected-category-remove:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .mmm-modal-dark .mmm-no-categories {
     color: rgba(255, 255, 255, 0.5);
 }
@@ -896,6 +922,10 @@ mmm-setting-dropdown option[value=""] {
 .mmm-modal-light .mmm-selected-category {
     background-color: var(--color-light-header);
     color: var(--color-light-text);
+}
+
+.mmm-modal-light .mmm-selected-category-remove:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .mmm-modal-light .mmm-no-categories {

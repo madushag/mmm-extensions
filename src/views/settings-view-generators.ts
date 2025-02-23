@@ -449,15 +449,39 @@ function updateSelectedCategoriesDisplay(categories: string[]): void {
 
 	const selectedCategories = Array.from(document.querySelectorAll<HTMLInputElement>('.utility-category-checkbox'))
 		.filter(cb => cb.checked)
-		.map(cb => {
-			const label = cb.closest('label')?.querySelector('.mmm-category-label')?.textContent;
-			return label || '';
-		})
-		.filter(name => name !== '');
+		.map(cb => ({
+			id: cb.value,
+			name: cb.closest('label')?.querySelector('.mmm-category-label')?.textContent || ''
+		}))
+		.filter(cat => cat.name !== '');
 
 	selectedList.innerHTML = selectedCategories
-		.map(name => `<div class="mmm-selected-category">${name}</div>`)
+		.map(cat => `
+			<div class="mmm-selected-category" data-category-id="${cat.id}">
+				<span class="mmm-selected-category-name">${cat.name}</span>
+				<span class="mmm-selected-category-remove" title="Remove category">×</span>
+			</div>
+		`)
 		.join('');
+
+	// Add click handlers for remove buttons
+	selectedList.querySelectorAll('.mmm-selected-category-remove').forEach(removeBtn => {
+		removeBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const categoryElement = (e.target as HTMLElement).closest('.mmm-selected-category');
+			const categoryId = categoryElement?.getAttribute('data-category-id');
+
+			if (categoryId) {
+				// Find and uncheck the corresponding checkbox
+				const checkbox = document.querySelector<HTMLInputElement>(`#category-${categoryId}`);
+				if (checkbox) {
+					checkbox.checked = false;
+					// Trigger the change event to update settings
+					checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			}
+		});
+	});
 }
 
 // Update the loadUtilityCategories function to include initial selected categories display
@@ -494,10 +518,7 @@ export async function loadUtilityCategories(selectedCategories: string[]): Promi
 		// Add event listeners to checkboxes
 		const checkboxes = categoriesGridDiv.querySelectorAll<HTMLInputElement>('.utility-category-checkbox');
 		checkboxes.forEach(checkbox => {
-
 			checkbox.addEventListener('change', (e) => {
-
-				// Stop the event from bubbling up to the modal
 				e.stopPropagation();
 
 				const target = e.target as HTMLInputElement;
